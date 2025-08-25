@@ -336,9 +336,9 @@ const connectMySQL = async () => {
     try {
         mysqlConnection = await mysql.createConnection({
             host: process.env.MYSQL_HOST || 'localhost',
-            user: process.env.MYSQL_USER || 'sql_tutor_user',
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE || 'sql_tutor'
+            user: process.env.MYSQL_USER || process.env.DB_USER || 'sql_tutor_user',
+            password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD,
+            database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'sql_tutor'
         });
         console.log('Connected to MySQL database');
     } catch (error) {
@@ -980,11 +980,56 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+const killProcessOnPort = async (port) => {
+    const isWin = process.platform === "win32";
+    const exec = require('child_process').exec;
+
+    return new Promise((resolve, reject) => {
+        if (isWin) {
+            // Windows: use netstat to find PID, then taskkill
+            exec(`netstat -ano | findstr :${port}`, (err, stdout) => {
+                if (err || !stdout) return resolve();
+                const lines = stdout.trim().split('\n');
+                const pids = new Set();
+                lines.forEach(line => {
+                    const parts = line.trim().split(/\s+/);
+                    if (parts.length >= 5) {
+                        pids.add(parts[4]);
+                    }
+                });
+                if (pids.size === 0) return resolve();
+                let killed = 0;
+                pids.forEach(pid => {
+                    exec(`taskkill /PID ${pid} /F`, () => {
+                        killed++;
+                        if (killed === pids.size) resolve();
+                    });
+                });
+            });
+        } else {
+            // Unix: use lsof to find PID, then kill
+            exec(`lsof -ti tcp:${port}`, (err, stdout) => {
+                if (err || !stdout) return resolve();
+                const pids = stdout.trim().split('\n').filter(Boolean);
+                if (pids.length === 0) return resolve();
+                let killed = 0;
+                pids.forEach(pid => {
+                    exec(`kill -9 ${pid}`, () => {
+                        killed++;
+                        if (killed === pids.length) resolve();
+                    });
+                });
+            });
+        }
+    });
+};
+
 const startServer = async () => {
     try {
+        await killProcessOnPort(PORT);
         await initUserDatabase();
         await connectMySQL(); // This won't fail if MySQL isn't configured
-        
+
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
             if (!process.env.GOOGLE_CLIENT_ID) {

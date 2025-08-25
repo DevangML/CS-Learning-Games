@@ -1,124 +1,231 @@
-# SQL Mastery Quest - MySQL Integration
+# 🎮 SQL Mastery Quest
 
-An interactive SQL tutorial application that connects to MySQL database to execute real queries and compare results.
+An interactive SQL learning platform with **gamification**, **real-time MySQL execution**, and **smooth user experience**. Master SQL from basics to advanced concepts through daily missions, streak systems, and XP progression!
 
-## Features
+## ✨ Features
 
-- Interactive SQL tutorials with multiple levels
-- Real MySQL database integration
-- Automatic query execution and result display
-- Result comparison with expected outputs
-- Progress tracking and achievements
-- Database table creation and sample data population
+### 🎯 **Gamification System**
+- **XP & Level Progression**: Earn XP based on difficulty and performance
+- **Daily Streaks**: Build habits with streak shields (7 clean days = 1 shield)
+- **Daily Missions**: 3 AI-generated missions using spaced repetition
+- **Weekly Quests**: Complete 12 missions per week for bonus rewards
+- **Variable Rewards**: 20% chance for insight cards, bonus quiz, or shield fragments
+- **Streak Recovery**: Comeback quest to restore broken streaks (5 missions in 48h)
+- **Session Management**: Full XP for 25min → 50% XP until 40min → 0% after
+- **Fail-Fast Hints**: Auto-reveal hints after 2 wrong answers
 
-## Prerequisites
+### 📚 **Learning Features**
+- **Dual Learning Paths**: Choose Essentials (11 levels) or Complete (23 levels)
+- **Real MySQL Execution**: Execute queries against live database
+- **Progressive Difficulty**: Beginner → Intermediate → Advanced → Expert
+- **Spaced Repetition**: SM-2-lite algorithm for optimal retention
+- **Interactive Schema**: Visual database structure with relationships
+- **Concept Explanations**: Built-in tutorials for each topic
 
-- Node.js (v14 or higher)
-- MySQL server running locally
-- MySQL user with database creation privileges (non-root recommended)
+### 🎨 **Smooth User Experience**
+- **Animated Gradients**: Dynamic background with 15s color shifting
+- **Onboarding Tour**: 4-step interactive introduction for new users
+- **Frictionless Auth**: Google OAuth + Demo mode for instant access
+- **Glassmorphism Design**: Modern UI with backdrop-filter blur effects
+- **Micro-interactions**: Smooth animations on hover, click, and transitions
+- **Responsive Design**: Works perfectly on desktop and mobile
 
-## Setup Instructions
+### 🛡️ **User Management**
+- **Google OAuth**: Secure authentication with progress sync
+- **SQLite Storage**: User progress, streaks, and achievements
+- **MySQL Auto-Setup**: Guided database configuration
+- **Daily Reflections**: End-of-session learning takeaways
+- **Progress Tracking**: Persistent stats across sessions
 
-### 1. Install Dependencies
+## 🚀 Quick Start
+
+### Option 1: Demo Mode (Instant Access)
+1. Clone the repository: `git clone <repo-url>`
+2. Install dependencies: `npm install`
+3. Start the server: `npm start`
+4. Open http://localhost:3000
+5. Click **"🎮 Try Demo Mode"** to start immediately!
+
+### Option 2: Full Setup (Google OAuth + MySQL)
+
+#### 1. **Google OAuth Setup**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 Client ID
+5. Add authorized redirect URI: `http://localhost:3000/auth/google/callback`
+6. Copy Client ID and Secret to `.env` file
+
+#### 2. **MySQL Setup**
 ```bash
-npm install
-```
+# Install MySQL (macOS)
+brew install mysql
+brew services start mysql
 
-### 2. MySQL Database Setup
-
-Create a MySQL user and database:
-
-```sql
--- Connect to MySQL as root or admin user
+# Create database and user
+mysql -u root -p
 CREATE DATABASE sql_tutor;
-CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password_here';
+CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-### 3. Configure Environment Variables
+#### 3. **Environment Configuration**
+Create `.env` file:
+```bash
+# Google OAuth (get from Google Cloud Console)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 
-Edit the `.env` file with your MySQL credentials:
+# Session Secret (use a strong random string)
+SESSION_SECRET=sql-mastery-quest-super-secret-key-2024
 
-```env
-DB_HOST=localhost
-DB_USER=sql_tutor_user
-DB_PASSWORD=your_password_here
-DB_NAME=sql_tutor
+# MySQL Configuration
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=sql_tutor_user
+MYSQL_PASSWORD=your_mysql_password_here
+MYSQL_DATABASE=sql_tutor
+
+# Application
 PORT=3000
+NODE_ENV=development
 ```
 
-### 4. Start the Application
-
+#### 4. **Start the Application**
 ```bash
+npm install
 npm start
 ```
 
-For development with auto-restart:
-```bash
-npm run dev
-```
+The server will automatically:
+- Create SQLite user database with gamification tables
+- Connect to MySQL and create tutorial tables
+- Populate sample data for learning
+- Start on http://localhost:3000
 
-### 5. Access the Application
+## 📊 Architecture
 
-Open your browser and navigate to: `http://localhost:3000`
+### **Backend (Node.js + Express)**
+- `server.js`: Main application with authentication and APIs
+- **SQLite**: User data, progress, streaks, missions, reflections
+- **MySQL**: Tutorial database for SQL execution
+- **Passport.js**: Google OAuth authentication
+- **Express Session**: 30-day persistent sessions
 
-## Database Schema
+### **Frontend (Vanilla JS + Modern CSS)**
+- `src/js/auth.js`: Authentication and user management
+- `src/js/app.js`: Main application logic and SQL execution
+- `src/js/gameState.js`: Local progress tracking
+- `src/js/onboarding.js`: Interactive user onboarding
+- `src/css/styles.css`: Modern UI with gradients and animations
+- `src/data/`: Learning levels and tutorial content
 
-The application automatically creates the following tables with sample data:
-
-- `employees` - Employee information with departments and salaries
-- `departments` - Department details
-- `projects` - Project information
-- `employee_projects` - Many-to-many relationship between employees and projects
-
-## Features
-
-### Query Execution
-- All queries are executed against the real MySQL database
-- Only SELECT queries are allowed for security
-- Results are displayed in formatted tables
-
-### Result Comparison
-- Compares user query results with expected outputs
-- Highlights differences when results don't match exactly
-- Provides detailed analysis of mismatches
-
-### Security Features
-- Only SELECT statements allowed
-- Input sanitization
-- Non-root database user recommended
-- Connection pooling and error handling
-
-## Troubleshooting
-
-### Connection Issues
-1. Ensure MySQL server is running
-2. Verify database credentials in `.env`
-3. Check if the database and user exist
-4. Test connection endpoint: `http://localhost:3000/test-connection`
-
-### Permission Issues
+### **Database Schema**
 ```sql
--- If you get permission errors:
-GRANT SELECT, INSERT, CREATE, DROP ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
-FLUSH PRIVILEGES;
+-- User Management (SQLite)
+users (id, google_id, name, email, total_xp, level, current_streak, max_streak, streak_shields)
+user_progress (user_id, level_id, question_id, completed, xp_earned, hints_used)
+daily_missions (user_id, mission_date, question_1_id, question_2_id, question_3_id, completed_count)
+weekly_quests (user_id, week_start, missions_target, missions_completed, completed, reward_claimed)
+streak_recovery (user_id, broken_streak, recovery_deadline, recovery_missions_completed)
+daily_reflections (user_id, reflection_date, takeaway)
+spaced_repetition (user_id, level_id, question_id, quality, ease_factor, interval_days, due_date)
+
+-- Tutorial Content (MySQL)
+employees, departments, projects, employee_projects, logs, weather, activity
 ```
 
-## API Endpoints
+## 🎮 Gamification Rules
 
-- `POST /execute-query` - Execute SQL query
-- `GET /test-connection` - Test database connection
-- `GET /` - Serve the main application
+### **XP System**
+- Base XP: 10 points per correct answer
+- Difficulty multipliers: Beginner (1x), Intermediate (2x), Advanced (3x)
+- Level formula: `level = floor(0.1 * sqrt(total_xp)) + 1`
+- Hint penalty: 20% XP reduction per hint used
 
-## Development
+### **Daily Streaks**
+- Increment: Today = last_login + 1 day
+- Shield protection: 1-2 day gaps with shields don't break streak
+- Shield earning: 1 shield per 7 clean days (max 1 shield)
+- Recovery: 5 missions within 48h restores half streak (once per 30 days)
 
-The application consists of:
-- `server.js` - Express.js backend with MySQL integration
-- `index.html` - Frontend with interactive tutorial interface
-- `package.json` - Dependencies and scripts
-- `.env` - Environment configuration (create from template)
+### **Session Management**
+- **0-25 minutes**: Full XP (100%)
+- **25-40 minutes**: Reduced XP (50%)
+- **40+ minutes**: No XP (0%) + "Done for today" message
 
-## Adding New Tutorial Questions
+### **Weekly Quests**
+- Fixed window: Monday-Sunday
+- Target: Complete 12 missions per week
+- Reward: 1 streak shield OR 200 XP (random)
+- No carryover between weeks
 
-To add new questions, modify the `learningLevels` array in `index.html` and add corresponding expected results in `server.js`.
+## 🚢 Deployment
+
+### **Railway (Recommended)**
+1. Connect GitHub repository to Railway
+2. Add environment variables in Railway dashboard
+3. Deploy automatically on push
+
+### **Heroku**
+```bash
+# Install Heroku CLI
+npm install -g heroku
+
+# Create app
+heroku create sql-mastery-quest
+
+# Add environment variables
+heroku config:set GOOGLE_CLIENT_ID=your_id
+heroku config:set GOOGLE_CLIENT_SECRET=your_secret
+heroku config:set SESSION_SECRET=your_secret
+
+# Add MySQL addon
+heroku addons:create jawsdb:kitefin
+
+# Deploy
+git push heroku main
+```
+
+### **Docker**
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 📈 Analytics & Metrics
+
+The platform tracks:
+- User engagement (session time, return rate)
+- Learning progress (completion rate, difficulty progression)
+- Gamification effectiveness (streak maintenance, XP progression)
+- Feature usage (hint usage, mission completion, reflection participation)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
+
+## 📄 License
+
+MIT License - see LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- **Gamification Design**: Inspired by Duolingo, Khan Academy, and modern learning platforms
+- **UI/UX**: Modern glassmorphism trends with smooth gradients
+- **Learning Theory**: Spaced repetition algorithms and habit formation research
+
+---
+
+**Ready to Master SQL? Start your quest today!** 🚀
