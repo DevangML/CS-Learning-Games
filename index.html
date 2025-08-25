@@ -863,6 +863,300 @@
                 }
             }
         ]
+    },
+    11: {
+        title: "🗂️ Database Normalization",
+        description: "Master normal forms and database design",
+        questions: [
+            {
+                question: "Identify First Normal Form (1NF) violation: Create a table that violates 1NF by having repeating groups.",
+                solution: "CREATE TABLE unnormalized_orders (order_id INT, customer_name VARCHAR(100), product1 VARCHAR(100), product2 VARCHAR(100), product3 VARCHAR(100));",
+                hint: "1NF requires atomic values and no repeating groups",
+                concept: {
+                    title: "First Normal Form (1NF)",
+                    content: "1NF requires that each column contains atomic (indivisible) values and there are no repeating groups or arrays within a single row."
+                }
+            },
+            {
+                question: "Convert to 1NF: Show how to normalize the above table to meet 1NF requirements.",
+                solution: "CREATE TABLE normalized_orders (order_id INT, customer_name VARCHAR(100), product VARCHAR(100));",
+                hint: "Break repeating groups into separate rows",
+                concept: {
+                    title: "Achieving 1NF",
+                    content: "To achieve 1NF, eliminate repeating groups by creating separate rows for each product in an order."
+                }
+            },
+            {
+                question: "Second Normal Form (2NF): Create a table that violates 2NF but satisfies 1NF.",
+                solution: "CREATE TABLE order_details_2nf_violation (order_id INT, product_id INT, customer_name VARCHAR(100), product_name VARCHAR(100), quantity INT, PRIMARY KEY(order_id, product_id));",
+                hint: "2NF violation occurs when non-key attributes depend on part of a composite key",
+                concept: {
+                    title: "Second Normal Form (2NF)",
+                    content: "2NF requires 1NF plus no partial dependencies - all non-key attributes must depend on the entire primary key, not just part of it."
+                }
+            },
+            {
+                question: "Third Normal Form (3NF): Identify transitive dependency in employee table with department info.",
+                solution: "SELECT 'Transitive dependency exists: employee_id -> department_id -> department_name' as violation;",
+                hint: "3NF eliminates transitive dependencies where A->B->C",
+                concept: {
+                    title: "Third Normal Form (3NF)",
+                    content: "3NF requires 2NF plus no transitive dependencies - non-key attributes cannot depend on other non-key attributes."
+                }
+            }
+        ]
+    },
+    12: {
+        title: "⚡ Denormalization Strategies",
+        description: "Learn when and how to denormalize for performance",
+        questions: [
+            {
+                question: "Create a denormalized view combining employees with department names for faster queries.",
+                solution: "CREATE VIEW employee_dept_denormalized AS SELECT e.id, e.name, e.salary, d.name as department_name FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Use CREATE VIEW to denormalize without changing base tables",
+                concept: {
+                    title: "Controlled Denormalization",
+                    content: "Views allow denormalization benefits (faster reads) while maintaining normalized base tables for data integrity."
+                }
+            },
+            {
+                question: "Calculate and store aggregate data: Add total_employees column to departments.",
+                solution: "ALTER TABLE departments ADD COLUMN total_employees INT; UPDATE departments SET total_employees = (SELECT COUNT(*) FROM employees WHERE department_id = departments.id);",
+                hint: "Store computed aggregates to avoid expensive calculations",
+                concept: {
+                    title: "Aggregate Denormalization",
+                    content: "Storing calculated values like counts, sums, or averages can significantly improve query performance at the cost of storage and update complexity."
+                }
+            },
+            {
+                question: "Create a materialized summary table for reporting: Monthly employee counts by department.",
+                solution: "CREATE TABLE monthly_dept_summary (year_month DATE, department_id INT, employee_count INT, avg_salary DECIMAL(10,2));",
+                hint: "Pre-calculate and store summary data for complex reports",
+                concept: {
+                    title: "Summary Tables",
+                    content: "Summary tables pre-calculate complex aggregations and are updated periodically for fast reporting queries."
+                }
+            },
+            {
+                question: "Implement redundant storage: Store department_name directly in employees table.",
+                solution: "ALTER TABLE employees ADD COLUMN department_name VARCHAR(100); UPDATE employees e SET department_name = (SELECT name FROM departments d WHERE d.id = e.department_id);",
+                hint: "Sometimes redundancy improves performance despite normalization rules",
+                concept: {
+                    title: "Strategic Redundancy",
+                    content: "Controlled redundancy can eliminate JOINs and improve query performance, but requires careful maintenance of data consistency."
+                }
+            }
+        ]
+    },
+    13: {
+        title: "🔄 Database Transactions",
+        description: "Master ACID properties and transaction management",
+        questions: [
+            {
+                question: "Start a transaction and transfer salary between two employees.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = salary - 5000 WHERE id = 1; UPDATE employees SET salary = salary + 5000 WHERE id = 2; COMMIT;",
+                hint: "Use START TRANSACTION, then multiple statements, then COMMIT",
+                concept: {
+                    title: "Basic Transactions",
+                    content: "Transactions group multiple SQL statements into a single unit of work that either all succeed or all fail."
+                }
+            },
+            {
+                question: "Demonstrate transaction rollback: Start a transaction, make changes, then rollback.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = 999999 WHERE id = 1; ROLLBACK;",
+                hint: "ROLLBACK undoes all changes since START TRANSACTION",
+                concept: {
+                    title: "Transaction Rollback",
+                    content: "ROLLBACK cancels all changes made within the current transaction and returns the database to its state before the transaction began."
+                }
+            },
+            {
+                question: "Set transaction isolation level to READ COMMITTED to prevent dirty reads.",
+                solution: "SET TRANSACTION ISOLATION LEVEL READ COMMITTED; START TRANSACTION; SELECT * FROM employees WHERE salary > 70000; COMMIT;",
+                hint: "Isolation levels control what changes are visible between transactions",
+                concept: {
+                    title: "Isolation Levels",
+                    content: "Isolation levels (READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE) control transaction visibility and concurrency."
+                }
+            },
+            {
+                question: "Implement savepoints for partial rollback within a transaction.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = salary + 1000; SAVEPOINT sp1; UPDATE employees SET salary = salary + 2000; ROLLBACK TO sp1; COMMIT;",
+                hint: "SAVEPOINT creates a point you can rollback to without canceling entire transaction",
+                concept: {
+                    title: "Savepoints",
+                    content: "Savepoints allow partial rollback within a transaction, enabling more granular error handling and recovery."
+                }
+            }
+        ]
+    },
+    14: {
+        title: "👁️ Views & Query Optimization",
+        description: "Advanced views, indexes, and query performance",
+        questions: [
+            {
+                question: "Create a complex view showing employee performance metrics.",
+                solution: "CREATE VIEW employee_performance AS SELECT e.name, e.salary, d.name as dept, (e.salary / (SELECT AVG(salary) FROM employees)) as salary_ratio FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Views can include joins, subqueries, and calculated fields",
+                concept: {
+                    title: "Complex Views",
+                    content: "Views can encapsulate complex logic including joins, subqueries, and calculations, providing a simplified interface to complex data."
+                }
+            },
+            {
+                question: "Create an index to optimize salary-based queries on employees table.",
+                solution: "CREATE INDEX idx_employee_salary ON employees (salary DESC);",
+                hint: "Indexes speed up WHERE, ORDER BY, and JOIN operations",
+                concept: {
+                    title: "Query Optimization with Indexes",
+                    content: "Indexes create sorted data structures that dramatically speed up searches, sorts, and joins on indexed columns."
+                }
+            },
+            {
+                question: "Use EXPLAIN to analyze query performance for a complex JOIN.",
+                solution: "EXPLAIN SELECT e.name, d.name FROM employees e JOIN departments d ON e.department_id = d.id WHERE e.salary > 60000;",
+                hint: "EXPLAIN shows how MySQL executes a query and identifies performance bottlenecks",
+                concept: {
+                    title: "Query Execution Analysis",
+                    content: "EXPLAIN reveals query execution plans, helping identify missing indexes, inefficient joins, and optimization opportunities."
+                }
+            },
+            {
+                question: "Create a covering index for a specific query pattern.",
+                solution: "CREATE INDEX idx_emp_dept_salary_covering ON employees (department_id, salary) INCLUDE (name);",
+                hint: "Covering indexes include all columns needed by a query",
+                concept: {
+                    title: "Covering Indexes",
+                    content: "Covering indexes contain all columns referenced by a query, eliminating the need to access the base table data."
+                }
+            }
+        ]
+    },
+    15: {
+        title: "⚙️ Triggers & Stored Procedures", 
+        description: "Automate database logic with triggers and procedures",
+        questions: [
+            {
+                question: "Create a trigger to automatically update a last_modified timestamp.",
+                solution: "CREATE TRIGGER update_employee_timestamp BEFORE UPDATE ON employees FOR EACH ROW SET NEW.last_modified = CURRENT_TIMESTAMP;",
+                hint: "BEFORE UPDATE triggers execute before each row is updated",
+                concept: {
+                    title: "Database Triggers",
+                    content: "Triggers are special stored procedures that automatically execute in response to database events like INSERT, UPDATE, or DELETE."
+                }
+            },
+            {
+                question: "Create a stored procedure to calculate employee bonuses.",
+                solution: "DELIMITER $$ CREATE PROCEDURE CalculateBonus(IN emp_id INT, IN bonus_pct DECIMAL(5,2)) BEGIN UPDATE employees SET salary = salary * (1 + bonus_pct/100) WHERE id = emp_id; END $$ DELIMITER ;",
+                hint: "Stored procedures encapsulate business logic in the database",
+                concept: {
+                    title: "Stored Procedures",
+                    content: "Stored procedures are precompiled SQL code blocks that can accept parameters, contain logic, and be reused across applications."
+                }
+            },
+            {
+                question: "Create an audit trigger to log salary changes.",
+                solution: "CREATE TRIGGER salary_audit AFTER UPDATE ON employees FOR EACH ROW BEGIN IF OLD.salary != NEW.salary THEN INSERT INTO salary_audit_log (employee_id, old_salary, new_salary, change_date) VALUES (NEW.id, OLD.salary, NEW.salary, NOW()); END IF; END;",
+                hint: "Use OLD and NEW to reference previous and current row values",
+                concept: {
+                    title: "Audit Triggers",
+                    content: "Audit triggers automatically log data changes, providing accountability and change tracking for sensitive data."
+                }
+            },
+            {
+                question: "Create a function to calculate years of service for an employee.",
+                solution: "DELIMITER $$ CREATE FUNCTION YearsOfService(hire_date DATE) RETURNS INT READS SQL DATA DETERMINISTIC BEGIN RETURN TIMESTAMPDIFF(YEAR, hire_date, CURDATE()); END $$ DELIMITER ;",
+                hint: "Functions return a single value and can be used in SELECT statements",
+                concept: {
+                    title: "User-Defined Functions",
+                    content: "Functions encapsulate calculations and can be used in queries to perform complex computations or data transformations."
+                }
+            }
+        ]
+    },
+    16: {
+        title: "📊 Advanced Aggregations",
+        description: "Master complex aggregate functions and window operations",
+        questions: [
+            {
+                question: "Use GROUP_CONCAT to list all employees in each department.",
+                solution: "SELECT d.name, GROUP_CONCAT(e.name SEPARATOR ', ') as employees FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name;",
+                hint: "GROUP_CONCAT combines multiple rows into a single string",
+                concept: {
+                    title: "String Aggregation",
+                    content: "GROUP_CONCAT aggregates multiple string values from grouped rows into a single concatenated string with customizable separators."
+                }
+            },
+            {
+                question: "Calculate running average of salaries using window functions.",
+                solution: "SELECT name, salary, AVG(salary) OVER (ORDER BY hire_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as running_avg FROM employees ORDER BY hire_date;",
+                hint: "Window functions with frames calculate running aggregates",
+                concept: {
+                    title: "Running Aggregates",
+                    content: "Window functions with frame specifications can calculate running totals, averages, and other cumulative statistics across ordered data sets."
+                }
+            },
+            {
+                question: "Find the median salary using window functions.",
+                solution: "SELECT DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary) OVER() as median_salary FROM employees;",
+                hint: "PERCENTILE_CONT calculates percentiles including median (50th percentile)",
+                concept: {
+                    title: "Statistical Functions",
+                    content: "Advanced aggregate functions like PERCENTILE_CONT, PERCENTILE_DISC provide statistical analysis capabilities."
+                }
+            },
+            {
+                question: "Create a pivot table showing salary ranges by department using conditional aggregation.",
+                solution: "SELECT d.name, SUM(CASE WHEN e.salary < 60000 THEN 1 ELSE 0 END) as low_salary, SUM(CASE WHEN e.salary BETWEEN 60000 AND 80000 THEN 1 ELSE 0 END) as mid_salary, SUM(CASE WHEN e.salary > 80000 THEN 1 ELSE 0 END) as high_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name;",
+                hint: "Use CASE with SUM to create pivot-like results",
+                concept: {
+                    title: "Conditional Aggregation",
+                    content: "Conditional aggregation with CASE statements enables pivot table functionality and complex data summarization."
+                }
+            }
+        ]
+    },
+    17: {
+        title: "🔬 Relational Algebra",
+        description: "Understand theoretical foundations with practical SQL",
+        questions: [
+            {
+                question: "Demonstrate SELECTION operation: σ(salary > 70000)(employees).",
+                solution: "SELECT * FROM employees WHERE salary > 70000;",
+                hint: "Selection (σ) filters rows based on a condition",
+                concept: {
+                    title: "Selection Operation",
+                    content: "The selection operation (σ) in relational algebra corresponds to the WHERE clause in SQL, filtering tuples that satisfy a given condition."
+                }
+            },
+            {
+                question: "Demonstrate PROJECTION operation: π(name, salary)(employees).",
+                solution: "SELECT DISTINCT name, salary FROM employees;",
+                hint: "Projection (π) selects specific columns and eliminates duplicates",
+                concept: {
+                    title: "Projection Operation",
+                    content: "The projection operation (π) selects specified attributes (columns) and eliminates duplicate tuples, corresponding to SELECT DISTINCT in SQL."
+                }
+            },
+            {
+                question: "Demonstrate CARTESIAN PRODUCT: employees × departments.",
+                solution: "SELECT * FROM employees CROSS JOIN departments;",
+                hint: "Cartesian product combines every row from first table with every row from second",
+                concept: {
+                    title: "Cartesian Product",
+                    content: "Cartesian product (×) creates all possible combinations of tuples from two relations, implemented as CROSS JOIN in SQL."
+                }
+            },
+            {
+                question: "Demonstrate NATURAL JOIN with employee and department relationship.",
+                solution: "SELECT e.name as employee_name, d.name as department_name FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Natural join combines tables on common attributes",
+                concept: {
+                    title: "Natural Join Operation",
+                    content: "Natural join (⋈) combines relations on common attributes, automatically matching columns with the same name and compatible types."
+                }
+            }
+        ]
     }
 };
         // Initialize Game
@@ -1159,6 +1453,51 @@
             // ORDER BY queries
             if (questionText.includes('sorted') || questionText.includes('order')) {
                 return userQuery.includes('order by');
+            }
+            
+            // Advanced query patterns
+            // DDL queries for advanced tutorials
+            if (questionText.includes('create table') || questionText.includes('create view') || 
+                questionText.includes('create index') || questionText.includes('alter table')) {
+                return userQuery.includes('create') || userQuery.includes('alter');
+            }
+            
+            // Transaction queries
+            if (questionText.includes('transaction') || questionText.includes('commit') || 
+                questionText.includes('rollback')) {
+                return userQuery.includes('start transaction') || userQuery.includes('begin') ||
+                       userQuery.includes('commit') || userQuery.includes('rollback');
+            }
+            
+            // Trigger and procedure patterns
+            if (questionText.includes('trigger') || questionText.includes('procedure') || 
+                questionText.includes('function')) {
+                return userQuery.includes('create trigger') || userQuery.includes('create procedure') ||
+                       userQuery.includes('create function');
+            }
+            
+            // Normalization pattern checks
+            if (questionText.includes('normal form') || questionText.includes('1nf') || 
+                questionText.includes('2nf') || questionText.includes('3nf')) {
+                return true; // Allow any query for normalization examples
+            }
+            
+            // Advanced aggregation patterns
+            if (questionText.includes('group_concat') || questionText.includes('pivot') || 
+                questionText.includes('conditional aggregation')) {
+                return userQuery.includes('group_concat') || 
+                       (userQuery.includes('case') && userQuery.includes('sum'));
+            }
+            
+            // Relational algebra patterns
+            if (questionText.includes('selection') || questionText.includes('projection') || 
+                questionText.includes('cartesian product') || questionText.includes('natural join')) {
+                return userQuery.includes('select'); // Basic requirement for algebra operations
+            }
+            
+            // EXPLAIN queries for optimization
+            if (questionText.includes('explain') || questionText.includes('query performance')) {
+                return userQuery.includes('explain') || userQuery.includes('create index');
             }
             
             // Default: require basic SELECT structure

@@ -220,6 +220,54 @@ const expectedResults = {
         { name: 'Lisa Davis', dept_name: 'Marketing' },
         { name: 'Tom Anderson', dept_name: 'HR' },
         { name: 'Emily White', dept_name: 'Sales' }
+    ],
+    
+    // Normalization examples
+    "SELECT 'Transitive dependency exists: employee_id -> department_id -> department_name' as violation": [
+        { violation: 'Transitive dependency exists: employee_id -> department_id -> department_name' }
+    ],
+    
+    // Advanced aggregations  
+    'SELECT d.name, GROUP_CONCAT(e.name SEPARATOR \', \') as employees FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name': [
+        { name: 'Engineering', employees: 'John Doe, Mike Johnson, David Brown' },
+        { name: 'Marketing', employees: 'Jane Smith, Lisa Davis' },
+        { name: 'Sales', employees: 'Sarah Wilson, Emily White' },
+        { name: 'HR', employees: 'Tom Anderson' }
+    ],
+    
+    'SELECT d.name, SUM(CASE WHEN e.salary < 60000 THEN 1 ELSE 0 END) as low_salary, SUM(CASE WHEN e.salary BETWEEN 60000 AND 80000 THEN 1 ELSE 0 END) as mid_salary, SUM(CASE WHEN e.salary > 80000 THEN 1 ELSE 0 END) as high_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name': [
+        { name: 'Engineering', low_salary: 0, mid_salary: 2, high_salary: 1 },
+        { name: 'Marketing', low_salary: 0, mid_salary: 2, high_salary: 0 },
+        { name: 'Sales', low_salary: 2, mid_salary: 0, high_salary: 0 },
+        { name: 'HR', low_salary: 1, mid_salary: 0, high_salary: 0 }
+    ],
+    
+    // Relational algebra operations
+    'SELECT * FROM employees WHERE salary > 70000': [
+        { id: 1, name: 'John Doe', department_id: 1, salary: '75000.00', hire_date: '2020-01-15' },
+        { id: 3, name: 'Mike Johnson', department_id: 1, salary: '80000.00', hire_date: '2021-06-10' }
+    ],
+    
+    'SELECT DISTINCT name, salary FROM employees': [
+        { name: 'John Doe', salary: '75000.00' },
+        { name: 'Jane Smith', salary: '65000.00' },
+        { name: 'Mike Johnson', salary: '80000.00' },
+        { name: 'Sarah Wilson', salary: '55000.00' },
+        { name: 'David Brown', salary: '70000.00' },
+        { name: 'Lisa Davis', salary: '60000.00' },
+        { name: 'Tom Anderson', salary: '50000.00' },
+        { name: 'Emily White', salary: '58000.00' }
+    ],
+    
+    'SELECT e.name as employee_name, d.name as department_name FROM employees e JOIN departments d ON e.department_id = d.id': [
+        { employee_name: 'John Doe', department_name: 'Engineering' },
+        { employee_name: 'Jane Smith', department_name: 'Marketing' },
+        { employee_name: 'Mike Johnson', department_name: 'Engineering' },
+        { employee_name: 'Sarah Wilson', department_name: 'Sales' },
+        { employee_name: 'David Brown', department_name: 'Engineering' },
+        { employee_name: 'Lisa Davis', department_name: 'Marketing' },
+        { employee_name: 'Tom Anderson', department_name: 'HR' },
+        { employee_name: 'Emily White', department_name: 'Sales' }
     ]
 };
 
@@ -233,8 +281,13 @@ app.post('/execute-query', async (req, res) => {
 
         const sanitizedQuery = query.trim();
         
-        if (!sanitizedQuery.toLowerCase().startsWith('select')) {
-            return res.status(400).json({ error: 'Only SELECT queries are allowed' });
+        // Allow SELECT, EXPLAIN, and some DDL commands for advanced tutorials
+        const allowedCommands = ['select', 'explain', 'create view', 'create index', 'create table', 'alter table'];
+        const queryLower = sanitizedQuery.toLowerCase();
+        const isAllowed = allowedCommands.some(cmd => queryLower.startsWith(cmd));
+        
+        if (!isAllowed) {
+            return res.status(400).json({ error: 'Only SELECT, EXPLAIN, CREATE VIEW, CREATE INDEX, CREATE TABLE, and ALTER TABLE queries are allowed' });
         }
 
         const [rows] = await connection.execute(sanitizedQuery);
