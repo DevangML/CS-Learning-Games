@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Mastery Quest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #a8e6cf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .progress-item {
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .level-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .level-card.completed {
+            background: rgba(168, 230, 207, 0.3);
+            border-color: #a8e6cf;
+        }
+
+        .level-card.active {
+            background: rgba(255, 206, 84, 0.3);
+            border-color: #ffce54;
+            box-shadow: 0 0 20px rgba(255, 206, 84, 0.4);
+        }
+
+        .game-area {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+        }
+
+        .game-area.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .schema-viewer {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .table-schema {
+            display: inline-block;
+            margin: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 200px;
+            vertical-align: top;
+        }
+
+        .table-name {
+            font-weight: bold;
+            color: #ffce54;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .column {
+            padding: 3px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .primary-key {
+            color: #a8e6cf;
+            font-weight: bold;
+        }
+
+        .foreign-key {
+            color: #ff7979;
+            font-style: italic;
+        }
+
+        .question-area {
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border-left: 4px solid #ffce54;
+        }
+
+        .sql-editor {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .sql-input {
+            width: 100%;
+            height: 120px;
+            background: rgba(0,0,0,0.4);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .sql-input:focus {
+            outline: none;
+            border-color: #ffce54;
+            box-shadow: 0 0 10px rgba(255, 206, 84, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ffce54, #ff7979);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 206, 84, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .result-area {
+            margin-top: 20px;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .feedback.success {
+            background: rgba(168, 230, 207, 0.3);
+            border: 1px solid #a8e6cf;
+            color: #a8e6cf;
+        }
+
+        .feedback.error {
+            background: rgba(255, 121, 121, 0.3);
+            border: 1px solid #ff7979;
+            color: #ff7979;
+        }
+
+        .feedback.info {
+            background: rgba(116, 185, 255, 0.3);
+            border: 1px solid #74b9ff;
+            color: #74b9ff;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .result-table th {
+            background: rgba(255,255,255,0.1);
+            font-weight: bold;
+        }
+
+        .concept-explanation {
+            background: rgba(116, 185, 255, 0.2);
+            border: 1px solid #74b9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .concept-title {
+            color: #74b9ff;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .hint-btn {
+            background: rgba(255, 206, 84, 0.3);
+            border: 1px solid #ffce54;
+            color: #ffce54;
+        }
+
+        .stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            min-width: 200px;
+        }
+
+        .achievement {
+            background: linear-gradient(45deg, #ffce54, #a8e6cf);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .code-highlight {
+            background: rgba(255, 206, 84, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2em; }
+            .stats { position: relative; top: auto; right: auto; margin: 20px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 SQL Mastery Quest</h1>
+            <p>Master SQL from basics to advanced concepts through interactive challenges!</p>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Your Progress</h3>
+            <div>🏆 Score: <span id="score">0</span></div>
+            <div>⭐ Level: <span id="level">Beginner</span></div>
+            <div>🔥 Streak: <span id="streak">0</span></div>
+            <div>💡 Hints Used: <span id="hintsUsed">0</span></div>
+        </div>
+
+        <div id="levelSelector" class="level-selector">
+            <!-- Level cards will be populated by JavaScript -->
+        </div>
+
+        <div id="gameArea" class="game-area">
+            <div class="schema-viewer" id="schemaViewer">
+                <!-- Database schema will be shown here -->
+            </div>
+            
+            <div class="question-area">
+                <div class="question" id="currentQuestion">
+                    Select a level to start your SQL journey!
+                </div>
+                <div id="conceptExplanation" class="concept-explanation" style="display: none;">
+                    <div class="concept-title" id="conceptTitle"></div>
+                    <div id="conceptContent"></div>
+                </div>
+            </div>
+
+            <div class="sql-editor">
+                <textarea id="sqlInput" class="sql-input" placeholder="Write your SQL query here..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="checkAnswer()">🚀 Execute Query</button>
+                <button class="btn hint-btn" onclick="showHint()">💡 Get Hint</button>
+                <button class="btn btn-secondary" onclick="showSolution()">👁️ Show Solution</button>
+                <button class="btn btn-secondary" onclick="clearQuery()">🗑️ Clear</button>
+                <button class="btn btn-secondary" onclick="nextQuestion()">➡️ Next Challenge</button>
+            </div>
+
+            <div class="result-area" id="resultArea">
+                <!-- Results will be displayed here -->
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-secondary" onclick="goBack()">⬅️ Back to Levels</button>
+                <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            currentLevel: null,
+            currentQuestionIndex: 0,
+            streak: 0,
+            hintsUsed: 0,
+            completedLevels: new Set(),
+            achievements: []
+        };
+
+        // Sample Database Schema
+        const schema = {
+            employees: {
+                columns: ['id (PK)', 'first_name', 'last_name', 'email', 'department_id (FK)', 'salary', 'hire_date', 'manager_id (FK)']
+            },
+            departments: {
+                columns: ['id (PK)', 'name', 'budget', 'location']
+            },
+            projects: {
+                columns: ['id (PK)', 'name', 'start_date', 'end_date', 'budget', 'department_id (FK)']
+            },
+            employee_projects: {
+                columns: ['employee_id (FK)', 'project_id (FK)', 'role', 'hours_worked']
+            },
+            customers: {
+                columns: ['id (PK)', 'company_name', 'contact_name', 'email', 'phone', 'country']
+            },
+            orders: {
+                columns: ['id (PK)', 'customer_id (FK)', 'order_date', 'total_amount', 'status']
+            },
+            order_items: {
+                columns: ['id (PK)', 'order_id (FK)', 'product_name', 'quantity', 'unit_price']
+            }
+        };
+
+        // Learning Levels with Progressive Difficulty
+        const learningLevels = {
+            1: {
+        title: "🧮 Arithmetic Operators",
+        description: "Master mathematical operations in SQL",
+        questions: [
+            {
+                question: "Calculate each employee's annual bonus as 10% of their salary using addition (+).",
+                solution: "SELECT name, salary, salary * 0.10 as bonus, salary + (salary * 0.10) as total_compensation FROM employees;",
+                hint: "Use + for addition, * for multiplication",
+                concept: {
+                    title: "Arithmetic Operations",
+                    content: "SQL supports basic arithmetic: + (addition), - (subtraction), * (multiplication), / (division), % (modulo). Use parentheses to control order of operations."
+                }
+            },
+            {
+                question: "Find the salary difference between each employee and the highest paid employee (80000).",
+                solution: "SELECT name, salary, 80000 - salary as salary_gap FROM employees;",
+                hint: "Use - for subtraction",
+                concept: {
+                    title: "Subtraction Operations",
+                    content: "Subtraction (-) can be used to find differences, calculate remainders, or perform date arithmetic."
+                }
+            },
+            {
+                question: "Calculate monthly salary by dividing annual salary by 12.",
+                solution: "SELECT name, salary, salary / 12 as monthly_salary FROM employees;",
+                hint: "Use / for division",
+                concept: {
+                    title: "Division Operations",
+                    content: "Division (/) returns decimal results. Be careful with integer division in some SQL databases."
+                }
+            },
+            {
+                question: "Find employees whose employee ID is even using modulo operator (%).",
+                solution: "SELECT * FROM employees WHERE id % 2 = 0;",
+                hint: "Use % for modulo (remainder). Even numbers have remainder 0 when divided by 2",
+                concept: {
+                    title: "Modulo Operations",
+                    content: "Modulo (%) returns the remainder after division. Useful for finding even/odd numbers, cycling through values, or pagination."
+                }
+            }
+        ]
+    },
+    2: {
+        title: "⚖️ Comparison Operators",
+        description: "Master all comparison operations",
+        questions: [
+            {
+                question: "Find employees with salary equal to exactly 75000.",
+                solution: "SELECT * FROM employees WHERE salary = 75000;",
+                hint: "Use = for equality comparison",
+                concept: {
+                    title: "Equality Operator",
+                    content: "The = operator checks for exact matches. Be careful with floating-point numbers and case sensitivity."
+                }
+            },
+            {
+                question: "Find employees with salary not equal to 50000 using != operator.",
+                solution: "SELECT * FROM employees WHERE salary != 50000;",
+                hint: "Both != and <> mean 'not equal to'. They are interchangeable",
+                concept: {
+                    title: "Inequality Operators",
+                    content: "Both != and <> check for inequality. <> is SQL standard, != is more common in programming languages."
+                }
+            },
+            {
+                question: "Find employees with salary less than 60000 and greater than or equal to 70000.",
+                solution: "SELECT * FROM employees WHERE salary < 60000 OR salary >= 70000;",
+                hint: "Use < for less than, >= for greater than or equal to",
+                concept: {
+                    title: "Range Comparisons",
+                    content: "Use <, >, <=, >= for range comparisons. Combine with AND/OR for complex conditions."
+                }
+            },
+            {
+                question: "Show employees hired on or before '2021-01-01'.",
+                solution: "SELECT * FROM employees WHERE hire_date <= '2021-01-01';",
+                hint: "Use <= for 'less than or equal to'",
+                concept: {
+                    title: "Date Comparisons",
+                    content: "Comparison operators work with dates. Use proper date format: 'YYYY-MM-DD'."
+                }
+            }
+        ]
+    },
+    3: {
+        title: "🧠 Logical Operators", 
+        description: "Combine conditions with AND, OR, NOT",
+        questions: [
+            {
+                question: "Find employees in Engineering (department_id=1) AND with salary > 70000.",
+                solution: "SELECT * FROM employees WHERE department_id = 1 AND salary > 70000;",
+                hint: "AND requires both conditions to be true",
+                concept: {
+                    title: "AND Operator",
+                    content: "AND returns true only when all conditions are true. Use parentheses for complex logic."
+                }
+            },
+            {
+                question: "Find employees in either Marketing (dept_id=2) OR Sales (dept_id=3).",
+                solution: "SELECT * FROM employees WHERE department_id = 2 OR department_id = 3;",
+                hint: "OR requires at least one condition to be true",
+                concept: {
+                    title: "OR Operator",
+                    content: "OR returns true when at least one condition is true. Useful for multiple alternatives."
+                }
+            },
+            {
+                question: "Find employees NOT in the HR department (dept_id=4).",
+                solution: "SELECT * FROM employees WHERE NOT department_id = 4;",
+                hint: "NOT reverses the truth value of a condition",
+                concept: {
+                    title: "NOT Operator",
+                    content: "NOT negates boolean expressions. Can be combined with other operators like NOT IN, NOT EXISTS."
+                }
+            },
+            {
+                question: "Find if ANY employee has salary greater than 60000.",
+                solution: "SELECT EXISTS(SELECT 1 FROM employees WHERE salary > 60000) as has_high_salary;",
+                hint: "Use EXISTS to check if ANY record matches condition",
+                concept: {
+                    title: "ANY/EXISTS Operators",
+                    content: "EXISTS returns true if subquery returns any rows. More efficient than COUNT(*) > 0."
+                }
+            }
+        ]
+    },
+    4: {
+        title: "🎭 Pattern Matching",
+        description: "Master LIKE, REGEXP and wildcard patterns",
+        questions: [
+            {
+                question: "Find employees whose name starts with 'J' using LIKE.",
+                solution: "SELECT * FROM employees WHERE name LIKE 'J%';",
+                hint: "% matches any number of characters",
+                concept: {
+                    title: "LIKE with Wildcards",
+                    content: "LIKE uses % (any characters) and _ (single character) wildcards for pattern matching."
+                }
+            },
+            {
+                question: "Find employees whose name does NOT contain 'Smith' using NOT LIKE.",
+                solution: "SELECT * FROM employees WHERE name NOT LIKE '%Smith%';",
+                hint: "NOT LIKE negates pattern matching",
+                concept: {
+                    title: "NOT LIKE",
+                    content: "NOT LIKE excludes rows that match the pattern. Useful for filtering out specific patterns."
+                }
+            },
+            {
+                question: "Find employees with exactly 9-character names using LIKE with underscore.",
+                solution: "SELECT * FROM employees WHERE name LIKE '_________';",
+                hint: "Each _ represents exactly one character",
+                concept: {
+                    title: "Underscore Wildcard",
+                    content: "The _ wildcard matches exactly one character, useful for fixed-length patterns."
+                }
+            },
+            {
+                question: "Find employees whose name contains 'ohn' using REGEXP.",
+                solution: "SELECT * FROM employees WHERE name REGEXP 'ohn';",
+                hint: "REGEXP uses regular expressions for pattern matching",
+                concept: {
+                    title: "Regular Expressions",
+                    content: "REGEXP/RLIKE allows complex pattern matching using regular expression syntax."
+                }
+            }
+        ]
+    },
+    5: {
+        title: "📊 Range & Set Operators",
+        description: "Work with ranges and sets of values", 
+        questions: [
+            {
+                question: "Find employees with salary BETWEEN 60000 and 80000.",
+                solution: "SELECT * FROM employees WHERE salary BETWEEN 60000 AND 80000;",
+                hint: "BETWEEN includes both boundary values",
+                concept: {
+                    title: "BETWEEN Operator",
+                    content: "BETWEEN is inclusive of both endpoints. Equivalent to >= AND <=."
+                }
+            },
+            {
+                question: "Find employees with salary NOT BETWEEN 50000 and 70000.",
+                solution: "SELECT * FROM employees WHERE salary NOT BETWEEN 50000 AND 70000;",
+                hint: "NOT BETWEEN excludes the range",
+                concept: {
+                    title: "NOT BETWEEN",
+                    content: "NOT BETWEEN finds values outside the specified range."
+                }
+            },
+            {
+                question: "Find employees in specific departments using IN operator.",
+                solution: "SELECT * FROM employees WHERE department_id IN (1, 3);",
+                hint: "IN checks if value exists in a list",
+                concept: {
+                    title: "IN Operator",
+                    content: "IN tests if a value matches any value in a list or subquery. More concise than multiple OR conditions."
+                }
+            },
+            {
+                question: "Find employees NOT in Marketing or Sales departments.",
+                solution: "SELECT * FROM employees WHERE department_id NOT IN (2, 3);",
+                hint: "NOT IN excludes values in the list",
+                concept: {
+                    title: "NOT IN Operator", 
+                    content: "NOT IN excludes rows where the value matches any in the list. Be careful with NULL values."
+                }
+            }
+        ]
+    },
+    6: {
+        title: "🕳️ NULL Handling",
+        description: "Master NULL checking and handling functions",
+        questions: [
+            {
+                question: "Find all employees (department_id can be anything including NULL).",
+                solution: "SELECT * FROM employees;",
+                hint: "This shows all data including NULL values",
+                concept: {
+                    title: "Understanding NULL",
+                    content: "NULL represents missing or unknown data. It's different from empty string or zero."
+                }
+            },
+            {
+                question: "Find employees where department_id IS NOT NULL.",
+                solution: "SELECT * FROM employees WHERE department_id IS NOT NULL;",
+                hint: "Use IS NOT NULL to exclude NULL values",
+                concept: {
+                    title: "IS NOT NULL",
+                    content: "IS NOT NULL finds rows with non-NULL values. Essential for data quality checks."
+                }
+            },
+            {
+                question: "Use COALESCE to show 'Unassigned' for employees without department_id.",
+                solution: "SELECT name, COALESCE(department_id, 'Unassigned') as dept FROM employees;",
+                hint: "COALESCE returns first non-NULL value",
+                concept: {
+                    title: "COALESCE Function",
+                    content: "COALESCE returns the first non-NULL value from a list of expressions."
+                }
+            },
+            {
+                question: "Use NULLIF to return NULL when salary equals 50000, otherwise return salary.",
+                solution: "SELECT name, NULLIF(salary, 50000) as modified_salary FROM employees;",
+                hint: "NULLIF returns NULL if both values are equal",
+                concept: {
+                    title: "NULLIF Function",
+                    content: "NULLIF returns NULL if the two arguments are equal, otherwise returns the first argument."
+                }
+            }
+        ]
+    },
+    7: {
+        title: "🔤 String Operations",
+        description: "String concatenation and manipulation",
+        questions: [
+            {
+                question: "Concatenate employee name with their department_id using CONCAT.",
+                solution: "SELECT CONCAT(name, ' - Dept: ', department_id) as employee_info FROM employees;",
+                hint: "CONCAT joins multiple strings together",
+                concept: {
+                    title: "String Concatenation",
+                    content: "CONCAT function joins strings together. MySQL also supports CONCAT_WS for separator-based joining."
+                }
+            },
+            {
+                question: "Create a formatted string showing employee name and salary with CONCAT_WS.",
+                solution: "SELECT CONCAT_WS(' - ', name, CONCAT('$', salary)) as employee_detail FROM employees;",
+                hint: "CONCAT_WS uses a separator between strings",
+                concept: {
+                    title: "CONCAT_WS Function",
+                    content: "CONCAT_WS (With Separator) joins strings with a specified separator, ignoring NULL values."
+                }
+            },
+            {
+                question: "Find employees whose name contains 'John' using string matching.",
+                solution: "SELECT * FROM employees WHERE name LIKE '%John%';",
+                hint: "LIKE with % wildcards for substring matching",
+                concept: {
+                    title: "String Pattern Matching",
+                    content: "Use LIKE with wildcards for flexible string matching within larger text."
+                }
+            },
+            {
+                question: "Get the length of each employee's name using LENGTH function.",
+                solution: "SELECT name, LENGTH(name) as name_length FROM employees;",
+                hint: "LENGTH returns the number of characters in a string",
+                concept: {
+                    title: "String Functions",
+                    content: "SQL provides many string functions: LENGTH, UPPER, LOWER, SUBSTRING, TRIM, etc."
+                }
+            }
+        ]
+    },
+    8: {
+        title: "🔢 Bitwise Operations", 
+        description: "Binary operations on integer values",
+        questions: [
+            {
+                question: "Find employees where department_id AND 1 equals 1 (odd department IDs).",
+                solution: "SELECT * FROM employees WHERE department_id & 1 = 1;",
+                hint: "& is bitwise AND. Odd numbers have bit 1 set",
+                concept: {
+                    title: "Bitwise AND",
+                    content: "Bitwise & performs AND operation on each bit. Useful for checking specific bit patterns."
+                }
+            },
+            {
+                question: "Calculate department_id OR 8 using bitwise OR for each employee.",
+                solution: "SELECT name, department_id, department_id | 8 as dept_or_8 FROM employees;",
+                hint: "| is bitwise OR operator",
+                concept: {
+                    title: "Bitwise OR",
+                    content: "Bitwise | sets bits that are set in either operand. Useful for setting specific bits."
+                }
+            },
+            {
+                question: "Calculate department_id XOR 3 using bitwise XOR.",
+                solution: "SELECT name, department_id, department_id ^ 3 as dept_xor_3 FROM employees;",
+                hint: "^ is bitwise XOR (exclusive OR)",
+                concept: {
+                    title: "Bitwise XOR",
+                    content: "Bitwise ^ returns 1 when bits differ, 0 when they're the same. Useful for toggling bits."
+                }
+            },
+            {
+                question: "Find employees where id left-shifted by 1 is greater than 10.",
+                solution: "SELECT * FROM employees WHERE id << 1 > 10;",
+                hint: "<< is left shift operator (multiplies by 2^n)",
+                concept: {
+                    title: "Bit Shifting",
+                    content: "Left shift << multiplies by powers of 2, right shift >> divides by powers of 2."
+                }
+            }
+        ]
+    },
+    9: {
+        title: "🔄 Set Operations",
+        description: "Combine query results with UNION",
+        questions: [
+            {
+                question: "Combine employees from Marketing and Sales using UNION.",
+                solution: "SELECT name FROM employees WHERE department_id = 2 UNION SELECT name FROM employees WHERE department_id = 3;",
+                hint: "UNION removes duplicates, UNION ALL keeps them",
+                concept: {
+                    title: "UNION Operations",
+                    content: "UNION combines results from multiple queries, removing duplicates. UNION ALL keeps duplicates."
+                }
+            },
+            {
+                question: "Get all names from employees and departments using UNION ALL.",
+                solution: "SELECT name FROM employees UNION ALL SELECT name FROM departments;",
+                hint: "UNION ALL keeps all rows including duplicates",
+                concept: {
+                    title: "UNION ALL",
+                    content: "UNION ALL is faster than UNION as it doesn't remove duplicates. Use when duplicates are acceptable."
+                }
+            },
+            {
+                question: "Find unique department names across employees and departments tables.",
+                solution: "SELECT DISTINCT name FROM (SELECT name FROM departments UNION ALL SELECT CONCAT('Dept ', department_id) as name FROM employees WHERE department_id IS NOT NULL) as combined;",
+                hint: "Use subquery with UNION ALL then DISTINCT for unique values",
+                concept: {
+                    title: "Complex Set Operations",
+                    content: "Combine UNION with subqueries and DISTINCT for complex set manipulations."
+                }
+            },
+            {
+                question: "Find employees in Engineering but not working on any projects.",
+                solution: "SELECT e.* FROM employees e WHERE department_id = 1 AND NOT EXISTS (SELECT 1 FROM employee_projects ep WHERE ep.employee_id = e.id);",
+                hint: "Use NOT EXISTS to simulate EXCEPT/MINUS",
+                concept: {
+                    title: "Simulating EXCEPT",
+                    content: "MySQL lacks EXCEPT, but NOT EXISTS or LEFT JOIN with NULL checks achieve similar results."
+                }
+            }
+        ]
+    },
+    10: {
+        title: "🔗 Advanced Joins",
+        description: "Master all JOIN types and techniques",
+        questions: [
+            {
+                question: "INNER JOIN employees with departments to show matching records only.",
+                solution: "SELECT e.name, d.name as dept_name FROM employees e INNER JOIN departments d ON e.department_id = d.id;",
+                hint: "INNER JOIN returns only matching records from both tables",
+                concept: {
+                    title: "INNER JOIN",
+                    content: "INNER JOIN returns rows where the join condition matches in both tables. Most restrictive join type."
+                }
+            },
+            {
+                question: "LEFT JOIN to show all departments and their employees (including empty departments).",
+                solution: "SELECT d.name as dept, e.name as employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id;",
+                hint: "LEFT JOIN keeps all rows from left table",
+                concept: {
+                    title: "LEFT JOIN",
+                    content: "LEFT JOIN returns all rows from left table and matching rows from right table. NULLs for non-matches."
+                }
+            },
+            {
+                question: "RIGHT JOIN to show all employees and their departments (including unassigned).",
+                solution: "SELECT d.name as dept, e.name as employee FROM departments d RIGHT JOIN employees e ON d.id = e.department_id;",
+                hint: "RIGHT JOIN keeps all rows from right table",
+                concept: {
+                    title: "RIGHT JOIN",
+                    content: "RIGHT JOIN returns all rows from right table and matching rows from left table."
+                }
+            },
+            {
+                question: "CROSS JOIN to get all possible combinations of employees and departments.",
+                solution: "SELECT e.name as employee, d.name as dept FROM employees e CROSS JOIN departments d;",
+                hint: "CROSS JOIN creates Cartesian product (all combinations)",
+                concept: {
+                    title: "CROSS JOIN",
+                    content: "CROSS JOIN creates a Cartesian product, pairing every row from first table with every row from second table."
+                }
+            }
+        ]
+    },
+    11: {
+        title: "🗂️ Database Normalization",
+        description: "Master normal forms and database design",
+        questions: [
+            {
+                question: "Identify First Normal Form (1NF) violation: Create a table that violates 1NF by having repeating groups.",
+                solution: "CREATE TABLE unnormalized_orders (order_id INT, customer_name VARCHAR(100), product1 VARCHAR(100), product2 VARCHAR(100), product3 VARCHAR(100));",
+                hint: "1NF requires atomic values and no repeating groups",
+                concept: {
+                    title: "First Normal Form (1NF)",
+                    content: "1NF requires that each column contains atomic (indivisible) values and there are no repeating groups or arrays within a single row."
+                }
+            },
+            {
+                question: "Convert to 1NF: Show how to normalize the above table to meet 1NF requirements.",
+                solution: "CREATE TABLE normalized_orders (order_id INT, customer_name VARCHAR(100), product VARCHAR(100));",
+                hint: "Break repeating groups into separate rows",
+                concept: {
+                    title: "Achieving 1NF",
+                    content: "To achieve 1NF, eliminate repeating groups by creating separate rows for each product in an order."
+                }
+            },
+            {
+                question: "Second Normal Form (2NF): Create a table that violates 2NF but satisfies 1NF.",
+                solution: "CREATE TABLE order_details_2nf_violation (order_id INT, product_id INT, customer_name VARCHAR(100), product_name VARCHAR(100), quantity INT, PRIMARY KEY(order_id, product_id));",
+                hint: "2NF violation occurs when non-key attributes depend on part of a composite key",
+                concept: {
+                    title: "Second Normal Form (2NF)",
+                    content: "2NF requires 1NF plus no partial dependencies - all non-key attributes must depend on the entire primary key, not just part of it."
+                }
+            },
+            {
+                question: "Third Normal Form (3NF): Identify transitive dependency in employee table with department info.",
+                solution: "SELECT 'Transitive dependency exists: employee_id -> department_id -> department_name' as violation;",
+                hint: "3NF eliminates transitive dependencies where A->B->C",
+                concept: {
+                    title: "Third Normal Form (3NF)",
+                    content: "3NF requires 2NF plus no transitive dependencies - non-key attributes cannot depend on other non-key attributes."
+                }
+            }
+        ]
+    },
+    12: {
+        title: "⚡ Denormalization Strategies",
+        description: "Learn when and how to denormalize for performance",
+        questions: [
+            {
+                question: "Create a denormalized view combining employees with department names for faster queries.",
+                solution: "CREATE VIEW employee_dept_denormalized AS SELECT e.id, e.name, e.salary, d.name as department_name FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Use CREATE VIEW to denormalize without changing base tables",
+                concept: {
+                    title: "Controlled Denormalization",
+                    content: "Views allow denormalization benefits (faster reads) while maintaining normalized base tables for data integrity."
+                }
+            },
+            {
+                question: "Calculate and store aggregate data: Add total_employees column to departments.",
+                solution: "ALTER TABLE departments ADD COLUMN total_employees INT; UPDATE departments SET total_employees = (SELECT COUNT(*) FROM employees WHERE department_id = departments.id);",
+                hint: "Store computed aggregates to avoid expensive calculations",
+                concept: {
+                    title: "Aggregate Denormalization",
+                    content: "Storing calculated values like counts, sums, or averages can significantly improve query performance at the cost of storage and update complexity."
+                }
+            },
+            {
+                question: "Create a materialized summary table for reporting: Monthly employee counts by department.",
+                solution: "CREATE TABLE monthly_dept_summary (year_month DATE, department_id INT, employee_count INT, avg_salary DECIMAL(10,2));",
+                hint: "Pre-calculate and store summary data for complex reports",
+                concept: {
+                    title: "Summary Tables",
+                    content: "Summary tables pre-calculate complex aggregations and are updated periodically for fast reporting queries."
+                }
+            },
+            {
+                question: "Implement redundant storage: Store department_name directly in employees table.",
+                solution: "ALTER TABLE employees ADD COLUMN department_name VARCHAR(100); UPDATE employees e SET department_name = (SELECT name FROM departments d WHERE d.id = e.department_id);",
+                hint: "Sometimes redundancy improves performance despite normalization rules",
+                concept: {
+                    title: "Strategic Redundancy",
+                    content: "Controlled redundancy can eliminate JOINs and improve query performance, but requires careful maintenance of data consistency."
+                }
+            }
+        ]
+    },
+    13: {
+        title: "🔄 Database Transactions",
+        description: "Master ACID properties and transaction management",
+        questions: [
+            {
+                question: "Start a transaction and transfer salary between two employees.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = salary - 5000 WHERE id = 1; UPDATE employees SET salary = salary + 5000 WHERE id = 2; COMMIT;",
+                hint: "Use START TRANSACTION, then multiple statements, then COMMIT",
+                concept: {
+                    title: "Basic Transactions",
+                    content: "Transactions group multiple SQL statements into a single unit of work that either all succeed or all fail."
+                }
+            },
+            {
+                question: "Demonstrate transaction rollback: Start a transaction, make changes, then rollback.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = 999999 WHERE id = 1; ROLLBACK;",
+                hint: "ROLLBACK undoes all changes since START TRANSACTION",
+                concept: {
+                    title: "Transaction Rollback",
+                    content: "ROLLBACK cancels all changes made within the current transaction and returns the database to its state before the transaction began."
+                }
+            },
+            {
+                question: "Set transaction isolation level to READ COMMITTED to prevent dirty reads.",
+                solution: "SET TRANSACTION ISOLATION LEVEL READ COMMITTED; START TRANSACTION; SELECT * FROM employees WHERE salary > 70000; COMMIT;",
+                hint: "Isolation levels control what changes are visible between transactions",
+                concept: {
+                    title: "Isolation Levels",
+                    content: "Isolation levels (READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE) control transaction visibility and concurrency."
+                }
+            },
+            {
+                question: "Implement savepoints for partial rollback within a transaction.",
+                solution: "START TRANSACTION; UPDATE employees SET salary = salary + 1000; SAVEPOINT sp1; UPDATE employees SET salary = salary + 2000; ROLLBACK TO sp1; COMMIT;",
+                hint: "SAVEPOINT creates a point you can rollback to without canceling entire transaction",
+                concept: {
+                    title: "Savepoints",
+                    content: "Savepoints allow partial rollback within a transaction, enabling more granular error handling and recovery."
+                }
+            }
+        ]
+    },
+    14: {
+        title: "👁️ Views & Query Optimization",
+        description: "Advanced views, indexes, and query performance",
+        questions: [
+            {
+                question: "Create a complex view showing employee performance metrics.",
+                solution: "CREATE VIEW employee_performance AS SELECT e.name, e.salary, d.name as dept, (e.salary / (SELECT AVG(salary) FROM employees)) as salary_ratio FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Views can include joins, subqueries, and calculated fields",
+                concept: {
+                    title: "Complex Views",
+                    content: "Views can encapsulate complex logic including joins, subqueries, and calculations, providing a simplified interface to complex data."
+                }
+            },
+            {
+                question: "Create an index to optimize salary-based queries on employees table.",
+                solution: "CREATE INDEX idx_employee_salary ON employees (salary DESC);",
+                hint: "Indexes speed up WHERE, ORDER BY, and JOIN operations",
+                concept: {
+                    title: "Query Optimization with Indexes",
+                    content: "Indexes create sorted data structures that dramatically speed up searches, sorts, and joins on indexed columns."
+                }
+            },
+            {
+                question: "Use EXPLAIN to analyze query performance for a complex JOIN.",
+                solution: "EXPLAIN SELECT e.name, d.name FROM employees e JOIN departments d ON e.department_id = d.id WHERE e.salary > 60000;",
+                hint: "EXPLAIN shows how MySQL executes a query and identifies performance bottlenecks",
+                concept: {
+                    title: "Query Execution Analysis",
+                    content: "EXPLAIN reveals query execution plans, helping identify missing indexes, inefficient joins, and optimization opportunities."
+                }
+            },
+            {
+                question: "Create a covering index for a specific query pattern.",
+                solution: "CREATE INDEX idx_emp_dept_salary_covering ON employees (department_id, salary) INCLUDE (name);",
+                hint: "Covering indexes include all columns needed by a query",
+                concept: {
+                    title: "Covering Indexes",
+                    content: "Covering indexes contain all columns referenced by a query, eliminating the need to access the base table data."
+                }
+            }
+        ]
+    },
+    15: {
+        title: "⚙️ Triggers & Stored Procedures", 
+        description: "Automate database logic with triggers and procedures",
+        questions: [
+            {
+                question: "Create a trigger to automatically update a last_modified timestamp.",
+                solution: "CREATE TRIGGER update_employee_timestamp BEFORE UPDATE ON employees FOR EACH ROW SET NEW.last_modified = CURRENT_TIMESTAMP;",
+                hint: "BEFORE UPDATE triggers execute before each row is updated",
+                concept: {
+                    title: "Database Triggers",
+                    content: "Triggers are special stored procedures that automatically execute in response to database events like INSERT, UPDATE, or DELETE."
+                }
+            },
+            {
+                question: "Create a stored procedure to calculate employee bonuses.",
+                solution: "DELIMITER $$ CREATE PROCEDURE CalculateBonus(IN emp_id INT, IN bonus_pct DECIMAL(5,2)) BEGIN UPDATE employees SET salary = salary * (1 + bonus_pct/100) WHERE id = emp_id; END $$ DELIMITER ;",
+                hint: "Stored procedures encapsulate business logic in the database",
+                concept: {
+                    title: "Stored Procedures",
+                    content: "Stored procedures are precompiled SQL code blocks that can accept parameters, contain logic, and be reused across applications."
+                }
+            },
+            {
+                question: "Create an audit trigger to log salary changes.",
+                solution: "CREATE TRIGGER salary_audit AFTER UPDATE ON employees FOR EACH ROW BEGIN IF OLD.salary != NEW.salary THEN INSERT INTO salary_audit_log (employee_id, old_salary, new_salary, change_date) VALUES (NEW.id, OLD.salary, NEW.salary, NOW()); END IF; END;",
+                hint: "Use OLD and NEW to reference previous and current row values",
+                concept: {
+                    title: "Audit Triggers",
+                    content: "Audit triggers automatically log data changes, providing accountability and change tracking for sensitive data."
+                }
+            },
+            {
+                question: "Create a function to calculate years of service for an employee.",
+                solution: "DELIMITER $$ CREATE FUNCTION YearsOfService(hire_date DATE) RETURNS INT READS SQL DATA DETERMINISTIC BEGIN RETURN TIMESTAMPDIFF(YEAR, hire_date, CURDATE()); END $$ DELIMITER ;",
+                hint: "Functions return a single value and can be used in SELECT statements",
+                concept: {
+                    title: "User-Defined Functions",
+                    content: "Functions encapsulate calculations and can be used in queries to perform complex computations or data transformations."
+                }
+            }
+        ]
+    },
+    16: {
+        title: "📊 Advanced Aggregations",
+        description: "Master complex aggregate functions and window operations",
+        questions: [
+            {
+                question: "Use GROUP_CONCAT to list all employees in each department.",
+                solution: "SELECT d.name, GROUP_CONCAT(e.name SEPARATOR ', ') as employees FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name;",
+                hint: "GROUP_CONCAT combines multiple rows into a single string",
+                concept: {
+                    title: "String Aggregation",
+                    content: "GROUP_CONCAT aggregates multiple string values from grouped rows into a single concatenated string with customizable separators."
+                }
+            },
+            {
+                question: "Calculate running average of salaries using window functions.",
+                solution: "SELECT name, salary, AVG(salary) OVER (ORDER BY hire_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as running_avg FROM employees ORDER BY hire_date;",
+                hint: "Window functions with frames calculate running aggregates",
+                concept: {
+                    title: "Running Aggregates",
+                    content: "Window functions with frame specifications can calculate running totals, averages, and other cumulative statistics across ordered data sets."
+                }
+            },
+            {
+                question: "Find the median salary using window functions.",
+                solution: "SELECT DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY salary) OVER() as median_salary FROM employees;",
+                hint: "PERCENTILE_CONT calculates percentiles including median (50th percentile)",
+                concept: {
+                    title: "Statistical Functions",
+                    content: "Advanced aggregate functions like PERCENTILE_CONT, PERCENTILE_DISC provide statistical analysis capabilities."
+                }
+            },
+            {
+                question: "Create a pivot table showing salary ranges by department using conditional aggregation.",
+                solution: "SELECT d.name, SUM(CASE WHEN e.salary < 60000 THEN 1 ELSE 0 END) as low_salary, SUM(CASE WHEN e.salary BETWEEN 60000 AND 80000 THEN 1 ELSE 0 END) as mid_salary, SUM(CASE WHEN e.salary > 80000 THEN 1 ELSE 0 END) as high_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name;",
+                hint: "Use CASE with SUM to create pivot-like results",
+                concept: {
+                    title: "Conditional Aggregation",
+                    content: "Conditional aggregation with CASE statements enables pivot table functionality and complex data summarization."
+                }
+            }
+        ]
+    },
+    17: {
+        title: "🔬 Relational Algebra",
+        description: "Understand theoretical foundations with practical SQL",
+        questions: [
+            {
+                question: "Demonstrate SELECTION operation: σ(salary > 70000)(employees).",
+                solution: "SELECT * FROM employees WHERE salary > 70000;",
+                hint: "Selection (σ) filters rows based on a condition",
+                concept: {
+                    title: "Selection Operation",
+                    content: "The selection operation (σ) in relational algebra corresponds to the WHERE clause in SQL, filtering tuples that satisfy a given condition."
+                }
+            },
+            {
+                question: "Demonstrate PROJECTION operation: π(name, salary)(employees).",
+                solution: "SELECT DISTINCT name, salary FROM employees;",
+                hint: "Projection (π) selects specific columns and eliminates duplicates",
+                concept: {
+                    title: "Projection Operation",
+                    content: "The projection operation (π) selects specified attributes (columns) and eliminates duplicate tuples, corresponding to SELECT DISTINCT in SQL."
+                }
+            },
+            {
+                question: "Demonstrate CARTESIAN PRODUCT: employees × departments.",
+                solution: "SELECT * FROM employees CROSS JOIN departments;",
+                hint: "Cartesian product combines every row from first table with every row from second",
+                concept: {
+                    title: "Cartesian Product",
+                    content: "Cartesian product (×) creates all possible combinations of tuples from two relations, implemented as CROSS JOIN in SQL."
+                }
+            },
+            {
+                question: "Demonstrate NATURAL JOIN with employee and department relationship.",
+                solution: "SELECT e.name as employee_name, d.name as department_name FROM employees e JOIN departments d ON e.department_id = d.id;",
+                hint: "Natural join combines tables on common attributes",
+                concept: {
+                    title: "Natural Join Operation",
+                    content: "Natural join (⋈) combines relations on common attributes, automatically matching columns with the same name and compatible types."
+                }
+            }
+        ]
+    },
+    18: {
+        title: "🏆 Window Functions & Ranking",
+        description: "Master analytical functions for advanced data analysis",
+        questions: [
+            {
+                question: "Find the 2nd highest salary using ROW_NUMBER() window function.",
+                solution: "SELECT salary FROM (SELECT salary, ROW_NUMBER() OVER (ORDER BY salary DESC) as row_num FROM employees) ranked WHERE row_num = 2;",
+                hint: "Use ROW_NUMBER() OVER (ORDER BY salary DESC) and filter for row 2",
+                concept: {
+                    title: "ROW_NUMBER Window Function",
+                    content: "ROW_NUMBER() assigns unique sequential numbers to rows within a result set, ordered by specified columns. Essential for finding Nth highest/lowest values."
+                }
+            },
+            {
+                question: "Rank employees by salary within their department using RANK().",
+                solution: "SELECT name, department_id, salary, RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as salary_rank FROM employees;",
+                hint: "Use RANK() with PARTITION BY department_id",
+                concept: {
+                    title: "RANK with PARTITION BY",
+                    content: "RANK() assigns rank values with gaps for ties. PARTITION BY creates separate ranking groups, essential for departmental comparisons."
+                }
+            },
+            {
+                question: "Calculate running total of salaries ordered by hire date using SUM() window function.",
+                solution: "SELECT name, hire_date, salary, SUM(salary) OVER (ORDER BY hire_date ROWS UNBOUNDED PRECEDING) as running_total FROM employees ORDER BY hire_date;",
+                hint: "Use SUM() OVER with ORDER BY and ROWS frame",
+                concept: {
+                    title: "Running Totals with Window Functions",
+                    content: "Window functions with ORDER BY create cumulative calculations. ROWS UNBOUNDED PRECEDING includes all previous rows in the running calculation."
+                }
+            },
+            {
+                question: "Find each employee's previous and next salary using LAG() and LEAD().",
+                solution: "SELECT name, salary, LAG(salary, 1) OVER (ORDER BY salary) as prev_salary, LEAD(salary, 1) OVER (ORDER BY salary) as next_salary FROM employees ORDER BY salary;",
+                hint: "LAG looks backward, LEAD looks forward in the ordered result set",
+                concept: {
+                    title: "LAG and LEAD Functions",
+                    content: "LAG() and LEAD() access previous and next row values without self-joins. Essential for comparing consecutive records and trend analysis."
+                }
+            }
+        ]
+    },
+    19: {
+        title: "🔍 Advanced Subqueries",
+        description: "Master correlated subqueries and complex EXISTS patterns",
+        questions: [
+            {
+                question: "Find employees earning more than their department's average salary using correlated subquery.",
+                solution: "SELECT e1.name, e1.salary, e1.department_id FROM employees e1 WHERE e1.salary > (SELECT AVG(e2.salary) FROM employees e2 WHERE e2.department_id = e1.department_id);",
+                hint: "Use correlated subquery that references outer query table",
+                concept: {
+                    title: "Correlated Subqueries",
+                    content: "Correlated subqueries reference columns from the outer query, executing once for each outer row. Essential for row-by-row comparisons."
+                }
+            },
+            {
+                question: "Find departments where ALL employees earn more than 50000 using ALL operator.",
+                solution: "SELECT DISTINCT d.name FROM departments d WHERE 50000 < ALL (SELECT e.salary FROM employees e WHERE e.department_id = d.id);",
+                hint: "ALL operator requires condition to be true for every row in subquery",
+                concept: {
+                    title: "ALL Operator with Subqueries",
+                    content: "ALL operator checks if condition is true for every row returned by subquery. Useful for universal conditions across groups."
+                }
+            },
+            {
+                question: "Find employees who work in departments that have ANY employee earning > 75000.",
+                solution: "SELECT e.name FROM employees e WHERE e.department_id = ANY (SELECT DISTINCT e2.department_id FROM employees e2 WHERE e2.salary > 75000);",
+                hint: "ANY returns true if condition matches at least one subquery row",
+                concept: {
+                    title: "ANY Operator",
+                    content: "ANY (equivalent to SOME) returns true if the condition is satisfied for at least one row in the subquery result."
+                }
+            },
+            {
+                question: "Find departments that have employees working on projects using EXISTS.",
+                solution: "SELECT d.name FROM departments d WHERE EXISTS (SELECT 1 FROM employees e JOIN employee_projects ep ON e.id = ep.employee_id WHERE e.department_id = d.id);",
+                hint: "EXISTS checks if subquery returns any rows, doesn't need actual data",
+                concept: {
+                    title: "EXISTS with Complex Joins",
+                    content: "EXISTS is optimized for checking row existence. More efficient than IN for complex subqueries with joins."
+                }
+            }
+        ]
+    },
+    20: {
+        title: "📅 Date & Time Mastery",
+        description: "Master date arithmetic and time-based analysis",
+        questions: [
+            {
+                question: "Find employees hired in the last 2 years using date arithmetic.",
+                solution: "SELECT name, hire_date FROM employees WHERE hire_date >= DATE_SUB(CURDATE(), INTERVAL 2 YEAR);",
+                hint: "Use DATE_SUB with INTERVAL for date calculations",
+                concept: {
+                    title: "Date Arithmetic",
+                    content: "MySQL provides DATE_ADD, DATE_SUB, and INTERVAL for date calculations. Essential for time-based filtering and analysis."
+                }
+            },
+            {
+                question: "Calculate each employee's years of service using DATEDIFF.",
+                solution: "SELECT name, hire_date, ROUND(DATEDIFF(CURDATE(), hire_date) / 365.25, 1) as years_of_service FROM employees;",
+                hint: "DATEDIFF returns difference in days, divide by 365.25 for years",
+                concept: {
+                    title: "DATEDIFF Function",
+                    content: "DATEDIFF calculates the difference between two dates in days. Common in age calculations and service duration analysis."
+                }
+            },
+            {
+                question: "Group employees by hire year and count them.",
+                solution: "SELECT YEAR(hire_date) as hire_year, COUNT(*) as employees_hired FROM employees GROUP BY YEAR(hire_date) ORDER BY hire_year;",
+                hint: "Use YEAR() function to extract year from date",
+                concept: {
+                    title: "Date Extraction Functions",
+                    content: "YEAR(), MONTH(), DAY() extract specific parts of dates. Essential for grouping and filtering by time periods."
+                }
+            },
+            {
+                question: "Find employees hired in the same month as their department was created (simulated with department_id).",
+                solution: "SELECT e.name, e.hire_date, e.department_id FROM employees e JOIN departments d ON e.department_id = d.id WHERE MONTH(e.hire_date) = d.id;",
+                hint: "Use MONTH() function and compare with numeric values",
+                concept: {
+                    title: "Date Comparison Patterns",
+                    content: "Comparing extracted date parts enables complex temporal relationships analysis, common in business logic."
+                }
+            }
+        ]
+    },
+    21: {
+        title: "🔧 Complex Conditional Logic",
+        description: "Master advanced CASE statements and conditional expressions",
+        questions: [
+            {
+                question: "Classify employees into salary tiers using nested CASE statements.",
+                solution: "SELECT name, salary, CASE WHEN salary >= 80000 THEN 'Senior' WHEN salary >= 60000 THEN 'Mid-Level' WHEN salary >= 40000 THEN 'Junior' ELSE 'Entry-Level' END as salary_tier FROM employees;",
+                hint: "Use nested CASE WHEN with multiple conditions",
+                concept: {
+                    title: "Multi-tier CASE Statements",
+                    content: "Nested CASE statements enable complex classification logic. Order matters - conditions are evaluated top to bottom."
+                }
+            },
+            {
+                question: "Calculate bonuses based on department and performance using complex CASE.",
+                solution: "SELECT name, department_id, salary, CASE WHEN department_id = 1 AND salary > 70000 THEN salary * 0.15 WHEN department_id = 1 THEN salary * 0.10 WHEN department_id IN (2,3) AND salary > 60000 THEN salary * 0.12 WHEN department_id IN (2,3) THEN salary * 0.08 ELSE salary * 0.05 END as bonus FROM employees;",
+                hint: "Combine AND, IN operators with CASE for complex logic",
+                concept: {
+                    title: "Complex Conditional Logic",
+                    content: "CASE statements can include complex boolean expressions with AND, OR, IN operators for sophisticated business rules."
+                }
+            },
+            {
+                question: "Create pivot table showing count of employees by department and salary range.",
+                solution: "SELECT department_id, SUM(CASE WHEN salary < 60000 THEN 1 ELSE 0 END) as low_salary, SUM(CASE WHEN salary BETWEEN 60000 AND 80000 THEN 1 ELSE 0 END) as mid_salary, SUM(CASE WHEN salary > 80000 THEN 1 ELSE 0 END) as high_salary FROM employees GROUP BY department_id;",
+                hint: "Use SUM(CASE WHEN...) pattern for conditional counting",
+                concept: {
+                    title: "Conditional Aggregation",
+                    content: "SUM(CASE WHEN condition THEN 1 ELSE 0 END) creates conditional counts. Essential for pivot table functionality."
+                }
+            },
+            {
+                question: "Use IF() function to create a simple binary classification.",
+                solution: "SELECT name, salary, IF(salary > (SELECT AVG(salary) FROM employees), 'Above Average', 'Below Average') as performance FROM employees;",
+                hint: "IF(condition, true_value, false_value) for binary logic",
+                concept: {
+                    title: "IF Function vs CASE",
+                    content: "IF() function provides simpler syntax for binary conditions. CASE is more flexible for multiple conditions."
+                }
+            }
+        ]
+    },
+    22: {
+        title: "📊 Advanced Grouping Patterns", 
+        description: "Master complex GROUP BY with ROLLUP and advanced HAVING",
+        questions: [
+            {
+                question: "Calculate department salary totals with grand total using GROUP BY with ROLLUP.",
+                solution: "SELECT COALESCE(d.name, 'TOTAL') as department, SUM(e.salary) as total_salary FROM employees e LEFT JOIN departments d ON e.department_id = d.id GROUP BY d.name WITH ROLLUP;",
+                hint: "WITH ROLLUP adds subtotals and grand total rows",
+                concept: {
+                    title: "GROUP BY with ROLLUP",
+                    content: "ROLLUP creates hierarchical aggregations with subtotals. COALESCE handles NULL values in rollup rows."
+                }
+            },
+            {
+                question: "Find departments with average salary higher than company average using HAVING with subquery.",
+                solution: "SELECT d.name, AVG(e.salary) as avg_salary FROM departments d JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name HAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees);",
+                hint: "HAVING can use subqueries for complex aggregate filtering",
+                concept: {
+                    title: "HAVING with Subqueries",
+                    content: "HAVING clause can include subqueries for dynamic filtering based on calculated values from other data."
+                }
+            },
+            {
+                question: "Group by multiple dimensions: department and salary tier.",
+                solution: "SELECT d.name as department, CASE WHEN e.salary >= 70000 THEN 'High' WHEN e.salary >= 50000 THEN 'Medium' ELSE 'Low' END as salary_tier, COUNT(*) as employee_count, AVG(e.salary) as avg_salary FROM departments d JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name, CASE WHEN e.salary >= 70000 THEN 'High' WHEN e.salary >= 50000 THEN 'Medium' ELSE 'Low' END;",
+                hint: "GROUP BY can include calculated expressions and CASE statements",
+                concept: {
+                    title: "Multi-dimensional Grouping",
+                    content: "GROUP BY supports calculated columns and expressions, enabling complex dimensional analysis."
+                }
+            },
+            {
+                question: "Find departments with both high-paid (>70k) and low-paid (<50k) employees.",
+                solution: "SELECT d.name FROM departments d JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name HAVING SUM(CASE WHEN e.salary > 70000 THEN 1 ELSE 0 END) > 0 AND SUM(CASE WHEN e.salary < 50000 THEN 1 ELSE 0 END) > 0;",
+                hint: "Use conditional aggregation in HAVING for complex group filtering",
+                concept: {
+                    title: "Conditional HAVING Clauses",
+                    content: "HAVING with conditional aggregation enables filtering groups based on multiple criteria within the same group."
+                }
+            }
+        ]
+    },
+    23: {
+        title: "🔗 Self-Joins & Hierarchies",
+        description: "Master complex self-joins and hierarchical data structures",
+        questions: [
+            {
+                question: "Find all manager-employee pairs using self-join (simulate with salary comparison).",
+                solution: "SELECT m.name as manager, e.name as employee FROM employees m JOIN employees e ON m.salary > e.salary AND m.department_id = e.department_id;",
+                hint: "Self-join with different aliases and meaningful join conditions",
+                concept: {
+                    title: "Self-Join Patterns",
+                    content: "Self-joins connect table to itself with different aliases. Essential for hierarchical relationships and comparisons within same entity."
+                }
+            },
+            {
+                question: "Find employees who earn more than at least one other employee in the same department.",
+                solution: "SELECT DISTINCT e1.name FROM employees e1 JOIN employees e2 ON e1.department_id = e2.department_id AND e1.salary > e2.salary;",
+                hint: "Self-join to compare each employee with others in same department",
+                concept: {
+                    title: "Comparative Self-Joins",
+                    content: "Self-joins enable comparisons between rows in the same table, essential for ranking and competitive analysis."
+                }
+            },
+            {
+                question: "Create employee hierarchy levels by salary within departments.",
+                solution: "SELECT e1.name, e1.department_id, e1.salary, COUNT(e2.id) + 1 as hierarchy_level FROM employees e1 LEFT JOIN employees e2 ON e1.department_id = e2.department_id AND e1.salary < e2.salary GROUP BY e1.id, e1.name, e1.department_id, e1.salary ORDER BY e1.department_id, hierarchy_level;",
+                hint: "Count how many employees earn more to determine hierarchy level",
+                concept: {
+                    title: "Hierarchy Building with Self-Joins",
+                    content: "Self-joins can create hierarchical levels by counting superior records, useful for organizational structure analysis."
+                }
+            },
+            {
+                question: "Find pairs of employees with similar salaries (within 5000 difference).",
+                solution: "SELECT e1.name as employee1, e2.name as employee2, e1.salary, e2.salary, ABS(e1.salary - e2.salary) as salary_diff FROM employees e1 JOIN employees e2 ON e1.id < e2.id AND ABS(e1.salary - e2.salary) <= 5000 ORDER BY salary_diff;",
+                hint: "Use ABS() for absolute difference and e1.id < e2.id to avoid duplicates",
+                concept: {
+                    title: "Similarity Matching with Self-Joins",
+                    content: "Self-joins with mathematical conditions can find similar records. Use id comparison to avoid duplicate pairs."
+                }
+            }
+        ]
+    },
+    24: {
+        title: "🔤 Advanced String Operations",
+        description: "Master complex string manipulation and pattern matching",
+        questions: [
+            {
+                question: "Extract domain names from employee emails using SUBSTRING_INDEX.",
+                solution: "SELECT name, CONCAT(name, '@company.com') as email, SUBSTRING_INDEX(CONCAT(name, '@company.com'), '@', -1) as domain FROM employees;",
+                hint: "SUBSTRING_INDEX splits strings by delimiter and returns specified part",
+                concept: {
+                    title: "String Extraction Functions",
+                    content: "SUBSTRING_INDEX extracts parts of delimited strings. Essential for parsing email addresses, URLs, and structured text."
+                }
+            },
+            {
+                question: "Find employees whose names match specific patterns using advanced REGEXP.",
+                solution: "SELECT name FROM employees WHERE name REGEXP '^[A-Z][a-z]+ [A-Z][a-z]+$';",
+                hint: "REGEXP uses regular expressions for complex pattern matching",
+                concept: {
+                    title: "Regular Expression Patterns",
+                    content: "REGEXP enables powerful pattern matching with regex syntax. Essential for data validation and complex text searches."
+                }
+            },
+            {
+                question: "Clean and standardize employee names using multiple string functions.",
+                solution: "SELECT name, UPPER(TRIM(REPLACE(REPLACE(name, '  ', ' '), '.', ''))) as clean_name FROM employees;",
+                hint: "Combine TRIM, REPLACE, UPPER for comprehensive text cleaning",
+                concept: {
+                    title: "String Data Cleaning",
+                    content: "Combining multiple string functions enables comprehensive data cleaning and standardization workflows."
+                }
+            },
+            {
+                question: "Create initials from employee names using SUBSTRING and LOCATE.",
+                solution: "SELECT name, CONCAT(LEFT(name, 1), '.', LEFT(SUBSTRING(name, LOCATE(' ', name) + 1), 1), '.') as initials FROM employees WHERE LOCATE(' ', name) > 0;",
+                hint: "LOCATE finds position of space, SUBSTRING extracts parts",
+                concept: {
+                    title: "Dynamic String Parsing",
+                    content: "LOCATE finds character positions, enabling dynamic string parsing for names, addresses, and structured text."
+                }
+            }
+        ]
+    },
+    25: {
+        title: "🎯 LeetCode Pattern Recognition",
+        description: "Master specific LeetCode SQL problem patterns",
+        questions: [
+            {
+                question: "Solve 'Nth Highest Salary' pattern: Find 3rd highest salary.",
+                solution: "SELECT DISTINCT salary as SecondHighestSalary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 2;",
+                hint: "Use DISTINCT, ORDER BY DESC, LIMIT with OFFSET for Nth highest patterns",
+                concept: {
+                    title: "Nth Highest Value Pattern",
+                    content: "Classic LeetCode pattern using LIMIT OFFSET or window functions to find Nth highest/lowest values in datasets."
+                }
+            },
+            {
+                question: "Solve 'Department Highest Salary' pattern: Find highest paid employee per department.",
+                solution: "SELECT d.name as Department, e.name as Employee, e.salary as Salary FROM employees e JOIN departments d ON e.department_id = d.id WHERE (e.department_id, e.salary) IN (SELECT department_id, MAX(salary) FROM employees GROUP BY department_id);",
+                hint: "Use tuple IN with GROUP BY MAX to find highest in each group",
+                concept: {
+                    title: "Group Maximum Pattern",
+                    content: "Common LeetCode pattern using tuple matching with GROUP BY and aggregate functions to find extremes within groups."
+                }
+            },
+            {
+                question: "Solve 'Consecutive Numbers' pattern: Find sequences of 3 consecutive equal values.",
+                solution: "SELECT DISTINCT l1.id FROM logs l1 JOIN logs l2 ON l1.id = l2.id - 1 JOIN logs l3 ON l2.id = l3.id - 1 WHERE l1.num = l2.num AND l2.num = l3.num;",
+                hint: "Self-join with consecutive id conditions and value equality",
+                concept: {
+                    title: "Consecutive Sequence Pattern",
+                    content: "LeetCode pattern using self-joins with sequential conditions to identify consecutive occurrences or sequences."
+                }
+            },
+            {
+                question: "Solve 'Ranking' pattern: Rank employees with no gaps (DENSE_RANK equivalent).",
+                solution: "SELECT name, salary, (SELECT COUNT(DISTINCT e2.salary) FROM employees e2 WHERE e2.salary >= e1.salary) as dense_rank FROM employees e1 ORDER BY salary DESC;",
+                hint: "Count distinct higher values to create dense ranking without gaps",
+                concept: {
+                    title: "Dense Ranking Pattern",
+                    content: "LeetCode pattern for creating rankings without gaps using correlated subqueries and COUNT DISTINCT."
+                }
+            }
+        ]
+    }
+};
+        // Initialize Game
+        function initGame() {
+            loadGameState();
+            renderLevelSelector();
+            updateStats();
+        }
+
+        // Render Level Selection
+        function renderLevelSelector() {
+            const levelSelector = document.getElementById('levelSelector');
+            levelSelector.innerHTML = '';
+            
+            Object.keys(learningLevels).forEach(levelNum => {
+                const level = learningLevels[levelNum];
+                const card = document.createElement('div');
+                card.className = `level-card ${gameState.completedLevels.has(parseInt(levelNum)) ? 'completed' : ''}`;
+                card.onclick = () => startLevel(parseInt(levelNum));
+                
+                card.innerHTML = `
+                    <h3>${level.title}</h3>
+                    <p>${level.description}</p>
+                    <div style="margin-top: 15px;">
+                        <small>📚 ${level.questions.length} challenges</small>
+                        ${gameState.completedLevels.has(parseInt(levelNum)) ? '<span style="float: right;">✅ Completed</span>' : ''}
+                    </div>
+                `;
+                levelSelector.appendChild(card);
+            });
+        }
+
+        // Start a specific level
+        function startLevel(levelNum) {
+            gameState.currentLevel = levelNum;
+            gameState.currentQuestionIndex = 0;
+            
+            document.getElementById('levelSelector').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            
+            renderSchema();
+            loadQuestion();
+        }
+
+        // Render database schema
+        function renderSchema() {
+            const schemaViewer = document.getElementById('schemaViewer');
+            schemaViewer.innerHTML = '<h3>📋 Database Schema</h3>';
+            
+            Object.keys(schema).forEach(tableName => {
+                const tableDiv = document.createElement('div');
+                tableDiv.className = 'table-schema';
+                
+                let columnsHTML = schema[tableName].columns.map(col => {
+                    let className = '';
+                    if (col.includes('(PK)')) className = 'primary-key';
+                    else if (col.includes('(FK)')) className = 'foreign-key';
+                    return `<div class="column ${className}">${col}</div>`;
+                }).join('');
+                
+                tableDiv.innerHTML = `
+                    <div class="table-name">${tableName}</div>
+                    ${columnsHTML}
+                `;
+                schemaViewer.appendChild(tableDiv);
+            });
+        }
+
+        // Load current question
+        function loadQuestion() {
+            const level = learningLevels[gameState.currentLevel];
+            const question = level.questions[gameState.currentQuestionIndex];
+            
+            document.getElementById('currentQuestion').textContent = question.question;
+            document.getElementById('sqlInput').value = '';
+            document.getElementById('resultArea').innerHTML = '';
+            
+            // Show concept explanation
+            const conceptDiv = document.getElementById('conceptExplanation');
+            if (question.concept) {
+                document.getElementById('conceptTitle').textContent = question.concept.title;
+                document.getElementById('conceptContent').textContent = question.concept.content;
+                conceptDiv.style.display = 'block';
+            } else {
+                conceptDiv.style.display = 'none';
+            }
+        }
+
+        // Check user's answer
+        async function checkAnswer() {
+            const userQuery = document.getElementById('sqlInput').value.trim();
+            const level = learningLevels[gameState.currentLevel];
+            const question = level.questions[gameState.currentQuestionIndex];
+            
+            if (!userQuery) {
+                showFeedback('Please enter a SQL query!', 'error');
+                return;
+            }
+            
+            // Execute query against MySQL database
+            try {
+                const response = await fetch('/execute-query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: userQuery })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Enhanced answer checking
+                    const normalizedUser = normalizeQuery(userQuery);
+                    const normalizedSolution = normalizeQuery(question.solution);
+                    
+                    const isCorrect = checkQueryCorrectness(normalizedUser, normalizedSolution, question);
+                    
+                    if (isCorrect) {
+                        gameState.score += 10;
+                        gameState.streak += 1;
+                        showFeedback('🎉 Excellent! Your query is correct!', 'success');
+                    } else {
+                        gameState.streak = 0;
+                        showFeedback('❌ Not quite right. Try again!', 'error');
+                    }
+                    
+                    // Show actual query results
+                    showQueryResults(result, question.solution);
+                    
+                    checkAchievements();
+                } else {
+                    showFeedback(`❌ Query failed: ${result.message}`, 'error');
+                }
+                
+                updateStats();
+            } catch (error) {
+                console.error('Error executing query:', error);
+                showFeedback('❌ Connection error. Make sure the server is running.', 'error');
+            }
+        }
+
+        // Normalize query for comparison
+        function normalizeQuery(query) {
+            return query.toLowerCase()
+                       .replace(/\s+/g, ' ')
+                       .replace(/;/g, '')
+                       .trim();
+        }
+
+        // Get specific feedback about what's wrong with the query
+        function getSpecificFeedback(userQuery, solutionQuery, question) {
+            const questionText = question.question.toLowerCase();
+            
+            // Check for missing basic SQL structure
+            if (!userQuery.includes('select')) {
+                return '❌ Missing SELECT clause. Every query needs to start with SELECT.';
+            }
+            
+            if (!userQuery.includes('from')) {
+                return '❌ Missing FROM clause. You need to specify which table to query.';
+            }
+            
+            // Specific feedback based on question requirements
+            if (questionText.includes('where') && !userQuery.includes('where')) {
+                return '❌ Missing WHERE clause. You need to filter the results based on a condition.';
+            }
+            
+            if ((questionText.includes('join') || questionText.includes('combine')) && 
+                !userQuery.includes('join')) {
+                return '❌ Missing JOIN clause. You need to combine data from multiple tables.';
+            }
+            
+            if (questionText.includes('group') && !userQuery.includes('group by')) {
+                return '❌ Missing GROUP BY clause. You need to group rows for aggregation.';
+            }
+            
+            if (questionText.includes('sorted') && !userQuery.includes('order by')) {
+                return '❌ Missing ORDER BY clause. You need to sort the results.';
+            }
+            
+            if (questionText.includes('count') && !userQuery.includes('count')) {
+                return '❌ Missing COUNT function. You need to count rows or values.';
+            }
+            
+            if ((questionText.includes('like') || questionText.includes('starts with') || 
+                 questionText.includes('ends with')) && !userQuery.includes('like')) {
+                return '❌ Missing LIKE operator. You need to use LIKE with wildcards (%) for pattern matching.';
+            }
+            
+            if (questionText.includes('having') && !userQuery.includes('having')) {
+                return '❌ Missing HAVING clause. Use HAVING to filter groups after GROUP BY.';
+            }
+            
+            if (questionText.includes('subquery') && !userQuery.includes('(select')) {
+                return '❌ Missing subquery. You need a SELECT statement inside parentheses.';
+            }
+            
+            if (questionText.includes('window function') && !userQuery.includes('over')) {
+                return '❌ Missing window function syntax. Use OVER() clause for window functions.';
+            }
+            
+            if (questionText.includes('cte') && !userQuery.includes('with')) {
+                return '❌ Missing CTE syntax. Common Table Expressions start with WITH.';
+            }
+            
+            // Generic feedback if structure seems mostly right but doesn't match
+            return '❌ Query structure looks incomplete or incorrect. Check your syntax and logic. Use the hint if needed!';
+        }
+
+        // Clear the query input
+        function clearQuery() {
+            document.getElementById('sqlInput').value = '';
+            document.getElementById('resultArea').innerHTML = '';
+        }
+
+        // Enhanced query correctness checking
+        function checkQueryCorrectness(userQuery, solutionQuery, question) {
+            // Remove extra whitespace and semicolons for comparison
+            const cleanUser = userQuery.replace(/\s+/g, ' ').replace(/;+$/, '').trim();
+            const cleanSolution = solutionQuery.replace(/\s+/g, ' ').replace(/;+$/, '').trim();
+            
+            // Exact match (most accurate)
+            if (cleanUser === cleanSolution) {
+                return true;
+            }
+            
+            // Check for key components based on question type
+            return checkQueryComponents(cleanUser, cleanSolution, question);
+        }
+        
+        // Check specific SQL query components
+        function checkQueryComponents(userQuery, solutionQuery, question) {
+            const questionText = question.question.toLowerCase();
+            
+            // Basic SELECT queries
+            if (questionText.includes('retrieve all') || questionText.includes('get all')) {
+                return userQuery.includes('select * from') || 
+                       (userQuery.includes('select') && userQuery.includes('from'));
+            }
+            
+            // WHERE clause queries
+            if (questionText.includes('where') || questionText.includes('filter') || 
+                questionText.includes('department_id') || questionText.includes('salary >')) {
+                return userQuery.includes('where') && 
+                       checkConditionPresence(userQuery, solutionQuery);
+            }
+            
+            // JOIN queries
+            if (questionText.includes('join') || questionText.includes('combine')) {
+                return (userQuery.includes('join') || userQuery.includes('inner join') || 
+                        userQuery.includes('left join')) &&
+                       userQuery.includes('on');
+            }
+            
+            // GROUP BY queries
+            if (questionText.includes('group') || questionText.includes('count') || 
+                questionText.includes('each department')) {
+                return userQuery.includes('group by') && 
+                       (userQuery.includes('count') || userQuery.includes('sum') || 
+                        userQuery.includes('avg') || userQuery.includes('max') || userQuery.includes('min'));
+            }
+            
+            // HAVING clause
+            if (questionText.includes('having') || questionText.includes('more than')) {
+                return userQuery.includes('having') && userQuery.includes('group by');
+            }
+            
+            // Subqueries
+            if (questionText.includes('subquery') || questionText.includes('average salary') || 
+                questionText.includes('exists')) {
+                return (userQuery.includes('(select') || userQuery.includes('( select')) &&
+                       (userQuery.includes('avg') || userQuery.includes('exists'));
+            }
+            
+            // Window functions
+            if (questionText.includes('rank') || questionText.includes('window function') ||
+                questionText.includes('running total')) {
+                return userQuery.includes('over') && 
+                       (userQuery.includes('partition by') || userQuery.includes('order by'));
+            }
+            
+            // CTE queries
+            if (questionText.includes('cte') || questionText.includes('common table expression')) {
+                return userQuery.includes('with') && userQuery.includes('as (');
+            }
+            
+            // LIKE queries
+            if (questionText.includes('starts with') || questionText.includes('ends with') || 
+                questionText.includes('like')) {
+                return userQuery.includes('like') && userQuery.includes('%');
+            }
+            
+            // ORDER BY queries
+            if (questionText.includes('sorted') || questionText.includes('order')) {
+                return userQuery.includes('order by');
+            }
+            
+            // Advanced query patterns
+            // DDL queries for advanced tutorials
+            if (questionText.includes('create table') || questionText.includes('create view') || 
+                questionText.includes('create index') || questionText.includes('alter table')) {
+                return userQuery.includes('create') || userQuery.includes('alter');
+            }
+            
+            // Transaction queries
+            if (questionText.includes('transaction') || questionText.includes('commit') || 
+                questionText.includes('rollback')) {
+                return userQuery.includes('start transaction') || userQuery.includes('begin') ||
+                       userQuery.includes('commit') || userQuery.includes('rollback');
+            }
+            
+            // Trigger and procedure patterns
+            if (questionText.includes('trigger') || questionText.includes('procedure') || 
+                questionText.includes('function')) {
+                return userQuery.includes('create trigger') || userQuery.includes('create procedure') ||
+                       userQuery.includes('create function');
+            }
+            
+            // Normalization pattern checks
+            if (questionText.includes('normal form') || questionText.includes('1nf') || 
+                questionText.includes('2nf') || questionText.includes('3nf')) {
+                return true; // Allow any query for normalization examples
+            }
+            
+            // Advanced aggregation patterns
+            if (questionText.includes('group_concat') || questionText.includes('pivot') || 
+                questionText.includes('conditional aggregation')) {
+                return userQuery.includes('group_concat') || 
+                       (userQuery.includes('case') && userQuery.includes('sum'));
+            }
+            
+            // Relational algebra patterns
+            if (questionText.includes('selection') || questionText.includes('projection') || 
+                questionText.includes('cartesian product') || questionText.includes('natural join')) {
+                return userQuery.includes('select'); // Basic requirement for algebra operations
+            }
+            
+            // EXPLAIN queries for optimization
+            if (questionText.includes('explain') || questionText.includes('query performance')) {
+                return userQuery.includes('explain') || userQuery.includes('create index');
+            }
+            
+            // Window function patterns
+            if (questionText.includes('window function') || questionText.includes('row_number') || 
+                questionText.includes('rank') || questionText.includes('lag') || questionText.includes('lead')) {
+                return userQuery.includes('over') && 
+                       (userQuery.includes('partition by') || userQuery.includes('order by'));
+            }
+            
+            // Date/time function patterns
+            if (questionText.includes('date') || questionText.includes('year') || 
+                questionText.includes('month') || questionText.includes('datediff')) {
+                return userQuery.includes('year') || userQuery.includes('month') || 
+                       userQuery.includes('date_sub') || userQuery.includes('datediff') ||
+                       userQuery.includes('curdate');
+            }
+            
+            // LeetCode specific patterns
+            if (questionText.includes('nth highest') || questionText.includes('2nd highest') ||
+                questionText.includes('3rd highest')) {
+                return (userQuery.includes('limit') && userQuery.includes('offset')) ||
+                       (userQuery.includes('row_number') && userQuery.includes('over'));
+            }
+            
+            if (questionText.includes('consecutive') || questionText.includes('sequence')) {
+                return userQuery.includes('join') && 
+                       (userQuery.includes('id = ') || userQuery.includes('id-1') || userQuery.includes('id + 1'));
+            }
+            
+            if (questionText.includes('department highest') || questionText.includes('group maximum')) {
+                return userQuery.includes('group by') && userQuery.includes('max') &&
+                       userQuery.includes('in');
+            }
+            
+            // Default: require basic SELECT structure
+            return userQuery.includes('select') && userQuery.includes('from');
+        }
+        
+        // Check if conditions are present (simplified)
+        function checkConditionPresence(userQuery, solutionQuery) {
+            // Extract comparison operators and values
+            const operators = ['=', '>', '<', '>=', '<=', '!=', '<>', 'like', 'in', 'between'];
+            const userHasOperator = operators.some(op => userQuery.includes(op));
+            const solutionHasOperator = operators.some(op => solutionQuery.includes(op));
+            
+            return userHasOperator === solutionHasOperator;
+        }
+
+        // Show feedback to user
+        function showFeedback(message, type) {
+            const resultArea = document.getElementById('resultArea');
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            resultArea.appendChild(feedback);
+        }
+
+        // Show query results from MySQL
+        function showQueryResults(result, expectedQuery) {
+            const resultArea = document.getElementById('resultArea');
+            
+            // Show query execution info
+            const info = document.createElement('div');
+            info.className = 'feedback info';
+            info.innerHTML = `<strong>Query Results:</strong> ${result.rowCount} rows returned`;
+            resultArea.appendChild(info);
+            
+            // Create results table
+            if (result.results && result.results.length > 0) {
+                const table = document.createElement('table');
+                table.className = 'result-table';
+                
+                // Create header row
+                const headers = Object.keys(result.results[0]);
+                const headerRow = document.createElement('tr');
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
+                
+                // Create data rows
+                result.results.forEach(row => {
+                    const tr = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = row[header] || '';
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+                
+                resultArea.appendChild(table);
+            }
+            
+            // Show comparison if available
+            if (result.comparison) {
+                const comparisonDiv = document.createElement('div');
+                comparisonDiv.className = `feedback ${result.comparison.matches ? 'success' : 'warning'}`;
+                
+                if (result.comparison.matches) {
+                    comparisonDiv.innerHTML = '✅ <strong>Perfect Match!</strong> Your result matches the expected output exactly.';
+                } else {
+                    comparisonDiv.innerHTML = '⚠️ <strong>Result Analysis:</strong> Your query executed successfully but the results differ from expected:';
+                    if (result.comparison.differences.length > 0) {
+                        const diffList = document.createElement('ul');
+                        result.comparison.differences.forEach(diff => {
+                            const li = document.createElement('li');
+                            li.textContent = diff;
+                            diffList.appendChild(li);
+                        });
+                        comparisonDiv.appendChild(diffList);
+                    }
+                }
+                resultArea.appendChild(comparisonDiv);
+            }
+        }
+
+        // Show hint
+        function showHint() {
+            const level = learningLevels[gameState.currentLevel];
+            const question = level.questions[gameState.currentQuestionIndex];
+            
+            gameState.hintsUsed += 1;
+            showFeedback(`💡 Hint: ${question.hint}`, 'info');
+            updateStats();
+        }
+
+        // Show solution
+        function showSolution() {
+            const level = learningLevels[gameState.currentLevel];
+            const question = level.questions[gameState.currentQuestionIndex];
+            
+            document.getElementById('sqlInput').value = question.solution;
+            showFeedback(`🔍 Solution revealed: ${question.solution}`, 'info');
+        }
+
+        // Next question
+        function nextQuestion() {
+            const level = learningLevels[gameState.currentLevel];
+            
+            if (gameState.currentQuestionIndex < level.questions.length - 1) {
+                gameState.currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                // Level completed
+                gameState.completedLevels.add(gameState.currentLevel);
+                showFeedback(`🏆 Level completed! Great job mastering ${level.title}!`, 'success');
+                
+                setTimeout(() => {
+                    goBack();
+                }, 2000);
+            }
+            
+            saveGameState();
+        }
+
+        // Go back to level selection
+        function goBack() {
+            document.getElementById('levelSelector').style.display = 'grid';
+            document.getElementById('gameArea').classList.remove('active');
+            renderLevelSelector();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('streak').textContent = gameState.streak;
+            document.getElementById('hintsUsed').textContent = gameState.hintsUsed;
+            
+            // Update level based on completed levels
+            const completedCount = gameState.completedLevels.size;
+            let levelName = 'Beginner';
+            if (completedCount >= 6) levelName = 'SQL Master';
+            else if (completedCount >= 4) levelName = 'Advanced';
+            else if (completedCount >= 2) levelName = 'Intermediate';
+            
+            document.getElementById('level').textContent = levelName;
+        }
+
+        // Check for achievements
+        function checkAchievements() {
+            if (gameState.streak === 3 && !gameState.achievements.includes('streak_3')) {
+                showAchievement('🔥 Hot Streak! 3 correct answers in a row!');
+                gameState.achievements.push('streak_3');
+            }
+            
+            if (gameState.score >= 100 && !gameState.achievements.includes('score_100')) {
+                showAchievement('💯 Century! You reached 100 points!');
+                gameState.achievements.push('score_100');
+            }
+            
+            if (gameState.completedLevels.size === 3 && !gameState.achievements.includes('level_3')) {
+                showAchievement('🎓 SQL Student! Completed 3 levels!');
+                gameState.achievements.push('level_3');
+            }
+        }
+
+        // Show achievement
+        function showAchievement(message) {
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.textContent = message;
+            document.body.appendChild(achievement);
+            
+            setTimeout(() => {
+                achievement.remove();
+            }, 4000);
+        }
+
+        // Save game state
+        function saveGameState() {
+            const saveData = {
+                ...gameState,
+                completedLevels: Array.from(gameState.completedLevels)
+            };
+            // In a real app, this would save to localStorage or a server
+        }
+
+        // Load game state
+        function loadGameState() {
+            // In a real app, this would load from localStorage or a server
+            // For now, we'll keep the default state
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                gameState = {
+                    score: 0,
+                    currentLevel: null,
+                    currentQuestionIndex: 0,
+                    streak: 0,
+                    hintsUsed: 0,
+                    completedLevels: new Set(),
+                    achievements: []
+                };
+                updateStats();
+                goBack();
+            }
+        }
+
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
