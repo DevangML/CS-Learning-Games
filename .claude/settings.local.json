@@ -6,7 +6,8 @@
       "WebFetch(domain:github.com)",
       "Bash(grep:*)",
       "Bash(npm start)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ],
     "additionalDirectories": [
       "/private/tmp"

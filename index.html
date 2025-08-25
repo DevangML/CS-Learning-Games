@@ -13,6 +13,20 @@
             <p>Master SQL from basics to advanced concepts through interactive challenges!</p>
         </div>
 
+        <div class="mode-selector">
+            <h3>🎯 Learning Mode</h3>
+            <div class="mode-buttons">
+                <button class="mode-btn active" id="mode11" onclick="switchMode(11)">
+                    📚 Essentials (11 Levels)
+                    <small>Quick path to core concepts</small>
+                </button>
+                <button class="mode-btn" id="mode23" onclick="switchMode(23)">
+                    🎓 Complete (23 Levels)
+                    <small>Comprehensive SQL mastery</small>
+                </button>
+            </div>
+        </div>
+
         <div class="stats">
             <h3>📊 Your Progress</h3>
             <div class="progress-bar">
@@ -75,6 +89,7 @@
     <!-- Load JavaScript modules -->
     <script src="src/config/schema.js"></script>
     <script src="src/data/learningLevels.js"></script>
+    <script src="src/data/essentialsLevels.js"></script>
     <script src="src/js/gameState.js"></script>
     <script src="src/js/app.js"></script>
 </body>

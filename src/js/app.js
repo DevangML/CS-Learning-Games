@@ -2,6 +2,8 @@
 class SQLTutorApp {
     constructor() {
         this.gameState = null;
+        this.currentMode = 11; // Default to essentials mode
+        this.currentLevels = window.ESSENTIALS_LEVELS;
     }
 
     // Initialize Application
@@ -9,6 +11,7 @@ class SQLTutorApp {
         this.gameState = new GameStateManager();
         this.renderLevelSelector();
         this.bindEvents();
+        this.updateProgressDisplay();
         SchemaViewer.renderSchema();
     }
 
@@ -26,8 +29,8 @@ class SQLTutorApp {
             this.updateRoadmapMessage();
         }
         
-        Object.keys(LEARNING_LEVELS).forEach(levelNum => {
-            const level = LEARNING_LEVELS[levelNum];
+        Object.keys(this.currentLevels).forEach(levelNum => {
+            const level = this.currentLevels[levelNum];
             const levelNumber = parseInt(levelNum);
             const isCompleted = this.gameState.isLevelCompleted(levelNumber);
             const isUnlocked = this.isLevelUnlocked(levelNumber);
@@ -108,7 +111,7 @@ class SQLTutorApp {
 
     // Get the next recommended level for autonomous UI
     getNextLevel() {
-        const totalLevels = Object.keys(LEARNING_LEVELS).length;
+        const totalLevels = Object.keys(this.currentLevels).length;
         
         // Find first uncompleted level
         for (let i = 1; i <= totalLevels; i++) {
@@ -123,7 +126,7 @@ class SQLTutorApp {
 
     // Calculate overall progress percentage
     getProgressPercentage() {
-        const totalLevels = Object.keys(LEARNING_LEVELS).length;
+        const totalLevels = Object.keys(this.currentLevels).length;
         const completedLevels = this.gameState.getCurrentState().completedLevels.size;
         return Math.round((completedLevels / totalLevels) * 100);
     }
@@ -142,7 +145,7 @@ class SQLTutorApp {
     // Load current question
     loadQuestion() {
         const currentState = this.gameState.getCurrentState();
-        const level = LEARNING_LEVELS[currentState.currentLevel];
+        const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
         document.getElementById('currentQuestion').textContent = question.question;
@@ -160,6 +163,37 @@ class SQLTutorApp {
         }
     }
 
+    // Switch between learning modes
+    switchMode(mode) {
+        this.currentMode = mode;
+        this.currentLevels = (mode === 11) ? window.ESSENTIALS_LEVELS : window.LEARNING_LEVELS;
+        
+        // Update UI to show active mode
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`mode${mode}`).classList.add('active');
+        
+        // Reinitialize with new levels
+        this.renderLevelSelector();
+        this.updateProgressDisplay();
+    }
+
+    // Update progress display for current mode
+    updateProgressDisplay() {
+        const totalLevels = Object.keys(this.currentLevels).length;
+        const completedLevels = this.gameState.getCurrentState().completedLevels.size;
+        const progressPercentage = Math.round((completedLevels / totalLevels) * 100);
+        
+        document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+        document.getElementById('progressText').textContent = `${progressPercentage}% Complete`;
+        document.getElementById('nextLevel').textContent = `Level ${this.getNextLevel()}`;
+        
+        // Update stats
+        const currentState = this.gameState.getCurrentState();
+        document.getElementById('score').textContent = currentState.score;
+        document.getElementById('streak').textContent = currentState.streak;
+        document.getElementById('hintsUsed').textContent = currentState.hintsUsed;
+    }
+
     // Bind event handlers
     bindEvents() {
         // Make functions globally accessible for onclick handlers
@@ -170,13 +204,14 @@ class SQLTutorApp {
         window.nextQuestion = () => this.nextQuestion();
         window.goBack = () => this.goBack();
         window.resetProgress = () => this.resetProgress();
+        window.switchMode = (mode) => this.switchMode(mode);
     }
 
     // Check user's answer
     async checkAnswer() {
         const userQuery = document.getElementById('sqlInput').value.trim();
         const currentState = this.gameState.getCurrentState();
-        const level = LEARNING_LEVELS[currentState.currentLevel];
+        const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
         if (!userQuery) {
@@ -229,7 +264,7 @@ class SQLTutorApp {
     // Show hint
     showHint() {
         const currentState = this.gameState.getCurrentState();
-        const level = LEARNING_LEVELS[currentState.currentLevel];
+        const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
         this.gameState.useHint();
@@ -239,7 +274,7 @@ class SQLTutorApp {
     // Show solution
     showSolution() {
         const currentState = this.gameState.getCurrentState();
-        const level = LEARNING_LEVELS[currentState.currentLevel];
+        const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
         document.getElementById('sqlInput').value = question.solution;
@@ -255,7 +290,7 @@ class SQLTutorApp {
     // Next question
     nextQuestion() {
         const currentState = this.gameState.getCurrentState();
-        const level = LEARNING_LEVELS[currentState.currentLevel];
+        const level = this.currentLevels[currentState.currentLevel];
         
         if (currentState.currentQuestionIndex < level.questions.length - 1) {
             this.gameState.nextQuestion();
