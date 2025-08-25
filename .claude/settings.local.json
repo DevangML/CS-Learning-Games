@@ -1,5 +1,10 @@
 {
   "permissions": {
+    "allow": [
+      "WebFetch(domain:leetcode.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ],
     "additionalDirectories": [
       "/private/tmp"
     ]

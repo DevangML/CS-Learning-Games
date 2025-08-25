@@ -88,7 +88,44 @@ const createTables = async () => {
             (3, 1, 'Frontend Developer'),
             (5, 2, 'Backend Developer'),
             (1, 3, 'Database Architect'),
-            (2, 1, 'UI/UX Designer')`
+            (2, 1, 'UI/UX Designer')`,
+
+            // Additional tables for LeetCode patterns
+            `CREATE TABLE IF NOT EXISTS logs (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                num INT
+            )`,
+
+            `INSERT IGNORE INTO logs (id, num) VALUES
+            (1, 1), (2, 1), (3, 1), (4, 2), (5, 1), (6, 2), (7, 2)`,
+
+            `CREATE TABLE IF NOT EXISTS weather (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                record_date DATE,
+                temperature INT
+            )`,
+
+            `INSERT IGNORE INTO weather (id, record_date, temperature) VALUES
+            (1, '2015-01-01', 10), (2, '2015-01-02', 25), (3, '2015-01-03', 20), (4, '2015-01-04', 30)`,
+
+            `CREATE TABLE IF NOT EXISTS activity (
+                user_id INT,
+                session_id INT,
+                activity_date DATE,
+                activity_type VARCHAR(50),
+                PRIMARY KEY(user_id, session_id, activity_date)
+            )`,
+
+            `INSERT IGNORE INTO activity (user_id, session_id, activity_date, activity_type) VALUES
+            (1, 1, '2019-07-20', 'open_session'),
+            (1, 1, '2019-07-20', 'scroll_down'),
+            (1, 1, '2019-07-20', 'end_session'),
+            (1, 2, '2019-07-21', 'open_session'),
+            (1, 2, '2019-07-21', 'send_message'),
+            (1, 2, '2019-07-21', 'end_session'),
+            (2, 4, '2019-07-21', 'open_session'),
+            (2, 4, '2019-07-21', 'send_message'),
+            (2, 4, '2019-07-21', 'end_session')`
         ];
 
         for (const sql of sqlStatements) {
@@ -268,6 +305,92 @@ const expectedResults = {
         { employee_name: 'Lisa Davis', department_name: 'Marketing' },
         { employee_name: 'Tom Anderson', department_name: 'HR' },
         { employee_name: 'Emily White', department_name: 'Sales' }
+    ],
+
+    // Window Functions & Ranking
+    'SELECT name, department_id, salary, RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as salary_rank FROM employees': [
+        { name: 'Mike Johnson', department_id: 1, salary: '80000.00', salary_rank: 1 },
+        { name: 'John Doe', department_id: 1, salary: '75000.00', salary_rank: 2 },
+        { name: 'David Brown', department_id: 1, salary: '70000.00', salary_rank: 3 },
+        { name: 'Jane Smith', department_id: 2, salary: '65000.00', salary_rank: 1 },
+        { name: 'Lisa Davis', department_id: 2, salary: '60000.00', salary_rank: 2 },
+        { name: 'Emily White', department_id: 3, salary: '58000.00', salary_rank: 1 },
+        { name: 'Sarah Wilson', department_id: 3, salary: '55000.00', salary_rank: 2 },
+        { name: 'Tom Anderson', department_id: 4, salary: '50000.00', salary_rank: 1 }
+    ],
+
+    // Advanced Subqueries
+    'SELECT e1.name, e1.salary, e1.department_id FROM employees e1 WHERE e1.salary > (SELECT AVG(e2.salary) FROM employees e2 WHERE e2.department_id = e1.department_id)': [
+        { name: 'Mike Johnson', salary: '80000.00', department_id: 1 },
+        { name: 'Jane Smith', salary: '65000.00', department_id: 2 },
+        { name: 'Emily White', salary: '58000.00', department_id: 3 }
+    ],
+
+    'SELECT DISTINCT d.name FROM departments d WHERE 50000 < ALL (SELECT e.salary FROM employees e WHERE e.department_id = d.id)': [
+        { name: 'Engineering' },
+        { name: 'Marketing' }
+    ],
+
+    // Date & Time Functions
+    'SELECT YEAR(hire_date) as hire_year, COUNT(*) as employees_hired FROM employees GROUP BY YEAR(hire_date) ORDER BY hire_year': [
+        { hire_year: 2019, employees_hired: 1 },
+        { hire_year: 2020, employees_hired: 2 },
+        { hire_year: 2021, employees_hired: 2 },
+        { hire_year: 2022, employees_hired: 2 },
+        { hire_year: 2023, employees_hired: 1 }
+    ],
+
+    // Complex Conditional Logic
+    'SELECT name, salary, CASE WHEN salary >= 80000 THEN \'Senior\' WHEN salary >= 60000 THEN \'Mid-Level\' WHEN salary >= 40000 THEN \'Junior\' ELSE \'Entry-Level\' END as salary_tier FROM employees': [
+        { name: 'John Doe', salary: '75000.00', salary_tier: 'Mid-Level' },
+        { name: 'Jane Smith', salary: '65000.00', salary_tier: 'Mid-Level' },
+        { name: 'Mike Johnson', salary: '80000.00', salary_tier: 'Senior' },
+        { name: 'Sarah Wilson', salary: '55000.00', salary_tier: 'Junior' },
+        { name: 'David Brown', salary: '70000.00', salary_tier: 'Mid-Level' },
+        { name: 'Lisa Davis', salary: '60000.00', salary_tier: 'Mid-Level' },
+        { name: 'Tom Anderson', salary: '50000.00', salary_tier: 'Junior' },
+        { name: 'Emily White', salary: '58000.00', salary_tier: 'Junior' }
+    ],
+
+    // Advanced Grouping
+    'SELECT d.name, AVG(e.salary) as avg_salary FROM departments d JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name HAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees)': [
+        { name: 'Engineering', avg_salary: '75000.0000' }
+    ],
+
+    // Self-Joins
+    'SELECT DISTINCT e1.name FROM employees e1 JOIN employees e2 ON e1.department_id = e2.department_id AND e1.salary > e2.salary': [
+        { name: 'Mike Johnson' },
+        { name: 'John Doe' },
+        { name: 'Jane Smith' },
+        { name: 'Emily White' }
+    ],
+
+    // String Operations
+    'SELECT name, CONCAT(name, \'@company.com\') as email, SUBSTRING_INDEX(CONCAT(name, \'@company.com\'), \'@\', -1) as domain FROM employees': [
+        { name: 'John Doe', email: 'John Doe@company.com', domain: 'company.com' },
+        { name: 'Jane Smith', email: 'Jane Smith@company.com', domain: 'company.com' },
+        { name: 'Mike Johnson', email: 'Mike Johnson@company.com', domain: 'company.com' },
+        { name: 'Sarah Wilson', email: 'Sarah Wilson@company.com', domain: 'company.com' },
+        { name: 'David Brown', email: 'David Brown@company.com', domain: 'company.com' },
+        { name: 'Lisa Davis', email: 'Lisa Davis@company.com', domain: 'company.com' },
+        { name: 'Tom Anderson', email: 'Tom Anderson@company.com', domain: 'company.com' },
+        { name: 'Emily White', email: 'Emily White@company.com', domain: 'company.com' }
+    ],
+
+    // LeetCode Patterns
+    'SELECT DISTINCT salary as SecondHighestSalary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 2': [
+        { SecondHighestSalary: '70000.00' }
+    ],
+
+    'SELECT d.name as Department, e.name as Employee, e.salary as Salary FROM employees e JOIN departments d ON e.department_id = d.id WHERE (e.department_id, e.salary) IN (SELECT department_id, MAX(salary) FROM employees GROUP BY department_id)': [
+        { Department: 'Engineering', Employee: 'Mike Johnson', Salary: '80000.00' },
+        { Department: 'Marketing', Employee: 'Jane Smith', Salary: '65000.00' },
+        { Department: 'Sales', Employee: 'Emily White', Salary: '58000.00' },
+        { Department: 'HR', Employee: 'Tom Anderson', Salary: '50000.00' }
+    ],
+
+    'SELECT DISTINCT l1.id FROM logs l1 JOIN logs l2 ON l1.id = l2.id - 1 JOIN logs l3 ON l2.id = l3.id - 1 WHERE l1.num = l2.num AND l2.num = l3.num': [
+        { id: 1 }
     ]
 };
 
