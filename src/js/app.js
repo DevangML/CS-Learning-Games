@@ -218,6 +218,11 @@ class SQLTutorApp {
             this.showFeedback('Please enter a SQL query!', 'error');
             return;
         }
+
+        // Check session time limit
+        if (window.authManager && window.authManager.checkSessionTime()) {
+            return; // Session ended
+        }
         
         // Execute query against MySQL database
         try {
@@ -238,13 +243,41 @@ class SQLTutorApp {
                 
                 const isCorrect = this.checkQueryCorrectness(normalizedUser, normalizedSolution, question);
                 
+                // Record answer for fail-fast hints
+                let autoHintShown = false;
+                if (window.authManager) {
+                    autoHintShown = window.authManager.recordAnswer(currentState.currentLevel, currentState.currentQuestionIndex, isCorrect);
+                }
+                
                 if (isCorrect) {
                     this.gameState.updateScore(10);
                     this.gameState.updateStreak(true);
                     this.showFeedback('🎉 Excellent! Your query is correct!', 'success');
+                    
+                    // Record progress with authentication system
+                    if (window.authManager) {
+                        await window.authManager.recordProgress(
+                            currentState.currentLevel,
+                            currentState.currentQuestionIndex,
+                            true,
+                            currentState.hintsUsed
+                        );
+                    }
                 } else {
                     this.gameState.updateStreak(false);
-                    this.showFeedback('❌ Not quite right. Try again!', 'error');
+                    if (!autoHintShown) {
+                        this.showFeedback('❌ Not quite right. Try again!', 'error');
+                    }
+                    
+                    // Record failed attempt
+                    if (window.authManager) {
+                        await window.authManager.recordProgress(
+                            currentState.currentLevel,
+                            currentState.currentQuestionIndex,
+                            false,
+                            currentState.hintsUsed
+                        );
+                    }
                 }
                 
                 // Show actual query results
@@ -257,7 +290,7 @@ class SQLTutorApp {
             
         } catch (error) {
             console.error('Error executing query:', error);
-            this.showFeedback('❌ Connection error. Make sure the server is running.', 'error');
+            this.showFeedback('❌ Connection error. Please check your setup.', 'error');
         }
     }
 

@@ -7,7 +7,8 @@
       "Bash(grep:*)",
       "Bash(npm start)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(npm install)"
     ],
     "additionalDirectories": [
       "/private/tmp"

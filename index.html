@@ -27,16 +27,65 @@
             </div>
         </div>
 
-        <div class="stats">
+        <!-- Authentication Section -->
+        <div id="authSection" class="auth-section" style="display: none;">
+            <div class="auth-card">
+                <h2>🔐 Sign In to Continue</h2>
+                <p>Track your progress, maintain streaks, and unlock achievements!</p>
+                <button class="btn-google-signin" onclick="signInWithGoogle()">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- MySQL Setup Section -->
+        <div id="mysqlSetupSection" class="setup-section" style="display: none;">
+            <div class="setup-card">
+                <h2>🔧 MySQL Database Setup</h2>
+                <p>Configure your MySQL connection to start learning SQL!</p>
+                <form id="mysqlSetupForm">
+                    <input type="text" id="mysqlHost" placeholder="Host (default: localhost)" value="localhost">
+                    <input type="number" id="mysqlPort" placeholder="Port (default: 3306)" value="3306">
+                    <input type="text" id="mysqlUser" placeholder="MySQL Username" required>
+                    <input type="password" id="mysqlPassword" placeholder="MySQL Password" required>
+                    <input type="text" id="mysqlDatabase" placeholder="Database Name" value="sql_tutor">
+                    <button type="submit" class="btn btn-primary">🚀 Setup Database</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Profile & Stats -->
+        <div id="userProfile" class="user-profile" style="display: none;">
+            <div class="profile-info">
+                <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+                <div class="user-details">
+                    <span id="userName">Loading...</span>
+                    <span id="userLevel" class="user-level">Level 1</span>
+                </div>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats" id="gameStats" style="display: none;">
             <h3>📊 Your Progress</h3>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressBar" style="width: 0%;"></div>
             </div>
             <div>📈 Overall: <span id="progressText">0% Complete</span></div>
-            <div>🏆 Score: <span id="score">0</span></div>
+            <div>🏆 XP: <span id="totalXP">0</span></div>
             <div>⚡ Next: <span id="nextLevel">Level 1</span></div>
-            <div>🔥 Streak: <span id="streak">0</span></div>
+            <div>🔥 Streak: <span id="currentStreak">0</span></div>
+            <div>🛡️ Shields: <span id="streakShields">0</span></div>
             <div>💡 Hints Used: <span id="hintsUsed">0</span></div>
+        </div>
+
+        <!-- Daily Missions -->
+        <div id="dailyMissions" class="daily-missions" style="display: none;">
+            <h3>🎯 Today's Missions</h3>
+            <div id="missionsList" class="missions-list">
+                <!-- Missions will be populated here -->
+            </div>
         </div>
 
         <div id="roadmapHeader" class="roadmap-header" style="display: none;">
@@ -90,6 +139,8 @@
     <script src="src/config/schema.js"></script>
     <script src="src/data/learningLevels.js"></script>
     <script src="src/data/essentialsLevels.js"></script>
+    <script src="src/js/onboarding.js"></script>
+    <script src="src/js/auth.js"></script>
     <script src="src/js/gameState.js"></script>
     <script src="src/js/app.js"></script>
 </body>
