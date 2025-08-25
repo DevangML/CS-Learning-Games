@@ -7,8 +7,15 @@ class SQLTutorApp {
     }
 
     // Initialize Application
-    init() {
-        this.gameState = new GameStateManager();
+    async init() {
+        // Initialize auth manager first
+        this.authManager = new AuthManager();
+        await this.authManager.init();
+        
+        // Initialize game state with auth manager reference
+        this.gameState = new GameStateManager(this.authManager);
+        window.gameStateManager = this.gameState; // Make available for auth manager
+        
         this.renderLevelSelector();
         this.bindEvents();
         this.updateProgressDisplay();
@@ -206,6 +213,28 @@ class SQLTutorApp {
         window.resetProgress = () => this.resetProgress();
         window.switchMode = (mode) => this.switchMode(mode);
     }
+    
+    // Calculate XP based on level difficulty and hints used
+    calculateXP(levelId, isCorrect, hintsUsed = 0) {
+        if (!isCorrect) return 0;
+        
+        let baseXP = 10;
+        let difficultyMultiplier = 1;
+        
+        // Determine difficulty multiplier based on level
+        if (levelId <= 4) difficultyMultiplier = 1; // Beginner
+        else if (levelId <= 10) difficultyMultiplier = 2; // Intermediate  
+        else difficultyMultiplier = 3; // Advanced
+        
+        let xp = baseXP * difficultyMultiplier;
+        
+        // Reduce XP for hints used (20% reduction per hint)
+        for (let i = 0; i < hintsUsed; i++) {
+            xp = Math.floor(xp * 0.8);
+        }
+        
+        return Math.max(1, xp); // Minimum 1 XP
+    }
 
     // Check user's answer
     async checkAnswer() {
@@ -250,19 +279,19 @@ class SQLTutorApp {
                 }
                 
                 if (isCorrect) {
-                    this.gameState.updateScore(10);
+                    const xpEarned = this.calculateXP(currentState.currentLevel, true, currentState.hintsUsed);
+                    this.gameState.updateScore(xpEarned);
                     this.gameState.updateStreak(true);
                     this.showFeedback('🎉 Excellent! Your query is correct!', 'success');
                     
-                    // Record progress with authentication system
-                    if (window.authManager) {
-                        await window.authManager.recordProgress(
-                            currentState.currentLevel,
-                            currentState.currentQuestionIndex,
-                            true,
-                            currentState.hintsUsed
-                        );
-                    }
+                    // Save progress to database
+                    await this.gameState.saveQuestionProgress(
+                        currentState.currentLevel,
+                        currentState.currentQuestionIndex,
+                        true,
+                        xpEarned,
+                        currentState.hintsUsed
+                    );
                 } else {
                     this.gameState.updateStreak(false);
                     if (!autoHintShown) {
@@ -270,14 +299,13 @@ class SQLTutorApp {
                     }
                     
                     // Record failed attempt
-                    if (window.authManager) {
-                        await window.authManager.recordProgress(
-                            currentState.currentLevel,
-                            currentState.currentQuestionIndex,
-                            false,
-                            currentState.hintsUsed
-                        );
-                    }
+                    await this.gameState.saveQuestionProgress(
+                        currentState.currentLevel,
+                        currentState.currentQuestionIndex,
+                        false,
+                        0,
+                        currentState.hintsUsed
+                    );
                 }
                 
                 // Show actual query results

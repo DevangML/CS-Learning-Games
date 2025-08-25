@@ -1,17 +1,24 @@
 // Game State Management Module
 class GameStateManager {
-    constructor() {
+    constructor(authManager = null) {
+        this.authManager = authManager;
         this.gameState = {
             score: 0,
             currentLevel: null,
             currentQuestionIndex: 0,
+            currentQuestion: null,
             streak: 0,
             hintsUsed: 0,
             completedLevels: new Set(),
-            achievements: []
+            completedQuestions: new Set(),
+            achievements: [],
+            totalXP: 0
         };
         
-        this.loadProgress();
+        // Only load from localStorage if not authenticated
+        if (!this.authManager || !this.authManager.currentUser) {
+            this.loadProgress();
+        }
     }
 
     updateScore(points) {
@@ -46,14 +53,82 @@ class GameStateManager {
         this.saveProgress();
     }
 
-    saveProgress() {
+    async saveProgress() {
+        // If user is authenticated, save to database
+        if (this.authManager && this.authManager.currentUser) {
+            // Database persistence is handled by individual progress calls
+            return;
+        }
+        
+        // Fallback to localStorage for demo/unauthenticated users
         localStorage.setItem('sqlQuestProgress', JSON.stringify({
             score: this.gameState.score,
             streak: this.gameState.streak,
             hintsUsed: this.gameState.hintsUsed,
             completedLevels: Array.from(this.gameState.completedLevels),
-            achievements: this.gameState.achievements
+            completedQuestions: Array.from(this.gameState.completedQuestions),
+            achievements: this.gameState.achievements,
+            totalXP: this.gameState.totalXP
         }));
+    }
+    
+    // Save question/level completion to database
+    async saveQuestionProgress(levelId, questionId, completed, xpEarned = 0, hintsUsed = 0) {
+        if (!this.authManager || !this.authManager.currentUser) {
+            // For unauthenticated users, just update local state
+            if (completed) {
+                this.gameState.completedQuestions.add(`${levelId}-${questionId}`);
+                this.gameState.totalXP += xpEarned;
+            }
+            this.saveProgress();
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/user/progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    level_id: levelId,
+                    question_id: questionId,
+                    completed: completed,
+                    xp_earned: xpEarned,
+                    hints_used: hintsUsed
+                })
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                // Update local state with server response
+                if (completed) {
+                    this.gameState.completedQuestions.add(`${levelId}-${questionId}`);
+                    this.gameState.totalXP += xpEarned;
+                    
+                    // Check if level is completed (all questions done)
+                    if (this.isLevelFullyCompleted(levelId)) {
+                        this.gameState.completedLevels.add(levelId);
+                    }
+                }
+                
+                // Update user stats from server if available
+                if (this.authManager.userStats) {
+                    this.authManager.userStats.total_xp = result.total_xp || this.authManager.userStats.total_xp;
+                    this.authManager.userStats.level = result.level || this.authManager.userStats.level;
+                    this.authManager.updateStatsDisplay();
+                }
+                
+                // Check if this question is part of today's missions
+                if (completed) {
+                    this.checkMissionCompletion(levelId, questionId);
+                }
+                
+                this.updateDisplay();
+            }
+        } catch (error) {
+            console.error('Failed to save progress:', error);
+        }
     }
 
     loadProgress() {
@@ -64,9 +139,113 @@ class GameStateManager {
             this.gameState.streak = data.streak || 0;
             this.gameState.hintsUsed = data.hintsUsed || 0;
             this.gameState.completedLevels = new Set(data.completedLevels || []);
+            this.gameState.completedQuestions = new Set(data.completedQuestions || []);
             this.gameState.achievements = data.achievements || [];
+            this.gameState.totalXP = data.totalXP || 0;
         }
         this.updateDisplay();
+    }
+    
+    // Load progress from database for authenticated users
+    async loadUserProgress() {
+        if (!this.authManager || !this.authManager.currentUser) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/user/progress');
+            if (response.ok) {
+                const progressData = await response.json();
+                
+                // Reset state
+                this.gameState.completedLevels.clear();
+                this.gameState.completedQuestions.clear();
+                
+                // Load from server data
+                if (progressData.progress) {
+                    progressData.progress.forEach(item => {
+                        if (item.completed) {
+                            this.gameState.completedQuestions.add(`${item.level_id}-${item.question_id}`);
+                            
+                            // Mark level as completed if all questions are done
+                            if (this.isLevelFullyCompleted(item.level_id)) {
+                                this.gameState.completedLevels.add(item.level_id);
+                            }
+                        }
+                    });
+                }
+                
+                // Update XP and other stats from user stats
+                if (this.authManager.userStats) {
+                    this.gameState.totalXP = this.authManager.userStats.total_xp || 0;
+                    this.gameState.streak = this.authManager.userStats.current_streak || 0;
+                }
+                
+                this.updateDisplay();
+            }
+        } catch (error) {
+            console.error('Failed to load user progress:', error);
+        }
+    }
+    
+    // Check if level is fully completed (helper method)
+    isLevelFullyCompleted(levelId) {
+        if (!window.LEARNING_LEVELS || !window.LEARNING_LEVELS[levelId]) {
+            return false;
+        }
+        
+        const level = window.LEARNING_LEVELS[levelId];
+        const questionsCount = level.questions ? level.questions.length : 1;
+        let completedCount = 0;
+        
+        for (let i = 0; i < questionsCount; i++) {
+            if (this.gameState.completedQuestions.has(`${levelId}-${i}`)) {
+                completedCount++;
+            }
+        }
+        
+        return completedCount === questionsCount;
+    }
+    
+    // Check if completed question is part of today's missions
+    async checkMissionCompletion(levelId, questionId) {
+        if (!this.authManager || !this.authManager.currentUser) {
+            return;
+        }
+        
+        try {
+            // Get today's missions
+            const response = await fetch('/api/daily-missions');
+            if (response.ok) {
+                const missions = await response.json();
+                const questionKey = `${levelId}-${questionId}`;
+                
+                // Check if this question matches any of today's missions
+                if (missions.question_1_id === questionKey || 
+                    missions.question_2_id === questionKey || 
+                    missions.question_3_id === questionKey) {
+                    
+                    // Update mission progress
+                    await fetch('/api/daily-missions/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            level_id: levelId,
+                            question_id: questionId
+                        })
+                    });
+                    
+                    // Refresh missions display
+                    if (this.authManager.loadDailyMissions) {
+                        await this.authManager.loadDailyMissions();
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Failed to check mission completion:', error);
+        }
     }
 
     resetProgress() {

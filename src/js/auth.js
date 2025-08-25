@@ -64,6 +64,11 @@ class AuthManager {
             if (response.ok) {
                 this.userStats = await response.json();
                 this.updateStatsDisplay();
+                
+                // Load user progress into game state if available
+                if (window.gameStateManager && window.gameStateManager.loadUserProgress) {
+                    await window.gameStateManager.loadUserProgress();
+                }
             }
         } catch (error) {
             console.error('Failed to load user stats:', error);

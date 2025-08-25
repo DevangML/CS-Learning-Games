@@ -8,7 +8,9 @@
       "Bash(npm start)",
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "WebFetch(domain:we-plus.be)",
+      "Bash(chmod:*)"
     ],
     "additionalDirectories": [
       "/private/tmp"

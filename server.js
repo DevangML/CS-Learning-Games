@@ -575,6 +575,22 @@ app.get('/api/user/stats', requireAuth, (req, res) => {
     });
 });
 
+// Get user progress
+app.get('/api/user/progress', requireAuth, (req, res) => {
+    const userId = req.user.id;
+    
+    userDb.all(
+        'SELECT level_id, question_id, completed, xp_earned, hints_used, completed_at FROM user_progress WHERE user_id = ? ORDER BY level_id, question_id',
+        [userId],
+        (err, progress) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ progress: progress || [] });
+        }
+    );
+});
+
 app.post('/api/user/progress', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const { level_id, question_id, completed, xp_earned, hints_used } = req.body;
@@ -740,6 +756,69 @@ app.get('/api/daily-missions', requireAuth, (req, res) => {
                     .catch(error => res.status(500).json({ error: error.message }));
             } else {
                 res.json(row);
+            }
+        }
+    );
+});
+
+// Complete a daily mission
+app.post('/api/daily-missions/complete', requireAuth, (req, res) => {
+    const userId = req.user.id;
+    const { level_id, question_id } = req.body;
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Get today's missions
+    userDb.get(
+        'SELECT * FROM daily_missions WHERE user_id = ? AND mission_date = ?',
+        [userId, today],
+        (err, missions) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (!missions) {
+                return res.status(404).json({ error: 'No missions found for today' });
+            }
+            
+            const questionKey = `${level_id}-${question_id}`;
+            let newCompletedCount = missions.completed_count;
+            
+            // Check which mission this question belongs to and mark as complete
+            if (missions.question_1_id === questionKey && missions.completed_count < 1) {
+                newCompletedCount = 1;
+            } else if (missions.question_2_id === questionKey && missions.completed_count < 2) {
+                newCompletedCount = 2;
+            } else if (missions.question_3_id === questionKey && missions.completed_count < 3) {
+                newCompletedCount = 3;
+            }
+            
+            if (newCompletedCount > missions.completed_count) {
+                // Update mission progress
+                userDb.run(
+                    'UPDATE daily_missions SET completed_count = ? WHERE user_id = ? AND mission_date = ?',
+                    [newCompletedCount, userId, today],
+                    (err) => {
+                        if (err) {
+                            return res.status(500).json({ error: err.message });
+                        }
+                        
+                        // Also update weekly quest progress
+                        const today = new Date();
+                        const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay()).toISOString().split('T')[0];
+                        userDb.run(
+                            'UPDATE weekly_quests SET missions_completed = missions_completed + 1, completed = CASE WHEN missions_completed + 1 >= missions_target THEN 1 ELSE 0 END WHERE user_id = ? AND week_start = ?',
+                            [userId, weekStart],
+                            (err) => {
+                                if (err) {
+                                    console.error('Failed to update weekly quest:', err);
+                                }
+                                res.json({ success: true, completed_count: newCompletedCount });
+                            }
+                        );
+                    }
+                );
+            } else {
+                res.json({ success: true, completed_count: missions.completed_count });
             }
         }
     );
