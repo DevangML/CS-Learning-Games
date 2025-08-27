@@ -1,0 +1,14 @@
+---
+description: "CI/CD rules"
+globs: [".github/workflows/*.yml"]
+alwaysApply: true
+---
+
+# CI/CD
+
+## Must
+- "Run lint, type-check (if TS), and tests on PRs"
+- "Block merges on failing checks"
+
+## Should
+- "Use Dependabot or similar to keep dependencies updated"

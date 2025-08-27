@@ -1,0 +1,21 @@
+---
+description: "MySQL rules"
+globs: ["server/db/mysqlPool.ts", "server/db/mysqlPool.js", "server.js"]
+alwaysApply: true
+---
+
+# MySQL
+
+## Must
+- "Use mysql2/promise createPool() with connectionLimit and idleTimeout"
+- "Centralize pool creation in server/db/mysqlPool.ts|js; export a getPool()"
+- "Set session limits for user queries: MAX_EXECUTION_TIME (<= 1500ms)"
+- "Enforce result size limits for user queries (append LIMIT if not present, e.g., 200)"
+- "Parameterize all queries; never string-interpolate identifiers or values"
+
+## Should
+- "Use migrations for schema and seeds (e.g., node-based migration scripts)"
+- "Add read-only DB user for /execute-query"
+
+## Avoid
+- "Global mutable mysqlConnection singletons; prefer pool and per-request connections"

@@ -1,0 +1,15 @@
+---
+description: "Testing rules"
+globs: ["**/*.test.js", "**/*.spec.js"]
+alwaysApply: true
+---
+
+# Testing
+
+## Must
+- "Add unit tests for services (gamification, streaks, missions)"
+- "Add integration tests for routes (supertest) including auth, missions, weekly, reflection"
+- "Add security tests for /execute-query (SQL injection attempts, timeouts, row caps)"
+
+## Should
+- "Aim for >= 70% coverage on changed lines"

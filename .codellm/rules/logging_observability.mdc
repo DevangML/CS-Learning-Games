@@ -1,0 +1,15 @@
+---
+description: "Logging and observability rules"
+globs: ["server/**/*.js", "server.js"]
+alwaysApply: true
+---
+
+# Logging & Observability
+
+## Must
+- "Use structured logging (pino or winston) with levels and requestId"
+- "Mask PII and secrets in logs"
+- "Add request logging middleware for method, path, status, latency"
+
+## Should
+- "Expose basic metrics (request count, latency, errors) and DB health"

@@ -1,0 +1,16 @@
+---
+description: "API design rules"
+globs: ["server/routes/**/*.js", "server.js"]
+alwaysApply: true
+---
+
+# API Design
+
+## Must
+- "Prefix API routes with /api/v1 and keep consistent envelopes: { success, data?, error? }"
+- "Use accurate HTTP status codes (201 for created, 400/401/403/404/409/422/429/5xx)"
+- "Document routes with an OpenAPI spec (openapi.yaml) and keep it updated"
+
+## Should
+- "Design idempotent endpoints for progress updates where possible"
+- "Avoid returning heterogeneous shapes across similar endpoints"

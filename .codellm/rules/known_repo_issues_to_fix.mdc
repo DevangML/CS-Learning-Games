@@ -1,0 +1,65 @@
+---
+description: "Known repo issues to fix"
+globs: ["server.js"]
+alwaysApply: true
+---
+
+# Known Repo Issues to Fix
+
+- id: static_root_exposure
+  description: "app.use(express.static('.')) serves entire repo, including server code"
+  recommendation: "Serve from public/ only; move assets there"
+  file: server.js
+  severity: high
+- id: weak_sql_allowlist
+  description: "execute-query allows CREATE/ALTER; can mutate schema"
+  recommendation: "Allow only SELECT and EXPLAIN; strip comments; enforce LIMIT"
+  file: server.js
+  lines_hint: [1020, 1029]
+  severity: critical
+- id: cors_wildcard
+  description: "CORS enabled without origin restriction"
+  recommendation: "Configure CORS with explicit allowed origins from env"
+  file: server.js
+  lines_hint: [17]
+  severity: high
+- id: session_cookie_security
+  description: "Session cookie secure=false and sameSite unspecified"
+  recommendation: "Set secure based on NODE_ENV, httpOnly true, sameSite 'lax' or 'strict'"
+  file: server.js
+  lines_hint: [21, 27]
+  severity: high
+- id: mysql_no_pool
+  description: "Using createConnection instead of pool; global mysqlConnection"
+  recommendation: "Switch to mysql2.createPool in a db module and inject"
+  file: server.js
+  lines_hint: [334, 349]
+  severity: medium
+- id: setup_mysql_injection_surface
+  description: "Database name interpolated into CREATE DATABASE"
+  recommendation: "Validate db name strictly; or create via admin API with escaping"
+  file: server.js
+  lines_hint: [424, 435]
+  severity: high
+- id: kill_port_in_prod
+  description: "killProcessOnPort runs unguarded; risky in prod"
+  recommendation: "Run only in development based on NODE_ENV"
+  file: server.js
+  lines_hint: [1062, 1127]
+  severity: medium
+- id: sqlite_missing_indexes
+  description: "Several tables lack indexes for common query patterns"
+  recommendation: "Add indexes to user_progress, daily_missions, weekly_quests, etc."
+  file: server.js
+  lines_hint: [53, 94]
+  severity: medium
+- id: monolithic_server_js
+  description: "server.js contains mixed concerns: setup, routing, logic, db"
+  recommendation: "Refactor into layered architecture (routes, controllers, services)"
+  file: server.js
+  severity: low
+- id: missing_structured_logging
+  description: "Uses console.log instead of a structured logger"
+  recommendation: "Integrate pino or winston for structured, leveled logging"
+  file: server.js
+  severity: low

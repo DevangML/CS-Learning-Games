@@ -1,0 +1,13 @@
+---
+description: "Agent workflow rules"
+globs: []
+alwaysApply: true
+---
+
+# Agent Workflow
+
+- "Before changing code: read impacted files and summarize intent, risks, and testability"
+- "Propose a minimal plan with diffs or file list, get confirmation for large refactors"
+- "Prefer incremental, self-contained PRs"
+- "Write or update tests for changed code paths"
+- "Run linters/formatters and update docs"

@@ -1,0 +1,14 @@
+---
+description: "Definition of done checklist"
+globs: []
+alwaysApply: true
+---
+
+# Definition of Done Checklist
+
+- "Security: inputs validated, secrets safe, no widened SQL permissions"
+- "Architecture: logic in services, repositories; controllers thin"
+- "Performance: DB pooled; limits/timeouts in place; no N+1 patterns introduced"
+- "Style: lint/format pass; files and functions within size limits"
+- "Tests: added/updated; CI green"
+- "Docs: README or inline docs updated"

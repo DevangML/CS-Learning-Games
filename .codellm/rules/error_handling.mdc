@@ -1,0 +1,12 @@
+---
+description: "Error handling rules"
+glo-bs: ["server/middleware/errorHandler.js", "server.js"]
+alwaysApply: true
+---
+
+# Error Handling
+
+## Must
+- "Central error middleware formats errors consistently"
+- "Map known errors to 4xx; unexpected to 500 with generic message"
+- "Never leak stack traces to clients in production"

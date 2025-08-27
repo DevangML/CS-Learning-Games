@@ -1,0 +1,15 @@
+---
+description: "Config and environment rules"
+globs: ["server/config/**/*.js", "server.js", ".env.example"]
+alwaysApply: true
+---
+
+# Config & Environment
+
+## Must
+- "12-factor config: read from process.env only in a central config module"
+- "Validate required env on startup with a schema (e.g., zod/joi)"
+- "Provide .env.example with documented variables: PORT, SESSION_SECRET, CORS_ORIGINS, MYSQL_*, GOOGLE_*"
+
+## Should
+- "Set NODE_ENV checks for behavior toggles (e.g., killProcessOnPort only in development)"

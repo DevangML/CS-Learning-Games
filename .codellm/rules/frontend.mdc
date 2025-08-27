@@ -1,0 +1,20 @@
+---
+description: "Frontend rules"
+globs: ["public/**/*.js", "public/**/*.html"]
+alwaysApply: true
+---
+
+# Frontend
+
+## Must
+- "Avoid inline onclick/on* handlers in HTML; bind events in JS modules"
+- "Avoid innerHTML with unsanitized data; prefer textContent or sanitize explicitly"
+- "Minimize global window.* exports; encapsulate modules and expose only one app entry"
+
+## Should
+- "Adopt ESLint + Prettier with a consistent style (airbnb/base or standard)"
+- "Consider TypeScript migration for shared types (API payloads, state)"
+- "Use feature modules (auth, gameState, onboarding, router) with clear interfaces"
+
+## Avoid
+- "Cross-module DOM mutations without an explicit API or event bus"

@@ -1,0 +1,18 @@
+---
+description: "Code style rules"
+globs: ["**/*.js", "**/*.ts"]
+alwaysApply: true
+---
+
+# Code Style
+
+## Must
+- "Use const by default; let when reassignment is required"
+- "No var; no implicit globals"
+- "Prefer early returns over nested conditionals"
+- "Function length <= 50 lines in controllers/services; extract helpers"
+- "File length <= 300 lines; split modules when exceeding"
+
+## Should
+- "Apply Prettier formatting; 2-space indent; single quotes; trailing commas where valid"
+- "JSDoc or TSDoc for public functions and complex logic"

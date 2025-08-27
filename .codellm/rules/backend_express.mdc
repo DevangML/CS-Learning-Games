@@ -1,0 +1,22 @@
+---
+description: "Backend Express rules"
+globs: ["server/**/*.js", "server.js"]
+alwaysApply: true
+---
+
+# Backend Express
+
+## Must
+- "Register security middleware: helmet, sanitized CORS, rate limiting for sensitive routes"
+- "Centralize error handling with an error middleware that emits consistent problem+json responses"
+- "Serve static files from a dedicated public/ directory, not project root"
+- "Use express.json with size limits (e.g., 100kb)"
+- "Use async handlers with try/catch; never leave unhandled promise rejections"
+
+## Should
+- "Use express.Router() per domain: auth, user, missions, weekly, reflection, query, setup, health"
+- "Expose health endpoints: /health (liveness) and /ready (readiness)"
+- "Add compression middleware for text responses"
+
+## Avoid
+- "console.log in production paths; use structured logging instead"

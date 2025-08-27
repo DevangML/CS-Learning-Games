@@ -1,0 +1,10 @@
+---
+description: "Release management rules"
+globs: []
+alwaysApply: true
+---
+
+# Release Management
+
+## Should
+- "Use conventional commits and generate changelogs"

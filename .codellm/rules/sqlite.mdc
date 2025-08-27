@@ -1,0 +1,21 @@
+---
+description: "SQLite rules"
+globs: ["server/db/**/*.js", "server.js"]
+alwaysApply: true
+---
+
+# SQLite
+
+## Must
+- "Wrap sqlite3 operations in promise utilities for consistent async handling"
+- "Create indexes for frequent lookups:
+    - user_progress(user_id, level_id, question_id)
+    - daily_missions(user_id, mission_date)
+    - weekly_quests(user_id, week_start)
+    - streak_recovery(user_id, created_at, recovery_used)
+    - spaced_repetition(user_id, due_date)
+  "
+- "Enable PRAGMA foreign_keys=ON at connection time"
+
+## Should
+- "Group multi-statement updates (e.g., progress + XP) in transactions"

@@ -1,0 +1,38 @@
+---
+description: "Architecture rules"
+globs: []
+alwaysApply: true
+---
+
+# Architecture
+
+## Principles
+- "Small, composable modules with clear boundaries"
+- "Separation of concerns: routing → controller → service → repository → db"
+- "Security first, least privilege"
+- "Prefer explicit over implicit behavior"
+- "Idempotent initialization; deterministic startup"
+
+## Desired Structure
+- "server/ (entrypoint, app wiring)"
+- "server/config/ (env, config loader/validator)"
+- "server/middleware/ (cors, helmet, rate-limit, auth, error-handler)"
+- "server/routes/ (express routers per domain)"
+- "server/controllers/ (translate HTTP ↔ domain)"
+- "server/services/ (business logic: gamification, missions, streaks)"
+- "server/repositories/ (db access: mysql, sqlite)"
+- "server/db/ (pool creation, migrations, seeds)"
+- "server/utils/"
+- "public/ (static assets)"
+
+## Must
+- "Break up monolithic server.js into layered modules when touching related areas"
+- "Keep route handlers thin; move logic to services"
+- "Keep repository functions side-effect free (no I/O other than DB)"
+
+## Should
+- "Introduce TypeScript gradually for server files (controllers/services/repos)"
+- "Use dependency injection for db pools and clock/time to improve testability"
+
+## Avoid
+- "Tight coupling between HTTP layer and database drivers"

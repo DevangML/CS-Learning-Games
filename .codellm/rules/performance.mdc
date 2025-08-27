@@ -1,0 +1,16 @@
+---
+description: "Performance rules"
+globs: ["server.js", "public/**/*.js"]
+alwaysApply: true
+---
+
+# Performance
+
+## Must
+- "Cache-control for static assets; use express.static with long maxAge for hashed files"
+- "Use gzip/brotli compression for text responses"
+- "Paginate or cap query results rendered in the UI (<= 200 rows)"
+
+## Should
+- "Debounce frequent UI updates; reuse DOM nodes where possible"
+- "Pool DB connections and reuse prepared statements"
