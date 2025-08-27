@@ -12,13 +12,18 @@ alwaysApply: true
 - "Harden session cookies: httpOnly: true, sameSite: 'lax' or 'strict'; secure: true in production"
 - "Never expose secrets or stack traces in API responses"
 - "Validate all request bodies, params, and query strings with a schema validator (e.g., zod/joi)"
-- "For /setup-mysql, strictly validate database name and all inputs; deny if not matching ^[a-zA-Z0-9_]+$"
 - "Disable directory listing and ensure static serve does not expose server code"
 - "Set MySQL multipleStatements=false"
 
 ## Should
 - "Add rate limiting to /auth/* and /execute-query (e.g., 10 req/min per IP/user)"
 - "Use CSRF protection for state-changing endpoints if browser-based session auth is used"
+- "Implement robust authentication using OAuth 2.0 or OpenID Connect."
+- "Enforce role-based access control (RBAC) on all sensitive endpoints."
+- "Store passwords using a strong, salted hashing algorithm (e.g., bcrypt or Argon2)."
+- "Regularly scan dependencies for known vulnerabilities (e.g., using npm audit or Snyk)."
 
 ## Avoid
+- "Rolling your own cryptography or authentication mechanisms."
+- "Disabling security features in production environments."
 - "Expanding allowed SQL beyond SELECT/EXPLAIN for user-submitted queries"

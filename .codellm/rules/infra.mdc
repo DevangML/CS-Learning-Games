@@ -1,0 +1,24 @@
+---
+description: "Infrastructure and DevOps Rules"
+globs: ["Dockerfile", "docker-compose.yml", "terraform/**/*.tf", ".github/workflows/*.yml"]
+alwaysApply: true
+---
+
+# Infrastructure & DevOps
+
+## Must
+- "All application services MUST be containerized using Docker."
+- "Use multi-stage builds in Dockerfiles to create lean production images."
+- "Define infrastructure as code (IaC) using Terraform."
+- "Store Terraform state in a secure, remote backend (e.g., S3 with locking)."
+- "Manage all secrets using a dedicated secret manager (e.g., AWS Secrets Manager, HashiCorp Vault), not in environment variables or code."
+- "Enforce branch protection rules on the main branch, requiring PR reviews and passing CI checks before merging."
+
+## Should
+- "Use a `.dockerignore` file to exclude unnecessary files from the container image."
+- "Scan container images for vulnerabilities using a tool like Trivy or Snyk."
+- "Implement a health check endpoint (e.g., `/health`) in services for load balancer and orchestrator health probes."
+
+## Avoid
+- "Storing credentials or secrets in IaC files."
+- "Using 'latest' tag for Docker images in production; use specific, immutable tags."

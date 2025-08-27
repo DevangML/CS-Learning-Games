@@ -13,3 +13,9 @@ alwaysApply: true
 
 ## Should
 - "Expose basic metrics (request count, latency, errors) and DB health"
+- "Integrate distributed tracing (e.g., OpenTelemetry) to trace requests across services."
+- "Define Service Level Objectives (SLOs) for key user journeys and set up alerting."
+
+## Avoid
+- "Logging sensitive user data in plain text."
+- "Using generic log messages that lack context."

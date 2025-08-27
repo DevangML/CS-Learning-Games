@@ -12,3 +12,5 @@ alwaysApply: true
 
 ## Should
 - "Use Dependabot or similar to keep dependencies updated"
+- "Run static application security testing (SAST) and dynamic application security testing (DAST) in the CI pipeline."
+- "Generate and upload a Software Bill of Materials (SBOM) for each build (e.g., CycloneDX or SPDX)."
