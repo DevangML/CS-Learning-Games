@@ -7,9 +7,12 @@ class AuthManager {
         this.sessionXP = 0;
         this.sessionQuestions = 0;
         this.wrongAnswerCount = new Map(); // Track wrong answers per question
+        this._initialized = false;
     }
 
     async init() {
+        if (this._initialized) return;
+        this._initialized = true;
         await this.checkAuthStatus();
         this.sessionStartTime = Date.now();
     }

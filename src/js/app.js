@@ -8,9 +8,18 @@ class SQLTutorApp {
 
     // Initialize Application
     async init() {
-        // Initialize auth manager first
-        this.authManager = new AuthManager();
-        await this.authManager.init();
+        // Initialize or reuse global auth manager to avoid duplicate instances
+        if (window.authManager) {
+            this.authManager = window.authManager;
+            // If not initialized yet, initialize now
+            if (!this.authManager.currentUser && typeof this.authManager.init === 'function') {
+                await this.authManager.init();
+            }
+        } else {
+            this.authManager = new AuthManager();
+            await this.authManager.init();
+            window.authManager = this.authManager;
+        }
         
         // Initialize game state with auth manager reference
         this.gameState = new GameStateManager(this.authManager);
@@ -64,6 +73,8 @@ class SQLTutorApp {
             
             const difficultyColor = difficultyColors[level.difficulty] || '#757575';
             
+            const lockedBadge = !isUnlocked ? '<div title="Complete the previous level to unlock" style="color:#888; margin-top:8px;">🔒 Locked</div>' : '';
+            const nextHint = isNextLevel && isUnlocked && !isCompleted ? '<div style="color:#2e7d32; margin-top:8px;">👉 Start here</div>' : '';
             card.innerHTML = `
                 <div class="level-header">
                     <h3>${level.title}</h3>
@@ -74,6 +85,8 @@ class SQLTutorApp {
                     <small>📚 ${level.questions.length} challenges</small>
                     ${this.gameState.isLevelCompleted(parseInt(levelNum)) ? '<span style="float: right;">✅ Completed</span>' : ''}
                 </div>
+                ${lockedBadge}
+                ${nextHint}
             `;
             levelSelector.appendChild(card);
         });
@@ -189,16 +202,17 @@ class SQLTutorApp {
         const totalLevels = Object.keys(this.currentLevels).length;
         const completedLevels = this.gameState.getCurrentState().completedLevels.size;
         const progressPercentage = Math.round((completedLevels / totalLevels) * 100);
-        
-        document.getElementById('progressBar').style.width = `${progressPercentage}%`;
-        document.getElementById('progressText').textContent = `${progressPercentage}% Complete`;
-        document.getElementById('nextLevel').textContent = `Level ${this.getNextLevel()}`;
-        
-        // Update stats
-        const currentState = this.gameState.getCurrentState();
-        document.getElementById('score').textContent = currentState.score;
-        document.getElementById('streak').textContent = currentState.streak;
-        document.getElementById('hintsUsed').textContent = currentState.hintsUsed;
+
+        const progressBarEl = document.getElementById('progressBar');
+        if (progressBarEl) progressBarEl.style.width = `${progressPercentage}%`;
+
+        const progressTextEl = document.getElementById('progressText');
+        if (progressTextEl) progressTextEl.textContent = `${progressPercentage}% Complete`;
+
+        const nextLevelEl = document.getElementById('nextLevel');
+        if (nextLevelEl) nextLevelEl.textContent = `Level ${this.getNextLevel()}`;
+
+        // Stats like totalXP and currentStreak are handled by AuthManager.updateStatsDisplay()
     }
 
     // Bind event handlers
@@ -253,6 +267,17 @@ class SQLTutorApp {
             return; // Session ended
         }
         
+        // If MySQL is not configured, guide user to setup instead of failing
+        const mysqlSetupVisible = document.getElementById('mysqlSetupSection') &&
+            document.getElementById('mysqlSetupSection').style.display !== 'none';
+        if (mysqlSetupVisible) {
+            this.showFeedback('⚙️ Please set up your MySQL connection first (see the setup section above).', 'warning');
+            if (this.authManager && typeof this.authManager.showMySQLSetup === 'function') {
+                this.authManager.showMySQLSetup();
+            }
+            return;
+        }
+
         // Execute query against MySQL database
         try {
             const response = await fetch('/execute-query', {
@@ -533,8 +558,4 @@ class SQLTutorApp {
     }
 }
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const app = new SQLTutorApp();
-    app.init();
-});
+// Intentionally no auto-init here. index.html initializes the app once on DOMContentLoaded.

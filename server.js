@@ -562,7 +562,7 @@ app.get('/api/user/stats', requireAuth, (req, res) => {
     userDb.all(`
         SELECT 
             (SELECT COUNT(*) FROM user_progress WHERE user_id = ? AND completed = 1) as completed_questions,
-            (SELECT COALESCE(SUM(xp_earned), 0) FROM user_progress WHERE user_id = ?) as total_xp,
+            (SELECT total_xp FROM users WHERE id = ?) as total_xp,
             (SELECT current_streak FROM users WHERE id = ?) as current_streak,
             (SELECT max_streak FROM users WHERE id = ?) as max_streak,
             (SELECT streak_shields FROM users WHERE id = ?) as streak_shields,
@@ -613,11 +613,12 @@ app.post('/api/user/progress', requireAuth, async (req, res) => {
             userDb.run(
                 'UPDATE user_progress SET completed = ?, attempts = attempts + 1, hints_used = hints_used + ?, xp_earned = xp_earned + ?, completed_at = CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE completed_at END WHERE id = ?',
                 [completed, hints_used, xp_earned, completed, existingProgress.id],
-                function(err) {
+                async function(err) {
                     if (err) {
                         return res.status(500).json({ error: err.message });
                     }
-                    res.json({ success: true });
+                    // After update, refresh and return user totals
+                    await updateAndReturnUserTotals(userId, completed, xp_earned, res);
                 }
             );
         } else {
@@ -625,20 +626,13 @@ app.post('/api/user/progress', requireAuth, async (req, res) => {
             userDb.run(
                 'INSERT INTO user_progress (user_id, level_id, question_id, completed, attempts, hints_used, xp_earned, completed_at) VALUES (?, ?, ?, ?, 1, ?, ?, CASE WHEN ? = 1 THEN CURRENT_TIMESTAMP ELSE NULL END)',
                 [userId, level_id, question_id, completed, hints_used, xp_earned, completed],
-                function(err) {
+                async function(err) {
                     if (err) {
                         return res.status(500).json({ error: err.message });
                     }
-                    res.json({ success: true });
+                    // After insert, refresh and return user totals
+                    await updateAndReturnUserTotals(userId, completed, xp_earned, res);
                 }
-            );
-        }
-        
-        // Update user's total XP and level if question completed
-        if (completed && xp_earned > 0) {
-            userDb.run(
-                'UPDATE users SET total_xp = total_xp + ?, level = CAST(0.1 * SQRT(total_xp + ?) + 1 AS INTEGER), updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-                [xp_earned, xp_earned, userId]
             );
         }
         
@@ -646,6 +640,40 @@ app.post('/api/user/progress', requireAuth, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Helper to update user totals and respond consistently
+const updateAndReturnUserTotals = (userId, completed, xp_earned, res) => {
+    return new Promise((resolve) => {
+        // If the action earned XP, increment user's total and update level
+        if (completed && xp_earned > 0) {
+            userDb.run(
+                'UPDATE users SET total_xp = total_xp + ?, level = CAST(0.1 * SQRT(total_xp + ?) + 1 AS INTEGER), updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [xp_earned, xp_earned, userId],
+                (/* err */) => {
+                    // Regardless of update error, try to fetch fresh stats to return
+                    userDb.get('SELECT total_xp, level FROM users WHERE id = ?', [userId], (e2, row) => {
+                        if (e2 || !row) {
+                            res.json({ success: true });
+                            return resolve();
+                        }
+                        res.json({ success: true, total_xp: row.total_xp, level: row.level });
+                        resolve();
+                    });
+                }
+            );
+        } else {
+            // No XP change; still return current totals for consistency
+            userDb.get('SELECT total_xp, level FROM users WHERE id = ?', [userId], (e2, row) => {
+                if (e2 || !row) {
+                    res.json({ success: true });
+                    return resolve();
+                }
+                res.json({ success: true, total_xp: row.total_xp, level: row.level });
+                resolve();
+            });
+        }
+    });
+};
 
 // Weekly quest API
 app.get('/api/weekly-quest', requireAuth, (req, res) => {
@@ -850,7 +878,7 @@ const generateDailyMissions = async (userId, date) => {
                 for (let i = 0; i < remainingCount; i++) {
                     randomQuestions.push({
                         level_id: Math.floor(Math.random() * 11) + 1, // 1-11 for essentials
-                        question_id: Math.floor(Math.random() * 4) + 1  // 1-4 questions per level
+                        question_id: Math.floor(Math.random() * 4)      // 0-3 for questions per level
                     });
                 }
                 dueQuestions.push(...randomQuestions);
@@ -872,9 +900,9 @@ const generateDailyMissions = async (userId, date) => {
                             id: this.lastID,
                             user_id: userId,
                             mission_date: date,
-                            question_1_id: missions[0],
-                            question_2_id: missions[1],
-                            question_3_id: missions[2],
+                            question_1_id: `${missions[0].level_id}-${missions[0].question_id}`,
+                            question_2_id: `${missions[1].level_id}-${missions[1].question_id}`,
+                            question_3_id: `${missions[2].level_id}-${missions[2].question_id}`,
                             completed_count: 0,
                             locked_at: null
                         });

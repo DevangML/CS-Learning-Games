@@ -253,10 +253,13 @@ class GameStateManager {
             score: 0,
             currentLevel: null,
             currentQuestionIndex: 0,
+            currentQuestion: null,
             streak: 0,
             hintsUsed: 0,
             completedLevels: new Set(),
-            achievements: []
+            completedQuestions: new Set(),
+            achievements: [],
+            totalXP: 0
         };
         localStorage.removeItem('sqlQuestProgress');
         this.updateDisplay();
@@ -264,16 +267,12 @@ class GameStateManager {
 
     updateDisplay() {
         const elements = {
-            score: document.getElementById('score'),
-            streak: document.getElementById('streak'),
             hintsUsed: document.getElementById('hintsUsed'),
             progressBar: document.getElementById('progressBar'),
             progressText: document.getElementById('progressText'),
             nextLevel: document.getElementById('nextLevel')
         };
 
-        if (elements.score) elements.score.textContent = this.gameState.score;
-        if (elements.streak) elements.streak.textContent = this.gameState.streak;
         if (elements.hintsUsed) elements.hintsUsed.textContent = this.gameState.hintsUsed;
         
         // Calculate progress
@@ -294,6 +293,14 @@ class GameStateManager {
             } else {
                 elements.nextLevel.textContent = "All Complete! 🎉";
             }
+        }
+
+        // If unauthenticated, update visible totals from local state
+        if (!this.authManager || !this.authManager.currentUser) {
+            const streakEl = document.getElementById('currentStreak');
+            if (streakEl) streakEl.textContent = this.gameState.streak || 0;
+            const xpEl = document.getElementById('totalXP');
+            if (xpEl) xpEl.textContent = this.gameState.totalXP || 0;
         }
     }
 
