@@ -14,7 +14,7 @@ This guide explains how to securely manage secrets when deploying the SQL Master
 ### Method 1: Basic Installation (Recommended for Development)
 ```bash
 # Run the installer - it will auto-generate secure secrets
-curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/main/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 **What happens:**
@@ -29,13 +29,13 @@ export GOOGLE_CLIENT_ID_ENV="your_actual_google_client_id"
 export GOOGLE_CLIENT_SECRET_ENV="your_actual_google_client_secret"
 
 # Run installer - it will use your provided secrets
-curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/main/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 ### Method 3: Manual Configuration (After Installation)
 ```bash
 # 1. Install normally
-curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/main/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 
 # 2. Edit .env file manually
 cd sql_tutor
@@ -62,7 +62,7 @@ npm start
 ```dockerfile
 ENV GOOGLE_CLIENT_ID_ENV=your_client_id
 ENV GOOGLE_CLIENT_SECRET_ENV=your_client_secret
-RUN curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/main/install.sh | zsh
+RUN curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 ### CI/CD Pipeline
@@ -72,7 +72,7 @@ env:
   GOOGLE_CLIENT_SECRET_ENV: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 steps:
   - name: Install Application
-    run: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/main/install.sh | zsh
+    run: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 ## 🚫 What NOT to Do

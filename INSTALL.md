@@ -3,12 +3,12 @@
 ## One-Line Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DevangML/sql_tutor/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 Or for zsh users:
 ```zsh
-curl -sSL https://raw.githubusercontent.com/DevangML/sql_tutor/main/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 ```
 
 ## What the installer does:
@@ -39,7 +39,7 @@ If you prefer manual setup:
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/DevangML/sql_tutor.git
+git clone https://github.com/DevangML/CS-Learning-Games.git
 cd sql_tutor
 ```
 
@@ -136,8 +136,8 @@ npm run build
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/DevangML/sql_tutor/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/DevangML/sql_tutor/discussions)
+- **Issues**: [GitHub Issues](https://github.com/DevangML/CS-Learning-Games/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/DevangML/CS-Learning-Games/discussions)
 
 ---
 

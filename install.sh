@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # SQL Mastery Quest - Smart Installer Script
-# Usage: curl -sSL https://raw.githubusercontent.com/DevangML/sql_tutor/main/install.sh | zsh
+# Usage: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
 
 set -e  # Exit on any error
 

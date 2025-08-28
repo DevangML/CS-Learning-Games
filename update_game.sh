@@ -2,7 +2,7 @@
 
 # SQL Mastery Quest - Update Script
 # Usage: ./update_game.sh
-# Or: curl -sSL https://raw.githubusercontent.com/DevangML/sql_tutor/main/update_game.sh | zsh
+# Or: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/update_game.sh | zsh
 
 set -e  # Exit on any error
 
@@ -77,7 +77,7 @@ find_installation() {
     fi
     
     log_error "Could not find existing SQL Tutor installation"
-    log_info "Please run the install script first: curl -sSL https://raw.githubusercontent.com/DevangML/sql_tutor/main/install.sh"
+    log_info "Please run the install script first: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh"
     exit 1
 }
 
