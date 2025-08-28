@@ -188,6 +188,7 @@
       const ok = given === expected;
       this.fbFrag.textContent = ok ? '✅ Correct!' : `❌ Expected ${expected}`;
       this.fbFrag.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('frag', 0, 10);
     }
 
     checkOff() {
@@ -196,6 +197,7 @@
       const ok = given === expected;
       this.fbOff.textContent = ok ? '✅ Correct!' : `❌ Expected ${expected}`;
       this.fbOff.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('frag', 1, 12);
     }
 
     update() {}

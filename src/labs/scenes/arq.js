@@ -213,6 +213,7 @@
       const ok = Math.abs(given - expected) <= 0.05 * Math.max(1, expected);
       this.fbA.textContent = ok ? '✅ Correct!' : `❌ Expected ≈ ${expected.toFixed(2)}`;
       this.fbA.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('arq', 0, 10);
     }
 
     checkEta() {
@@ -222,6 +223,7 @@
       const ok = Math.abs(given - expected) <= 0.02;
       this.fbEta.textContent = ok ? '✅ Correct!' : `❌ Expected ≈ ${expected.toFixed(3)}`;
       this.fbEta.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('arq', 1, 12);
     }
 
     destroy() { this.el && this.el.remove(); }

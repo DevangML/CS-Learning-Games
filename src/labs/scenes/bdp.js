@@ -147,6 +147,7 @@
       const ok = Math.abs(given - expected) <= 1; // small tolerance for rounding
       this.fbSegments.textContent = ok ? '✅ Correct!' : `❌ Expected ≈ ${expected}`;
       this.fbSegments.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('bdp', 0, 12);
     }
 
     checkWindow() {
@@ -157,6 +158,7 @@
       const ok = Math.abs(given - expected) <= Math.max(1000, expected * 0.01); // 1% or 1KB
       this.fbWindow.textContent = ok ? '✅ Correct!' : `❌ Expected ≈ ${expected} B (${fmtBytes(expected)})`;
       this.fbWindow.className = 'task-feedback ' + (ok ? 'ok' : 'err');
+      if (ok && window.LabProgress) window.LabProgress.award('bdp', 1, 12);
     }
 
     spawnBeads() {

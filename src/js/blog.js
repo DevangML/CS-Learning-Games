@@ -74,6 +74,22 @@ class BlogSystem {
         const categories = this.groupTopicsByCategory(ds.topics);
         const subjectLabel = 'CN';
         const hubRoot = ds.breadcrumbRoot;
+        const labs = [
+            { id: 'bdp', title: '🪟 BDP & Window', desc: 'Pipe capacity and window sizing' },
+            { id: 'arq', title: '📶 ARQ Efficiency', desc: 'Stop-and-Wait vs GBN utilization' },
+            { id: 'frag', title: '✂️ IPv4 Fragmentation', desc: 'Fragments, sizes, and offsets' },
+            { id: 'subnet', title: '📐 Subnetting/CIDR/VLSM', desc: 'Masks, blocks, and ranges' },
+            { id: 'crc', title: '🔁 CRC Basics', desc: 'Generator degree and codeword n' },
+            { id: 'hamming', title: '🧮 Hamming Code', desc: 'Min r and positions' },
+            { id: 'rtt', title: '⏱️ RTT/RTO', desc: 'SRTT, RTTVAR, and RTO' }
+        ];
+        const labsHtml = labs.map(l => `
+            <div class="quiz-card" onclick="window.router.navigate('/lab/${l.id}')">
+                <div class="quiz-header"><h4>${l.title}</h4><span class="difficulty-badge beginner">Lab</span></div>
+                <p>${l.desc}</p>
+                <button class="start-quiz-btn" onclick="window.router.navigate('/lab/${l.id}');event.stopPropagation()">Open Lab</button>
+            </div>
+        `).join('');
         
         mainContent.innerHTML = `
             <div class="blog-container">
@@ -83,7 +99,8 @@ class BlogSystem {
                     <div class="blog-nav">
                         <button class="nav-btn" data-section="theory">📖 Theory Topics</button>
                         <button class="nav-btn active" data-section="quizzes">🎯 Practice Quizzes</button>
-                        <a href="/game" class="nav-btn" data-route="/game">🎮 Back to Game</a>
+                        <button class="nav-btn" data-section="labs">🧪 Labs</button>
+                        <a href="/cn" class="nav-btn" data-route="/cn">🏠 CN Hub</a>
                     </div>
                 </header>
 
@@ -109,7 +126,7 @@ class BlogSystem {
                                             </div>
                                         `).join('')}
                                     </div>
-                                </div>
+                                
                             `).join('')}
                         </div>
                     </section>
@@ -132,8 +149,19 @@ class BlogSystem {
                                     ${id === 'bdp-window' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/bdp')">🧪 Open Lab</button>` : ''}
                                     ${id === 'arq-efficiency' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/arq')">🧪 Open Lab</button>` : ''}
                                     ${id === 'ip-fragmentation' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/frag')">🧪 Open Lab</button>` : ''}
+                                    ${id === 'subnetting-cidr-vlsm' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/subnet')">🧪 Open Lab</button>` : ''}
+                                    ${id === 'crc' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/crc')">🧪 Open Lab</button>` : ''}
+                                    ${id === 'hamming-code' ? `<button class=\"start-quiz-btn\" style=\"margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)\" onclick=\"window.router.navigate('/lab/hamming')\">🧪 Open Lab</button>` : ''}
+                                    ${id === 'rtt-rto' ? `<button class=\"start-quiz-btn\" style=\"margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)\" onclick=\"window.router.navigate('/lab/rtt')\">🧪 Open Lab</button>` : ''}
                                 </div>
                             `).join('')}
+                        </div>
+                    </section>
+
+                    <section id="labs-section" class="content-section">
+                        <h2>🧪 Interactive Labs</h2>
+                        <div class="quiz-grid">
+                            ${labsHtml}
                         </div>
                     </section>
                 </div>
