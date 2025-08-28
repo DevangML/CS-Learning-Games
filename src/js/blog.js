@@ -19,21 +19,34 @@ class BlogSystem {
         this.bindEvents();
     }
 
+    // CN-only datasets
+    getDatasets() {
+        return {
+            subject: 'cn',
+            topics: window.CN_TOPICS || {},
+            quizzes: window.CN_QUIZZES || {},
+            hubTitle: 'CN Theory Hub',
+            masteryName: 'CN Mastery Quest',
+            breadcrumbRoot: '/cn'
+        };
+    }
+
     setupRoutes() {
         // Add blog routes to the global router
         if (window.router) {
             window.router
-                .route('/blog', this.showBlogHome.bind(this), {
-                    title: 'SQL Theory Hub - SQL Mastery Quest'
+                // CN routes
+                .route('/cn', (ctx) => this.showBlogHome(ctx), {
+                    title: 'CN Theory Hub - CN Mastery Quest'
                 })
-                .route('/blog/topic/:topicId', this.showTopic.bind(this), {
-                    title: 'SQL Theory - SQL Mastery Quest'
+                .route('/cn/topic/:topicId', (ctx) => this.showTopic(ctx), {
+                    title: 'CN Theory - CN Mastery Quest'
                 })
-                .route('/blog/quiz/:quizId', this.showQuiz.bind(this), {
-                    title: 'Theory Quiz - SQL Mastery Quest'
+                .route('/cn/quiz/:quizId', (ctx) => this.showQuiz(ctx), {
+                    title: 'Theory Quiz - CN Mastery Quest'
                 })
-                .route('/blog/quiz/:quizId/results', this.showQuizResults.bind(this), {
-                    title: 'Quiz Results - SQL Mastery Quest'
+                .route('/cn/quiz/:quizId/results', (ctx) => this.showQuizResults(ctx), {
+                    title: 'Quiz Results - CN Mastery Quest'
                 });
         }
     }
@@ -57,13 +70,16 @@ class BlogSystem {
             window.gameRouter.setTheoryNavVisible(true);
         }
 
-        const categories = this.groupTopicsByCategory();
+        const ds = this.getDatasets();
+        const categories = this.groupTopicsByCategory(ds.topics);
+        const subjectLabel = 'CN';
+        const hubRoot = ds.breadcrumbRoot;
         
         mainContent.innerHTML = `
             <div class="blog-container">
                 <header class="blog-header">
-                    <h1>📚 SQL Theory Hub</h1>
-                    <p>Master DBMS concepts with interactive theory and quizzes</p>
+                    <h1>📚 ${subjectLabel} Theory Hub</h1>
+                    <p>Master Networking concepts with interactive theory and quizzes</p>
                     <div class="blog-nav">
                         <button class="nav-btn" data-section="theory">📖 Theory Topics</button>
                         <button class="nav-btn active" data-section="quizzes">🎯 Practice Quizzes</button>
@@ -80,7 +96,7 @@ class BlogSystem {
                                     <h3>${category}</h3>
                                     <div class="topic-cards">
                                         ${categories[category].map(topic => `
-                                            <div class="topic-card" onclick="window.router.navigate('/blog/topic/${topic.id}')">
+                                            <div class="topic-card" onclick="window.router.navigate('${hubRoot}/topic/${topic.id}')">
                                                 <div class="topic-header">
                                                     <h4>${topic.title}</h4>
                                                     <span class="difficulty-badge ${topic.difficulty.toLowerCase()}">${topic.difficulty}</span>
@@ -101,20 +117,21 @@ class BlogSystem {
                     <section id="quizzes-section" class="content-section active">
                         <h2>🎯 Practice Quizzes</h2>
                         <div class="quiz-grid">
-                            ${Object.entries(window.THEORY_QUIZZES).map(([id, quiz]) => `
-                                <div class="quiz-card" onclick="window.router.navigate('/blog/quiz/${id}')">
+                            ${Object.entries(ds.quizzes).map(([id, quiz]) => `
+                                <div class="quiz-card" onclick="window.router.navigate('${hubRoot}/quiz/${id}')">
                                     <div class="quiz-header">
                                         <h4>${quiz.title}</h4>
                                         <span class="difficulty-badge ${quiz.difficulty.toLowerCase()}">${quiz.difficulty}</span>
                                     </div>
                                     <div class="quiz-meta">
                                         <span>❓ ${quiz.questions.length} questions</span>
-                                        <span>⏱️ ${Math.floor(quiz.timeLimit / 60)} min</span>
+                                        <span>⏱️ ${Math.floor((quiz.timeLimit || 300) / 60)} min</span>
                                     </div>
-                                    <div class="quiz-description">
-                                        Test your knowledge on database design, ACID properties, normalization, and indexing.
-                                    </div>
-                                    <button class="start-quiz-btn" onclick="window.router.navigate('/blog/quiz/${id}')">Start Quiz</button>
+                                    <div class="quiz-description">${quiz.description || ''}</div>
+                                    <button class="start-quiz-btn" onclick="window.router.navigate('${hubRoot}/quiz/${id}')">Start Quiz</button>
+                                    ${id === 'bdp-window' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/bdp')">🧪 Open Lab</button>` : ''}
+                                    ${id === 'arq-efficiency' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/arq')">🧪 Open Lab</button>` : ''}
+                                    ${id === 'ip-fragmentation' ? `<button class="start-quiz-btn" style="margin-top:8px;background:rgba(16,185,129,0.3);border-color:rgba(16,185,129,0.6)" onclick="window.router.navigate('/lab/frag')">🧪 Open Lab</button>` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -133,10 +150,9 @@ class BlogSystem {
 
     // Show individual topic
     async showTopic(context) {
+        const ds = this.getDatasets();
         const topicId = context.params.topicId;
-        const topic = window.THEORY_TOPICS[Object.keys(window.THEORY_TOPICS).find(key => 
-            window.THEORY_TOPICS[key].id === topicId
-        )];
+        const topic = ds.topics[Object.keys(ds.topics).find(key => ds.topics[key].id === topicId)];
         
         if (!topic) {
             this.show404();
@@ -155,7 +171,7 @@ class BlogSystem {
             <div class="topic-container">
                 <header class="topic-header">
                     <div class="breadcrumb">
-                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / ${topic.title}
+                        <a href="${ds.breadcrumbRoot}" data-route="${ds.breadcrumbRoot}">📚 Theory Hub</a> / ${topic.title}
                     </div>
                     <div class="topic-title-section">
                         <h1>${topic.title}</h1>
@@ -176,7 +192,7 @@ class BlogSystem {
                         <button class="btn-primary quiz-btn" onclick="startTopicQuiz('${topicId}')">
                             🎯 Take Quiz (${topic.quiz.length} questions)
                         </button>
-                        <a href="/blog" class="btn-secondary">← Back to Topics</a>
+                        <a href="${ds.breadcrumbRoot}" class="btn-secondary" data-route="${ds.breadcrumbRoot}">← Back to Topics</a>
                     </div>
                 </div>
 
@@ -196,8 +212,9 @@ class BlogSystem {
 
     // Show standalone quiz
     async showQuiz(context) {
+        const ds = this.getDatasets();
         const quizId = context.params.quizId;
-        const quiz = window.THEORY_QUIZZES[quizId];
+        const quiz = ds.quizzes[quizId];
         
         if (!quiz) {
             this.show404();
@@ -216,7 +233,7 @@ class BlogSystem {
             <div class="quiz-container">
                 <header class="quiz-header">
                     <div class="breadcrumb">
-                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / Quiz
+                        <a href="${ds.breadcrumbRoot}" data-route="${ds.breadcrumbRoot}">📚 Theory Hub</a> / Quiz
                     </div>
                     <h1>${quiz.title}</h1>
                 </header>
@@ -278,6 +295,7 @@ class BlogSystem {
 
     // Show quiz results
     async showQuizResults(context) {
+        const ds = this.getDatasets();
         const mainContent = this.getMainContent();
         if (!mainContent || !this.quizState.answers.length) return;
 
@@ -290,7 +308,7 @@ class BlogSystem {
             <div class="quiz-results-container">
                 <header class="results-header">
                     <div class="breadcrumb">
-                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / Quiz Results
+                        <a href="${ds.breadcrumbRoot}" data-route="${ds.breadcrumbRoot}">📚 Theory Hub</a> / Quiz Results
                     </div>
                     <h1>🎯 Quiz Results</h1>
                 </header>
@@ -324,7 +342,7 @@ class BlogSystem {
 
                 <div class="results-actions">
                     <button class="btn-primary" onclick="restartQuiz()">🔄 Retake Quiz</button>
-                    <a href="/blog" class="btn-secondary">← Back to Topics</a>
+                    <a href="${ds.breadcrumbRoot}" class="btn-secondary" data-route="${ds.breadcrumbRoot}">← Back to Topics</a>
                 </div>
             </div>
         `;
@@ -332,7 +350,8 @@ class BlogSystem {
 
     // Start a quiz
     startQuiz(quizId) {
-        const quiz = window.THEORY_QUIZZES[quizId];
+        const ds = this.getDatasets();
+        const quiz = ds.quizzes[quizId];
         if (!quiz) return;
 
         this.currentQuiz = quiz;
@@ -353,10 +372,9 @@ class BlogSystem {
 
     // Start topic-specific quiz
     startTopicQuiz(topicId) {
-        const topicKey = Object.keys(window.THEORY_TOPICS).find(key => 
-            window.THEORY_TOPICS[key].id === topicId
-        );
-        const topic = window.THEORY_TOPICS[topicKey];
+        const ds = this.getDatasets();
+        const topicKey = Object.keys(ds.topics).find(key => ds.topics[key].id === topicId);
+        const topic = ds.topics[topicKey];
         
         if (!topic) return;
 
@@ -412,6 +430,7 @@ class BlogSystem {
             <div class="question">
                 <h3>Question ${this.quizState.currentQuestion + 1}</h3>
                 <p class="question-text">${question.question}</p>
+                ${question.visual ? `<div class="question-visual">${question.visual}</div>` : ''}
                 
                 <div class="answer-options">
                     ${question.options.map((option, index) => `
@@ -502,7 +521,16 @@ class BlogSystem {
         if (document.getElementById('topic-quiz-progress-fill')) {
             this.showInlineResults();
         } else {
-            window.router.navigate('/blog/quiz/results');
+            const path = window.location.pathname;
+            // Expecting /blog/quiz/:quizId or /cn/quiz/:quizId
+            const parts = path.split('/').filter(Boolean);
+            const subjectRoot = '/cn';
+            const quizId = parts[2] || '';
+            if (quizId) {
+                window.router.navigate(`${subjectRoot}/quiz/${quizId}/results`);
+            } else {
+                window.router.navigate(subjectRoot);
+            }
         }
     }
 
@@ -622,9 +650,9 @@ class BlogSystem {
     }
 
     // Group topics by category
-    groupTopicsByCategory() {
+    groupTopicsByCategory(topics) {
         const categories = {};
-        Object.values(window.THEORY_TOPICS).forEach(topic => {
+        Object.values(topics || {}).forEach(topic => {
             if (!categories[topic.category]) {
                 categories[topic.category] = [];
             }
@@ -659,11 +687,10 @@ class BlogSystem {
         // Update navigation active state
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('data-route') === '/blog' || 
-                link.getAttribute('href') === '/blog' ||
-                window.location.pathname.startsWith('/blog')) {
-                link.classList.add('active');
-            }
+            const href = link.getAttribute('data-route') || link.getAttribute('href');
+            const path = window.location.pathname;
+            const isCN = href === '/cn' || (path.startsWith('/cn') && href && href.startsWith('/cn'));
+            if (isCN) link.classList.add('active');
         });
 
         // Show or create blog container
@@ -684,11 +711,12 @@ class BlogSystem {
         const mainContent = this.getMainContent();
         if (!mainContent) return;
 
+        const ds = this.getDatasets();
         mainContent.innerHTML = `
             <div class="error-page">
                 <h1>404 - Topic Not Found</h1>
                 <p>The requested theory topic could not be found.</p>
-                <a href="/blog" class="btn-primary" data-route="/blog">← Back to Theory Hub</a>
+                <a href="${ds.breadcrumbRoot}" class="btn-primary" data-route="${ds.breadcrumbRoot}">← Back to Theory Hub</a>
             </div>
         `;
     }
@@ -697,9 +725,9 @@ class BlogSystem {
     restartQuiz() {
         if (this.currentQuiz) {
             const currentPath = window.location.pathname;
-            if (currentPath.includes('/blog/quiz/')) {
+            if (currentPath.includes('/cn/quiz/')) {
                 const quizId = currentPath.split('/')[3];
-                window.router.navigate(`/blog/quiz/${quizId}`);
+                window.router.navigate(`/cn/quiz/${quizId}`);
             }
         }
     }

@@ -42,7 +42,6 @@ function validateFile(filePath) {
     
     // Determine content type for validation rules
     const isTheoryContent = filePath.includes('theoryTopics') || filePath.includes('theoryLevels');
-    const isSQLContent = filePath.includes('learningLevels') || filePath.includes('essentialsLevels');
     
     let totalItems = 0;
     let verifiedItems = 0;
@@ -103,28 +102,6 @@ function validateFile(filePath) {
           });
         }
       }
-      
-      // SQL content validation
-      if (isSQLContent && item.questions) {
-        item.questions.forEach((q, idx) => {
-          // Basic schema validation
-          const baseOk = q && typeof q.question === 'string' && 
-                        typeof q.hint === 'string' && 
-                        typeof q.solution === 'string' && 
-                        q.concept && 
-                        typeof q.concept.title === 'string' && 
-                        typeof q.concept.content === 'string';
-          
-          if (!baseOk) {
-            errors.push(`${key} Q${idx}: Schema invalid - missing required fields`);
-          }
-          
-          // SQL-specific validation
-          if (q.solution && !q.solution.trim().toLowerCase().includes('select')) {
-            warnings.push(`${key} Q${idx}: SQL practice should include executable SELECT statement`);
-          }
-        });
-      }
     });
     
     // Report results
@@ -169,7 +146,6 @@ if (process.argv.length < 3) {
   console.log('Example: npm run validate-content src/data/theoryTopics.js');
   console.log('\nSupported files:');
   console.log('   • theoryTopics.js - DBMS theory content with GeeksforGeeks references');
-  console.log('   • learningLevels.js - SQL practice levels with executable queries');
   console.log('   • Any JSON file with structured content');
   process.exit(1);
 }
@@ -191,7 +167,6 @@ if (process.exitCode === 1) {
   console.log('\n📋 Authentic Knowledge Rule Requirements:');
   console.log('   • Theory content: verified: true OR sources: [] with reputable references');
   console.log('   • DBMS topics: Must reference GeeksforGeeks as authoritative source');
-  console.log('   • SQL practice: Verified by canonical execution (automatic)');
   console.log('   • All content: Transparent sourcing and verification indicators');
 } else {
   console.log('✅ All content validated successfully!');

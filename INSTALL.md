@@ -1,14 +1,14 @@
-# 🚀 SQL Mastery Quest - Quick Install Guide
+# 🚀 CN Mastery Quest - Quick Install Guide
 
 ## One-Line Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/cn_mastery/install.sh | zsh
 ```
 
 Or for zsh users:
 ```zsh
-curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
+curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/cn_mastery/install.sh | zsh
 ```
 
 ## What the installer does:
@@ -19,7 +19,7 @@ curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_maste
 - Skips already installed components
 
 ✅ **Database Setup**
-- Creates MySQL database and user automatically
+- Creates database and user automatically
 - Populates sample data for learning
 - Handles permissions and security
 
@@ -40,7 +40,7 @@ If you prefer manual setup:
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/DevangML/CS-Learning-Games.git
-cd sql_tutor
+cd cn_mastery
 ```
 
 ### 2. Install Dependencies
@@ -48,14 +48,10 @@ cd sql_tutor
 npm install
 ```
 
-### 3. Setup MySQL
+### 3. Setup Database
 ```bash
-# Create database and user
-mysql -u root -p
-CREATE DATABASE sql_tutor;
-CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
-FLUSH PRIVILEGES;
+# Database setup is handled automatically by the installer
+# No manual setup required
 ```
 
 ### 4. Configure Environment
@@ -82,8 +78,8 @@ npm start
 - Persistent user progress
 
 🎯 **Learning Features**
-- 23 levels of SQL challenges
-- Real MySQL query execution
+- 23 levels of CN challenges
+- Interactive network simulations
 - Gamification with XP and streaks
 
 📊 **Progress Tracking**
@@ -94,7 +90,7 @@ npm start
 ## Requirements
 
 - **Node.js**: 16+ (automatically installed)
-- **MySQL**: 5.7+ (automatically installed)
+- **Database**: SQLite (automatically configured)
 - **OS**: macOS, Ubuntu/Debian, or CentOS/RHEL
 
 ## Troubleshooting
@@ -102,14 +98,14 @@ npm start
 ### Port Already in Use
 The installer automatically finds an available port (3000-3010)
 
-### MySQL Connection Issues
+### Database Connection Issues
 Run the built-in database setup:
 ```bash
 npm run setup-db
 ```
 
 ### Permission Issues
-On Linux, you may need sudo for MySQL installation:
+On Linux, you may need sudo for system dependencies:
 ```bash
 sudo ./install.sh
 ```
@@ -119,7 +115,7 @@ sudo ./install.sh
 1. **Access the Application**: http://localhost:3000
 2. **Sign in with Google** (optional) or **Try Demo Mode**
 3. **Choose Learning Path**: Essentials (11 levels) or Complete (23 levels)
-4. **Start Learning SQL** with interactive challenges!
+4. **Start Learning Computer Networks** with interactive challenges!
 
 ## Development
 
@@ -141,4 +137,4 @@ npm run build
 
 ---
 
-**Ready to master SQL? Run the installer and start your journey!** 🎯
+**Ready to master Computer Networks? Run the installer and start your journey!** 🎯

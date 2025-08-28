@@ -1,7 +1,7 @@
 {
-  "name": "sql-mastery-quest",
+  "name": "cn-mastery-quest",
   "version": "1.0.0",
-  "description": "Interactive SQL learning platform with gamification and user authentication",
+  "description": "Interactive CN learning platform with gamification and user authentication",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -23,7 +23,7 @@
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
-  "keywords": ["sql", "learning", "education", "gamification"],
+  "keywords": ["cn", "learning", "education", "gamification"],
   "author": "",
   "license": "MIT"
 }

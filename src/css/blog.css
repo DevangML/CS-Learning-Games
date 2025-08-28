@@ -598,6 +598,26 @@
     margin-bottom: 30px;
 }
 
+/* Optional visual aids inside questions */
+.question-visual {
+    margin-bottom: 20px;
+}
+
+.question-visual .viz-box {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    padding: 12px 14px;
+    overflow-x: auto;
+}
+
+.question-visual pre {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+}
+
 .answer-options {
     display: grid;
     gap: 15px;

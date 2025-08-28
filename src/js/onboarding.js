@@ -8,7 +8,7 @@ class OnboardingManager {
 
     async init() {
         // Check if user is first-time visitor
-        this.isFirstTime = !localStorage.getItem('sql_quest_visited');
+        this.isFirstTime = !localStorage.getItem('cn_quest_visited');
         
         if (this.isFirstTime) {
             await this.startOnboarding();
@@ -17,7 +17,7 @@ class OnboardingManager {
 
     async startOnboarding() {
         // Mark as visited
-        localStorage.setItem('sql_quest_visited', 'true');
+        localStorage.setItem('cn_quest_visited', 'true');
         
         // Create onboarding overlay
         this.createOnboardingOverlay();
@@ -93,10 +93,10 @@ class OnboardingManager {
         return [
             `<div class="onboarding-step">
                 <div class="step-icon">🚀</div>
-                <h2>Welcome to SQL Mastery Quest!</h2>
-                <p>Embark on an epic journey to master SQL through interactive challenges, daily missions, and gamified learning.</p>
+                <h2>Welcome to CN Mastery Quest!</h2>
+                <p>Embark on an epic journey to master CN through interactive challenges, daily missions, and gamified learning.</p>
                 <div class="feature-highlights">
-                    <div class="highlight">✨ Interactive SQL Challenges</div>
+                    <div class="highlight">✨ Interactive CN Challenges</div>
                     <div class="highlight">🏆 XP & Level Progression</div>
                     <div class="highlight">🎯 Daily Missions</div>
                     <div class="highlight">🔥 Streak System</div>
@@ -193,7 +193,7 @@ class OnboardingManager {
         welcome.className = 'welcome-animation';
         welcome.innerHTML = `
             <div class="welcome-content">
-                <h1>🎮 Ready to Master SQL?</h1>
+                <h1>🎮 Ready to Master CN?</h1>
                 <p>Your journey begins now!</p>
             </div>
         `;

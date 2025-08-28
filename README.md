@@ -1,6 +1,6 @@
-# SQL Mastery Quest
+# CN Mastery Quest
 
-An interactive, browser‑based SQL learning game. Practice real SQL against a live MySQL database, progress through curated levels, and reinforce learning with a theory hub and quizzes. Built with Node.js + Express, vanilla JS, SQLite for user data, and MySQL for the tutorial dataset.
+An interactive, browser‑based Computer Networks learning game. Practice CN concepts through interactive challenges, progress through curated levels, and reinforce learning with a theory hub and quizzes. Built with Node.js + Express, vanilla JS, and SQLite for data persistence.
 
 ## Table of Contents
 - Overview
@@ -18,16 +18,16 @@ An interactive, browser‑based SQL learning game. Practice real SQL against a l
 - Contributing & License
 
 ## Overview
-SQL Mastery Quest blends hands‑on SQL execution with gamified progression and spaced repetition.
-- Practice Flow: Essentials (11 levels) or Complete (23 levels) of SQL challenges powered by a local MySQL database.
+CN Mastery Quest blends hands‑on Computer Networks learning with gamified progression and spaced repetition.
+- Practice Flow: Essentials (11 levels) or Complete (23 levels) of CN challenges with interactive simulations.
 - Theory Flow: A theory hub with topic pages and auto‑starting practice quizzes.
-- Persistence: User progress, streaks, missions, and rewards stored in SQLite; learning dataset in MySQL.
+- Persistence: User progress, streaks, missions, and rewards stored in SQLite.
 - Authentication: Google OAuth or frictionless Demo Mode.
 
 ## Features
 - Gameplay
   - Dual paths: Essentials (11) and Complete (23)
-  - Real SQL execution (SELECT/CTE/INSERT/UPDATE/DELETE/CREATE/ALTER...)
+  - Interactive CN simulations and protocol demonstrations
   - Autonomous progression and level locking with clear status cues
   - Daily missions, weekly quests, streaks, shields, and recovery
 - Theory & Quizzes
@@ -38,30 +38,24 @@ SQL Mastery Quest blends hands‑on SQL execution with gamified progression and 
   - Responsive UI (no horizontal overflow), sticky nav, polished auth card
   - Logged‑out clean screen (only the centered auth card visible)
 - Platform
-  - SQLite for user data, MySQL for tutorial dataset
+  - SQLite for user data and CN topic content
   - Google OAuth + Demo Mode
   - Environment‑based configuration
 
 ## Quick Start (Demo Mode)
-Great for trying the app without OAuth/MySQL setup.
+Great for trying the app without OAuth setup.
 1. Node 18.x recommended (nvm use 18)
 2. Install: `npm install`
 3. Start: `npm start`
 4. Open http://localhost:3000 and click “Try Demo Mode”
 
 Notes:
-- SQL execution requires MySQL setup. Demo Mode still lets you explore UI, theory hub, and quizzes.
+- Full functionality available in Demo Mode for exploring UI, theory hub, and interactive simulations.
 
 ## Full Setup
-### 1) MySQL (local)
-- Install and start MySQL (e.g., `brew install mysql && brew services start mysql` on macOS)
-- Create DB and user:
-```
-CREATE DATABASE sql_tutor;
-CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
-FLUSH PRIVILEGES;
-```
+### 1) Database Setup
+- SQLite database is automatically configured
+- No manual database setup required
 
 ### 2) Google OAuth (optional, for persistent progress)
 - Create OAuth credentials (Google Cloud Console)
@@ -73,7 +67,7 @@ FLUSH PRIVILEGES;
 npm install
 npm start
 ```
-Visit http://localhost:3000. If MySQL isn’t configured yet, use the Setup card in the app (or set MYSQL_* in `.env`).
+Visit http://localhost:3000. Database is automatically initialized on first run.
 
 ## Configuration (.env)
 ```
@@ -85,12 +79,8 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 # Express Session
 SESSION_SECRET=change_me
 
-# MySQL Connection
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=sql_tutor_user
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=sql_tutor
+# Database Configuration
+DATABASE_PATH=./user_data.db
 
 # App
 PORT=3000
@@ -115,8 +105,7 @@ scripts/validate_content.js # Schema/authenticity validator for content JSON
 ```
 
 ## How It Works
-- MySQL dataset is created/populated on setup. Your SQL queries run against it.
-- SQLite stores user data: users, progress, streaks, missions, quests, reflections.
+- SQLite database stores all data: users, progress, streaks, missions, quests, reflections, and CN content.
 - SPA routing uses the History API with explicit server fallback for deep links.
 - Gated content: Practice levels require auth (Google or Demo). Theory/Quizzes are accessible without login if desired.
 
@@ -127,7 +116,7 @@ Client (SPA)
   - `/mode/11` → Essentials
   - `/mode/23` → Complete
   - `/level/:mode/:level/:q` → specific question view
-  - `/setup` → MySQL setup card
+  - `/setup` → Database setup card
 - Theory
   - `/blog` → Theory Hub (Practice tab active by default)
   - `/blog/topic/:topicId` → Topic with auto-open embedded quiz
@@ -136,23 +125,23 @@ Client (SPA)
 Server
 - `/auth/google`, `/auth/google/callback`
 - `/auth/demo`
-- `/execute-query` (POST)
+- `/simulate-network` (POST)
 - `/api/user/*` (profile, stats, progress)
 - `/api/daily-missions`, `/api/weekly-quest`, `/api/streak-recovery`, `/api/daily-reflection`
 - SPA fallback serves `index.html` for non‑API paths (e.g., `/game`, `/mode/*`, `/blog/*`)
 
 ## API (server)
-- POST `/execute-query`
-  - Body: `{ query: string, expectedQuery?: string }`
-  - Allows: `SELECT`, `WITH (CTE)`, `EXPLAIN`, `SHOW`, `DESC/DESCRIBE`, `INSERT`, `UPDATE`, `DELETE`, `CREATE (VIEW/INDEX/TABLE/TEMPORARY TABLE)`, `ALTER TABLE`, `DROP (VIEW/INDEX)`
-  - Returns: `{ success, results, rowCount, comparison? }`
-  - If the expected query cannot run, comparison is omitted (no warning shown).
+- POST `/simulate-network`
+  - Body: `{ scenario: string, configuration: object }`
+  - Allows: Network topology setup, protocol simulation, packet tracing
+  - Returns: `{ success, results, metrics, visualization? }`
+  - Interactive network simulations with real-time feedback.
 - GET `/api/user/stats` → `{ completed_questions, total_xp, current_streak, max_streak, streak_shields, level }`
 - GET/POST `/api/user/progress` → read/record progress with XP updates
 
 ## Authentic Knowledge Rule
 We verify and label knowledge to maintain trust:
-- SQL correctness is verified by executing the learner’s query and comparing to a canonical solution result set (when available). If canonical execution isn’t available, we suppress comparison instead of showing noisy warnings.
+- CN concepts are verified through interactive simulations and protocol demonstrations.
 - Theory/quiz content requires either `verified: true` or a list of reputable `sources: [{ name }]` metadata before broad surfacing.
 - Use the validator to check content: `npm run validate-content path/to/content.json`
 
@@ -167,8 +156,8 @@ The validator checks schema and the authenticity metadata for quizzes.
 ## Troubleshooting
 - Node & sqlite3 build
   - Use Node 18.x. On Apple Silicon: `npm rebuild sqlite3` if you hit ABI/arch errors.
-- MySQL connection
-  - Verify credentials in `.env` and try `/test-connection` in the browser. Use the in‑app Setup card if needed.
+- Database connection
+  - SQLite database is created automatically. Check file permissions if issues occur.
 - Port 3000 in use
   - The server auto‑kills conflicting processes on start. If it fails, free the port manually and retry.
 - “Levels locked” when logged out
@@ -213,20 +202,20 @@ MIT License - see LICENSE file for details.
 
 ---
 
-**Ready to Master SQL? Start your quest today!** 🚀
+**Ready to Master Computer Networks? Start your quest today!** 🚀
 ## 🔎 Authentic Knowledge Rule
 
 To maintain content integrity and learner trust across all learning modes:
 
-### SQL Practice Verification
-- **Canonical Execution**: SQL challenges are verified by comparing learner query results with expected solution results on actual database
-- **Real-time Validation**: Server executes both queries and compares outputs for exact matching
-- **Authenticity Indicators**: UI displays "🔎 Verified by canonical execution" when results match perfectly
+### CN Practice Verification
+- **Interactive Simulations**: CN challenges are verified through network protocol simulations and topology demonstrations
+- **Real-time Validation**: Server validates network configurations and protocol implementations
+- **Authenticity Indicators**: UI displays "🔎 Verified by simulation execution" when configurations work correctly
 
 ### Theory Content Verification  
-- **Source Authority**: All DBMS theory topics must reference GeeksforGeeks as authoritative source
+- **Source Authority**: All CN theory topics must reference authoritative networking sources
 - **Verification Flags**: Content marked `verified: true` with `sources: []` metadata including reputable references
-- **Reference Links**: Direct links to GeeksforGeeks articles for learner verification
+- **Reference Links**: Direct links to authoritative networking resources for learner verification
 - **Content Alignment**: Definitions and examples must match authoritative sources exactly
 
 ### Multi-Domain Content Standards
@@ -235,9 +224,9 @@ To maintain content integrity and learner trust across all learning modes:
 - **Transparent Sourcing**: All theoretical claims must be traceable to authoritative educational sources
 
 ### Implementation
-- **DBMS Theory Hub**: Interactive theory pages with embedded GeeksforGeeks references
+- **CN Theory Hub**: Interactive theory pages with embedded networking references
 - **Quiz Verification**: Theory-based quizzes include source attribution and verification badges  
-- **Practice Integration**: SQL levels combine verified theory concepts with hands-on query execution
+- **Practice Integration**: CN levels combine verified theory concepts with hands-on network simulations
 - **Content Integrity**: System prevents unverified knowledge from being presented as authoritative
 
-This comprehensive rule ensures learners receive accurate, trustworthy information across both theoretical understanding and practical SQL skills, with clear verification indicators and transparent sourcing throughout the learning experience.
+This comprehensive rule ensures learners receive accurate, trustworthy information across both theoretical understanding and practical CN skills, with clear verification indicators and transparent sourcing throughout the learning experience.

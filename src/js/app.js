@@ -1,5 +1,5 @@
 // Main Application Logic
-class SQLTutorApp {
+class CNMasteryApp {
     constructor() {
         this.gameState = null;
         this.currentMode = 11; // Default to essentials mode
@@ -135,17 +135,17 @@ class SQLTutorApp {
         let message = "";
         
         if (completedCount === 0) {
-            message = "🚀 Start with Level 1 - Arithmetic Operators to begin your SQL journey!";
+            message = "🚀 Start with Level 1 - Arithmetic Operators to begin your CN journey!";
         } else if (completedCount < 3) {
             message = "📚 Great start! Master the basics with beginner-level concepts.";
         } else if (completedCount < 7) {
-            message = "⚡ You're making progress! Ready for intermediate SQL challenges?";
+            message = "⚡ You're making progress! Ready for intermediate CN challenges?";
         } else if (completedCount < 10) {
-            message = "🔥 Advanced territory! You're becoming a SQL expert!";
+            message = "🔥 Advanced territory! You're becoming a CN expert!";
         } else if (completedCount === 10) {
             message = "🎯 Final challenge! Master LeetCode patterns to complete your journey!";
         } else {
-            message = "🏆 Congratulations! You've mastered all SQL concepts. You're now a SQL expert!";
+            message = "🏆 Congratulations! You've mastered all CN concepts. You're now a CN expert!";
         }
 
         messageElement.textContent = message;
@@ -213,7 +213,6 @@ class SQLTutorApp {
         const question = level.questions[currentState.currentQuestionIndex];
         
         document.getElementById('currentQuestion').textContent = question.question;
-        document.getElementById('sqlInput').value = '';
         document.getElementById('resultArea').innerHTML = '';
         
         // Show concept explanation
@@ -310,13 +309,12 @@ class SQLTutorApp {
 
     // Check user's answer
     async checkAnswer() {
-        const userQuery = document.getElementById('sqlInput').value.trim();
         const currentState = this.gameState.getCurrentState();
         const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
         if (!userQuery) {
-            this.showFeedback('Please enter a SQL query!', 'error');
+            this.showFeedback('Please enter a CN query!', 'error');
             return;
         }
 
@@ -324,19 +322,7 @@ class SQLTutorApp {
         if (window.authManager && window.authManager.checkSessionTime()) {
             return; // Session ended
         }
-        
-        // If MySQL is not configured, guide user to setup instead of failing
-        const mysqlSetupVisible = document.getElementById('mysqlSetupSection') &&
-            document.getElementById('mysqlSetupSection').style.display !== 'none';
-        if (mysqlSetupVisible) {
-            this.showFeedback('⚙️ Please set up your MySQL connection first (see the setup section above).', 'warning');
-            if (this.authManager && typeof this.authManager.showMySQLSetup === 'function') {
-                this.authManager.showMySQLSetup();
-            }
-            return;
-        }
 
-        // Execute query against MySQL database
         try {
             const response = await fetch('/execute-query', {
                 method: 'POST',
@@ -426,13 +412,11 @@ class SQLTutorApp {
         const level = this.currentLevels[currentState.currentLevel];
         const question = level.questions[currentState.currentQuestionIndex];
         
-        document.getElementById('sqlInput').value = question.solution;
         this.showFeedback(`🔍 Solution revealed: ${question.solution}`, 'info');
     }
 
     // Clear the query input
     clearQuery() {
-        document.getElementById('sqlInput').value = '';
         document.getElementById('resultArea').innerHTML = '';
     }
 
@@ -610,7 +594,7 @@ class SQLTutorApp {
         }
         
         if (currentState.completedLevels.size === 3 && !currentState.achievements.includes('level_3')) {
-            this.showAchievement('🎓 SQL Student! Completed 3 levels!');
+            this.showAchievement('🎓 CN Student! Completed 3 levels!');
             this.gameState.addAchievement('level_3');
         }
     }
@@ -628,7 +612,7 @@ class SQLTutorApp {
 }
 
 // Attach router setup to prototype
-    SQLTutorApp.prototype.setupRoutes = function () {
+CNMasteryApp.prototype.setupRoutes = function () {
         if (!window.router) return;
         const that = this;
 
@@ -679,13 +663,6 @@ class SQLTutorApp {
             document.getElementById('gameArea').classList.add('active');
             SchemaViewer.renderSchema();
             that.loadQuestion();
-        });
-
-        // Setup route
-        window.router.route('/setup', function () {
-            if (that.authManager && typeof that.authManager.showMySQLSetup === 'function') {
-                that.authManager.showMySQLSetup();
-            }
         });
     };
 

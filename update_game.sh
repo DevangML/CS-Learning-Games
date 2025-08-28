@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-# SQL Mastery Quest - Update Script
+# CN Mastery Quest - Update Script
 # Usage: ./update_game.sh
-# Or: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/update_game.sh | zsh
+# Or: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/cn_mastery/update_game.sh | zsh
 
 set -e  # Exit on any error
 
@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_URL="https://github.com/DevangML/CS-Learning-Games.git"
-APP_DIR="sql_tutor"
+APP_DIR="cn_mastery"
 PORT=3000
 
 # Logging functions
@@ -40,7 +40,7 @@ command_exists() {
 
 # Find the installation directory
 find_installation() {
-    log_info "Searching for existing SQL Tutor installation..."
+    log_info "Searching for existing CN Mastery installation..."
     
     # Check current directory
     if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/package.json" ]; then
@@ -76,8 +76,8 @@ find_installation() {
         return 0
     fi
     
-    log_error "Could not find existing SQL Tutor installation"
-    log_info "Please run the install script first: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh"
+    log_error "Could not find existing CN Mastery installation"
+    log_info "Please run the install script first: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/cn_mastery/install.sh | zsh"
     exit 1
 }
 
@@ -191,88 +191,25 @@ update_database() {
         
         # Create a temporary script to check and update database
         cat > update_db.js << 'EOF'
-const mysql = require('mysql2/promise');
+const path = require('path');
 require('dotenv').config();
 
 async function updateDatabase() {
     try {
-        const connection = await mysql.createConnection({
-            host: process.env.MYSQL_HOST,
-            port: process.env.MYSQL_PORT,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE
-        });
+        // SQLite database is handled automatically by the application
+        const dbPath = process.env.DATABASE_PATH || './user_data.db';
 
         // Check if tables exist
-        const [tables] = await connection.execute(`
-            SELECT TABLE_NAME 
-            FROM information_schema.TABLES 
-            WHERE TABLE_SCHEMA = ?`, [process.env.MYSQL_DATABASE]);
-
-        const tableNames = tables.map(t => t.TABLE_NAME);
+        // SQLite database schema is managed by the application
+        console.log('Database schema is managed automatically by the application');
         
-        // Create missing tables
-        if (!tableNames.includes('employees')) {
-            await connection.execute(`
-                CREATE TABLE employees (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    department_id INT,
-                    salary DECIMAL(10,2),
-                    hire_date DATE
-                )`);
-        }
-        
-        if (!tableNames.includes('departments')) {
-            await connection.execute(`
-                CREATE TABLE departments (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    manager_id INT
-                )`);
-        }
-        
-        if (!tableNames.includes('projects')) {
-            await connection.execute(`
-                CREATE TABLE projects (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    budget DECIMAL(12,2),
-                    start_date DATE,
-                    end_date DATE
-                )`);
-        }
+        // No manual table creation needed for SQLite
+        // The application handles all database initialization
 
-        // Check if data exists
-        const [employeeCount] = await connection.execute('SELECT COUNT(*) as count FROM employees');
-        if (employeeCount[0].count === 0) {
-            log_info("Adding sample data...");
-            await connection.execute(`
-                INSERT INTO departments (id, name, manager_id) VALUES 
-                (1, 'Engineering', 1),
-                (2, 'Marketing', 2),
-                (3, 'Sales', 3)
-            `);
+        // Sample data is loaded from CN topics and quizzes automatically
+        console.log('CN content will be loaded automatically by the application');
 
-            await connection.execute(`
-                INSERT INTO employees (id, name, department_id, salary, hire_date) VALUES 
-                (1, 'John Doe', 1, 75000.00, '2022-01-15'),
-                (2, 'Jane Smith', 2, 65000.00, '2022-03-20'),
-                (3, 'Bob Johnson', 3, 60000.00, '2022-05-10'),
-                (4, 'Alice Brown', 1, 80000.00, '2021-11-30'),
-                (5, 'Charlie Davis', 2, 55000.00, '2023-02-14')
-            `);
-
-            await connection.execute(`
-                INSERT INTO projects (id, name, budget, start_date, end_date) VALUES 
-                (1, 'Website Redesign', 50000.00, '2023-01-01', '2023-06-30'),
-                (2, 'Mobile App', 100000.00, '2023-03-15', '2023-12-31'),
-                (3, 'Database Migration', 25000.00, '2023-02-01', '2023-04-30')
-            `);
-        }
-
-        await connection.end();
+        // No database connection to close for SQLite
         console.log('Database update completed successfully');
     } catch (error) {
         console.error('Database update failed:', error.message);
@@ -393,7 +330,7 @@ cleanup_backups() {
 main() {
     echo -e "${GREEN}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║                   SQL Mastery Quest Updater                 ║"
+    echo "║                   CN Mastery Quest Updater                  ║"
     echo "║                    Update to Latest Version                 ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -421,7 +358,7 @@ main() {
     echo -e "${NC}"
     
     echo ""
-    log_success "SQL Mastery Quest has been updated successfully!"
+    log_success "CN Mastery Quest has been updated successfully!"
     log_info "Application URL: ${BLUE}http://localhost:$PORT${NC}"
     log_info "Installation directory: $INSTALL_DIR"
     log_info "Log file: $INSTALL_DIR/app.log"

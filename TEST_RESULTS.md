@@ -1,4 +1,4 @@
-# SQL Tutor Application Test Results
+# CN Tutor Application Test Results
 
 ## Architecture Refactoring Status: ✅ COMPLETED
 

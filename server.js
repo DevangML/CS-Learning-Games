@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
 const sqlite3 = require('sqlite3').verbose();
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -75,7 +74,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('⚠️  Google OAuth credentials not found. Authentication will be disabled.');
 }
 
-let mysqlConnection;
+// Removed MySQL integration for CN-only app
 
 // Initialize SQLite tables for user data and gamification
 const initUserDatabase = () => {
@@ -331,21 +330,7 @@ const requireAuth = (req, res, next) => {
     res.status(401).json({ error: 'Authentication required' });
 };
 
-// MySQL connection (for SQL queries)
-const connectMySQL = async () => {
-    try {
-        mysqlConnection = await mysql.createConnection({
-            host: process.env.MYSQL_HOST || 'localhost',
-            user: process.env.MYSQL_USER || process.env.DB_USER || 'sql_tutor_user',
-            password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD,
-            database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'sql_tutor'
-        });
-        console.log('Connected to MySQL database');
-    } catch (error) {
-        console.error('MySQL connection failed:', error);
-        // Don't exit - allow setup route to handle this
-    }
-};
+// Removed MySQL connection for CN-only app
 
 // Authentication routes
 app.get('/auth/google', (req, res) => {
@@ -410,147 +395,10 @@ app.post('/auth/demo', async (req, res) => {
 });
 
 // MySQL setup route (for first-time users)
-app.post('/setup-mysql', async (req, res) => {
-    try {
-        const { host, port, user, password, database } = req.body;
-        
-        // Test connection with provided credentials
-        const testConnection = await mysql.createConnection({
-            host: host || 'localhost',
-            port: port || 3306,
-            user: user,
-            password: password
-        });
-        
-        // Create database if it doesn't exist
-        await testConnection.execute(`CREATE DATABASE IF NOT EXISTS ${database}`);
-        await testConnection.end();
-        
-        // Connect to the new database
-        mysqlConnection = await mysql.createConnection({
-            host: host || 'localhost',
-            port: port || 3306,
-            user: user,
-            password: password,
-            database: database
-        });
-        
-        // Create tables
-        await createMySQLTables();
-        
-        res.json({ success: true, message: 'MySQL setup completed successfully' });
-    } catch (error) {
-        console.error('MySQL setup error:', error);
-        res.status(500).json({ error: 'MySQL setup failed', message: error.message });
-    }
-});
+// Removed MySQL setup route
 
 // Create MySQL tables (same as before but extracted)
-const createMySQLTables = async () => {
-    const sqlStatements = [
-        `CREATE TABLE IF NOT EXISTS departments (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL,
-            manager_id INT
-        )`,
-        
-        `CREATE TABLE IF NOT EXISTS employees (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL,
-            department_id INT,
-            salary DECIMAL(10,2),
-            hire_date DATE
-        )`,
-
-        `CREATE TABLE IF NOT EXISTS projects (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL,
-            budget DECIMAL(15,2),
-            start_date DATE,
-            end_date DATE
-        )`,
-
-        `CREATE TABLE IF NOT EXISTS employee_projects (
-            employee_id INT,
-            project_id INT,
-            role VARCHAR(50),
-            PRIMARY KEY (employee_id, project_id),
-            FOREIGN KEY (employee_id) REFERENCES employees(id),
-            FOREIGN KEY (project_id) REFERENCES projects(id)
-        )`,
-
-        `INSERT IGNORE INTO departments (id, name, manager_id) VALUES
-        (1, 'Engineering', 1),
-        (2, 'Marketing', 2),
-        (3, 'Sales', 3),
-        (4, 'HR', 4)`,
-
-        `INSERT IGNORE INTO employees (id, name, department_id, salary, hire_date) VALUES
-        (1, 'John Doe', 1, 75000.00, '2020-01-15'),
-        (2, 'Jane Smith', 2, 65000.00, '2019-03-22'),
-        (3, 'Mike Johnson', 1, 80000.00, '2021-06-10'),
-        (4, 'Sarah Wilson', 3, 55000.00, '2022-02-01'),
-        (5, 'David Brown', 1, 70000.00, '2020-09-15'),
-        (6, 'Lisa Davis', 2, 60000.00, '2021-11-30'),
-        (7, 'Tom Anderson', 4, 50000.00, '2023-01-20'),
-        (8, 'Emily White', 3, 58000.00, '2022-08-15')`,
-
-        `INSERT IGNORE INTO projects (id, name, budget, start_date, end_date) VALUES
-        (1, 'Website Redesign', 100000.00, '2023-01-01', '2023-06-30'),
-        (2, 'Mobile App', 150000.00, '2023-03-15', '2023-12-31'),
-        (3, 'Database Migration', 80000.00, '2023-02-01', '2023-08-31')`,
-
-        `INSERT IGNORE INTO employee_projects (employee_id, project_id, role) VALUES
-        (1, 1, 'Lead Developer'),
-        (3, 1, 'Frontend Developer'),
-        (5, 2, 'Backend Developer'),
-        (1, 3, 'Database Architect'),
-        (2, 1, 'UI/UX Designer')`,
-
-        // Additional tables for LeetCode patterns
-        `CREATE TABLE IF NOT EXISTS logs (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            num INT
-        )`,
-
-        `INSERT IGNORE INTO logs (id, num) VALUES
-        (1, 1), (2, 1), (3, 1), (4, 2), (5, 1), (6, 2), (7, 2)`,
-
-        `CREATE TABLE IF NOT EXISTS weather (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            record_date DATE,
-            temperature INT
-        )`,
-
-        `INSERT IGNORE INTO weather (id, record_date, temperature) VALUES
-        (1, '2015-01-01', 10), (2, '2015-01-02', 25), (3, '2015-01-03', 20), (4, '2015-01-04', 30)`,
-
-        `CREATE TABLE IF NOT EXISTS activity (
-            user_id INT,
-            session_id INT,
-            activity_date DATE,
-            activity_type VARCHAR(50),
-            PRIMARY KEY(user_id, session_id, activity_date)
-        )`,
-
-        `INSERT IGNORE INTO activity (user_id, session_id, activity_date, activity_type) VALUES
-        (1, 1, '2019-07-20', 'open_session'),
-        (1, 1, '2019-07-20', 'scroll_down'),
-        (1, 1, '2019-07-20', 'end_session'),
-        (1, 2, '2019-07-21', 'open_session'),
-        (1, 2, '2019-07-21', 'send_message'),
-        (1, 2, '2019-07-21', 'end_session'),
-        (2, 4, '2019-07-21', 'open_session'),
-        (2, 4, '2019-07-21', 'send_message'),
-        (2, 4, '2019-07-21', 'end_session')`
-    ];
-
-    for (const sql of sqlStatements) {
-        await mysqlConnection.execute(sql);
-    }
-    
-    console.log('MySQL tables created and populated');
-};
+// Removed SQL seed tables for CN-only app
 
 // Gamification API endpoints
 app.get('/api/user/profile', requireAuth, (req, res) => {
@@ -1032,79 +880,7 @@ app.get('/api/weekly-recap', requireAuth, (req, res) => {
 });
 
 // Execute SQL query with gamification
-app.post('/execute-query', requireAuth, async (req, res) => {
-    try {
-        const { query, expectedQuery } = req.body;
-        
-        if (!mysqlConnection) {
-            return res.status(500).json({ error: 'MySQL not configured. Please set up your database connection.' });
-        }
-        
-        if (!query || typeof query !== 'string') {
-            return res.status(400).json({ error: 'Query is required' });
-        }
-
-        const sanitizedQuery = query.trim();
-        
-        // Allow common DQL/DML/DDL for learning (safe subset)
-        // Notes:
-        // - DDL destructive ops like DROP TABLE/TRUNCATE are limited to avoid blowing away seed tables
-        // - We do allow DROP VIEW/INDEX as they are reversible
-        const ql = sanitizedQuery.toLowerCase();
-        const allowedPatterns = [
-            /^select\b/,
-            /^with\b/,              // CTEs
-            /^explain\b/,
-            /^show\b/,
-            /^(desc|describe)\b/,
-            /^insert\b/,
-            /^update\b/,
-            /^delete\b/,
-            /^create\s+(view|index|table|temporary\s+table)\b/,
-            /^alter\s+table\b/,
-            /^drop\s+(view|index)\b/
-        ];
-        const isAllowed = allowedPatterns.some((re) => re.test(ql));
-        
-        if (!isAllowed) {
-            return res.status(400).json({ 
-                error: 'Query type not allowed',
-                message: 'Allowed: SELECT, WITH (CTE), EXPLAIN, SHOW, DESCRIBE/DESC, INSERT, UPDATE, DELETE, CREATE (VIEW/INDEX/TABLE), ALTER TABLE, DROP (VIEW/INDEX)'
-            });
-        }
-
-        const [rows] = await mysqlConnection.execute(sanitizedQuery);
-
-        let comparison = null;
-        if (expectedQuery && typeof expectedQuery === 'string') {
-            try {
-                const expTrim = expectedQuery.trim();
-                const expAllowed = allowedPatterns.some((re) => re.test(expTrim.toLowerCase()));
-                if (expAllowed) {
-                    const [expectedRows] = await mysqlConnection.execute(expTrim);
-                    comparison = compareResultSets(rows, expectedRows);
-                }
-            } catch (cmpErr) {
-                // Suppress comparison if expected solution cannot be executed
-                comparison = null;
-            }
-        }
-
-        res.json({
-            success: true,
-            results: rows,
-            rowCount: rows.length,
-            comparison
-        });
-
-    } catch (error) {
-        console.error('Query execution error:', error);
-        res.status(500).json({ 
-            error: 'Query execution failed',
-            message: error.message 
-        });
-    }
-});
+// Removed SQL query execution endpoint
 
 // Shallow result set comparison: columns and unordered rows
 function compareResultSets(actualRows, expectedRows) {
@@ -1138,17 +914,7 @@ function compareResultSets(actualRows, expectedRows) {
     return summary;
 }
 
-app.get('/test-connection', async (req, res) => {
-    try {
-        if (!mysqlConnection) {
-            return res.status(500).json({ success: false, error: 'MySQL not configured' });
-        }
-        await mysqlConnection.execute('SELECT 1');
-        res.json({ success: true, message: 'Database connection is working' });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
+// Removed DB test endpoint for CN-only app
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -1161,7 +927,7 @@ app.get(['/game', '/mode/:mode', '/level/:mode/:level/:q', '/blog', '/blog/*'], 
 
 // SPA fallback: serve index.html for non-API routes to enable client-side routing
 app.get('*', (req, res, next) => {
-    const ignorePrefixes = ['/api/', '/auth/', '/setup-mysql', '/test-connection', '/execute-query', '/assets/', '/src/', '/node_modules/'];
+    const ignorePrefixes = ['/api/', '/auth/', '/assets/', '/src/', '/node_modules/'];
     if (ignorePrefixes.some(p => req.path.startsWith(p))) {
         return next();
     }
@@ -1216,15 +982,10 @@ const startServer = async () => {
     try {
         await killProcessOnPort(PORT);
         await initUserDatabase();
-        await connectMySQL(); // This won't fail if MySQL isn't configured
-
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);
             if (!process.env.GOOGLE_CLIENT_ID) {
                 console.log('⚠️  Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env');
-            }
-            if (!mysqlConnection) {
-                console.log('⚠️  MySQL not configured. Users will be prompted to set it up.');
             }
         });
     } catch (error) {

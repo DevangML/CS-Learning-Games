@@ -33,3 +33,17 @@ Quality Rules
 Production Constraints
 - Output valid JSON only (no code fences, no commentary).
 - Maintain exact structure and indexing for compatibility with the game engine.
+
+Numericals to base the game around (as it must be helping the player visualize LLD very differenctly with 3d objects like computers, parts, entities, etc.):
+
+* Indeed lists 55 LLD questions—none involve math or numeric computation. Focus: class diagrams, system components (e.g., Parking Lot, Chess game, Ticketing). ([Indeed][1])
+* Medium and FinalRoundAI blogs list typical LLD problems like “Design a Parking Lot,” “Design a Movie Ticket Booking System,” “Design a Chess Game.” All require OOD thinking, not numeric formulas. ([Medium][2])
+* GeeksforGeeks LLD guide covers purposes, UML, patterns, UML diagrams, concurrency—no number-based questions. ([GitHub][3])
+* Reddit discussion emphasizes searching for efficiency in algorithmic logic (e.g., avoiding O(n) loops), but that’s about data structures, not network-style numeric problems. ([Reddit][4])
+
+Conclusion: No workflows in Indian 2025 LLD interviews require numerical calculations. LLD evaluates object-oriented structuring, design patterns, modularity—not metrics or formulaic answers.
+
+[1]: https://in.indeed.com/career-advice/interviewing/low-level-design-interview-questions?utm_source=chatgpt.com "55 Low-Level Design Interview Questions With Example ..."
+[2]: https://medium.com/%40prashant558908/solving-top-10-low-level-design-lld-interview-questions-in-2024-302b6177c869?utm_source=chatgpt.com "Solving Top 10 Low Level Design (LLD) Interview Questions"
+[3]: https://github.com/ashishps1/awesome-low-level-design?utm_source=chatgpt.com "ashishps1/awesome-low-level-design"
+[4]: https://www.reddit.com/r/leetcode/comments/1jblada/can_someone_help_me_on_what_to_expect_in_lld/?utm_source=chatgpt.com "Can someone help me on what to expect in LLD interviews ..."

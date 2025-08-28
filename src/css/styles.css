@@ -241,34 +241,47 @@ body::before {
     overflow-wrap: anywhere;
 }
 
-.sql-editor {
-    position: relative;
-    margin-bottom: 20px;
-}
+/* Labs */
+.lab-page { padding: 20px; }
+.lab-topbar { color: var(--text-medium-contrast); margin-bottom: 10px; }
+.lab-stage { min-height: 520px; }
+.lab-root { color: var(--text-medium-contrast); }
+.lab-header h2 { margin: 0 0 8px 0; color: var(--text-high-contrast); }
+.lab-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+.lab-visual { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 20px; }
+.lab-side .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+.lab-side h3 { color: var(--text-high-contrast); margin-bottom: 6px; }
+.lab-side label { display: block; margin: 8px 0; }
+.lab-side input[type=range] { width: 100%; }
+.formula { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace; font-size: 0.95rem; margin: 6px 0; }
+.tasks { padding-left: 18px; }
+.task-input { display: flex; gap: 8px; margin-top: 6px; }
+.task-input input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: var(--text-high-contrast); }
+.task-input button { padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.6); background: rgba(102,126,234,0.2); color: var(--text-high-contrast); cursor: pointer; }
+.task-feedback { margin-top: 6px; font-size: 0.95rem; }
+.task-feedback.ok { color: #4caf50; }
+.task-feedback.err { color: #f44336; }
 
-/* Primary learning element - High-contrast SQL editor */
-.sql-input {
-    width: 100%;
-    min-height: 120px;
-    background: color-mix(in srgb, var(--primary-bg) 95%, transparent);
-    color: var(--text-high-contrast);
-    border: 2px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: var(--space-lg);
-    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
-    font-size: var(--font-size-base);
-    resize: vertical;
-    line-height: 1.6;
-    font-variant-ligatures: common-ligatures;
-    tab-size: 4;
-}
+/* BDP Pipe */
+.pipe { position: relative; height: 120px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); }
+.pipe-bg { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 6px, transparent 6px, transparent 12px); }
+.bead { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #7cb342; box-shadow: 0 0 8px rgba(124,179,66,0.6); }
 
-.sql-input:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
-    border-color: var(--focus);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 20%, transparent);
-}
+/* ARQ Timeline */
+.timeline { position: relative; height: 160px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; background: rgba(255,255,255,0.05); overflow: hidden; padding: 8px 8px 8px 8px; }
+.timeline .axis { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(255,255,255,0.2); transform: translateY(-50%); }
+.frame-block { position: absolute; top: calc(50% - 10px); height: 20px; background: rgba(16,185,129,0.5); border: 1px solid rgba(16,185,129,0.7); border-radius: 4px; }
+.win { position: absolute; top: 10px; height: calc(100% - 20px); background: rgba(102,126,234,0.25); border: 1px solid rgba(102,126,234,0.45); border-radius: 6px; pointer-events: none; }
+
+/* Fragmentation visuals */
+.frag-belt { position: relative; height: 180px; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; background: rgba(255,255,255,0.05); overflow: hidden; padding: 8px; }
+.frag-belt .gate { position: absolute; top: 8px; bottom: 8px; left: 45%; width: 4px; background: rgba(244,67,54,0.6); box-shadow: 0 0 10px rgba(244,67,54,0.4); display: flex; align-items: start; justify-content: center; }
+.frag-belt .gate span { position: absolute; top: -4px; transform: translateY(-100%); font-size: 0.85rem; color: var(--text-medium-contrast); }
+.frag-belt .packets { position: absolute; left: 10px; right: 10px; top: 40px; display: flex; gap: 20px; align-items: center; }
+.packet { height: 36px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-high-contrast); border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+.packet.original { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.6); }
+.frags { display: flex; gap: 10px; align-items: center; }
+.packet.frag { background: rgba(255,202,40,0.2); border-color: rgba(255,202,40,0.6); }
 
 .button-group {
     display: flex;
@@ -818,7 +831,7 @@ body::before {
     flex-shrink: 0;
 }
 
-/* MySQL Setup Form */
+/* Setup Form */
 .setup-card form {
     display: flex;
     flex-direction: column;

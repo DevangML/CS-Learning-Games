@@ -59,17 +59,6 @@ class GameStateManager {
             // Database persistence is handled by individual progress calls
             return;
         }
-        
-        // Fallback to localStorage for demo/unauthenticated users
-        localStorage.setItem('sqlQuestProgress', JSON.stringify({
-            score: this.gameState.score,
-            streak: this.gameState.streak,
-            hintsUsed: this.gameState.hintsUsed,
-            completedLevels: Array.from(this.gameState.completedLevels),
-            completedQuestions: Array.from(this.gameState.completedQuestions),
-            achievements: this.gameState.achievements,
-            totalXP: this.gameState.totalXP
-        }));
     }
     
     // Save question/level completion to database
@@ -129,21 +118,6 @@ class GameStateManager {
         } catch (error) {
             console.error('Failed to save progress:', error);
         }
-    }
-
-    loadProgress() {
-        const saved = localStorage.getItem('sqlQuestProgress');
-        if (saved) {
-            const data = JSON.parse(saved);
-            this.gameState.score = data.score || 0;
-            this.gameState.streak = data.streak || 0;
-            this.gameState.hintsUsed = data.hintsUsed || 0;
-            this.gameState.completedLevels = new Set(data.completedLevels || []);
-            this.gameState.completedQuestions = new Set(data.completedQuestions || []);
-            this.gameState.achievements = data.achievements || [];
-            this.gameState.totalXP = data.totalXP || 0;
-        }
-        this.updateDisplay();
     }
     
     // Load progress from database for authenticated users
@@ -261,7 +235,6 @@ class GameStateManager {
             achievements: [],
             totalXP: 0
         };
-        localStorage.removeItem('sqlQuestProgress');
         this.updateDisplay();
     }
 

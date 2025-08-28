@@ -21,12 +21,11 @@ class AuthManager {
         try {
             const response = await fetch('/auth/user');
             const data = await response.json();
-            
+
             if (data.user) {
                 this.currentUser = data.user;
                 await this.loadUserStats();
                 this.showAuthenticatedUI();
-                await this.checkMySQLConnection();
 
                 // Show welcome animation only on explicit login (via one-time URL flag)
                 const params = new URLSearchParams(window.location.search || '');
@@ -55,12 +54,12 @@ class AuthManager {
             <div class="success-content">
                 <div class="success-icon">👋</div>
                 <h2>Welcome back, ${this.currentUser.name.split(' ')[0]}!</h2>
-                <p>Your SQL journey continues...</p>
+                <p>Your CN journey continues...</p>
             </div>
         `;
-        
+
         document.body.appendChild(welcome);
-        
+
         setTimeout(() => {
             welcome.style.opacity = '0';
             setTimeout(() => {
@@ -77,7 +76,7 @@ class AuthManager {
             if (response.ok) {
                 this.userStats = await response.json();
                 this.updateStatsDisplay();
-                
+
                 // Load user progress into game state if available
                 if (window.gameStateManager && window.gameStateManager.loadUserProgress) {
                     await window.gameStateManager.loadUserProgress();
@@ -163,13 +162,12 @@ class AuthManager {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response.ok) {
                 const result = await response.json();
                 this.currentUser = result.user;
                 await this.loadUserStats();
                 this.showAuthenticatedUI();
-                await this.checkMySQLConnection();
                 this.showDemoWelcome();
             } else {
                 console.error('Demo login failed');
@@ -190,9 +188,9 @@ class AuthManager {
                 <small>Sign in with Google for real progress tracking</small>
             </div>
         `;
-        
+
         document.body.appendChild(welcome);
-        
+
         setTimeout(() => {
             welcome.style.opacity = '0';
             setTimeout(() => {
@@ -207,20 +205,13 @@ class AuthManager {
         document.getElementById('authSection').style.display = 'none';
         document.getElementById('userProfile').style.display = 'block';
         document.getElementById('gameStats').style.display = 'block';
-        document.getElementById('dailyMissions').style.display = 'block';
-        
+
         // Show mode selector and navigation now that user is authenticated
-        const modeSelector = document.querySelector('.mode-selector');
-        if (modeSelector) modeSelector.style.display = 'block';
         const mainNav = document.querySelector('.main-navigation');
         if (mainNav) mainNav.style.display = 'block';
-        
-        // Show roadmap and level list
-        const roadmap = document.getElementById('roadmapHeader');
-        if (roadmap) roadmap.style.display = 'block';
-        const levels = document.getElementById('levelSelector');
-        if (levels) levels.style.display = 'grid';
-        
+
+        // CN hub is the main experience; no roadmap/levels UI
+
         // Remove guest banner
         const banner = document.getElementById('guestBanner');
         if (banner && banner.parentElement) banner.parentElement.removeChild(banner);
@@ -233,36 +224,11 @@ class AuthManager {
             avatar.src = this.currentUser.avatar || '/assets/default-avatar.svg';
             avatar.onerror = () => { avatar.src = '/assets/default-avatar.svg'; };
         }
-        
+
         this.loadDailyMissions();
         this.loadWeeklyQuest();
         this.checkStreakRecovery();
         this.showDailyReflectionPrompt();
-    }
-
-    async checkMySQLConnection() {
-        try {
-            const response = await fetch('/test-connection');
-            const result = await response.json();
-            
-            if (!result.success) {
-                this.showMySQLSetup();
-            }
-        } catch (error) {
-            this.showMySQLSetup();
-        }
-    }
-
-    showMySQLSetup() {
-        document.getElementById('mysqlSetupSection').style.display = 'block';
-        document.getElementById('roadmapHeader').style.display = 'none';
-        document.getElementById('levelSelector').style.display = 'none';
-    }
-
-    hideMySQLSetup() {
-        document.getElementById('mysqlSetupSection').style.display = 'none';
-        document.getElementById('roadmapHeader').style.display = 'block';
-        document.getElementById('levelSelector').style.display = 'grid';
     }
 
     updateStatsDisplay() {
@@ -288,28 +254,9 @@ class AuthManager {
 
     displayDailyMissions(missions) {
         const missionsList = document.getElementById('missionsList');
-        if (!missions || !missions.question_1_id) {
-            missionsList.innerHTML = '<p>Loading missions...</p>';
-            return;
+        if (missionsList) {
+            missionsList.innerHTML = '<p>CN missions coming soon.</p>';
         }
-
-        missionsList.innerHTML = `
-            <div class="mission-item ${missions.completed_count >= 1 ? 'completed' : ''}">
-                <span>📝 Mission 1: ${missions.question_1_id}</span>
-                ${missions.completed_count >= 1 ? '<span class="mission-complete">✅</span>' : ''}
-            </div>
-            <div class="mission-item ${missions.completed_count >= 2 ? 'completed' : ''}">
-                <span>📝 Mission 2: ${missions.question_2_id}</span>
-                ${missions.completed_count >= 2 ? '<span class="mission-complete">✅</span>' : ''}
-            </div>
-            <div class="mission-item ${missions.completed_count >= 3 ? 'completed' : ''}">
-                <span>📝 Mission 3: ${missions.question_3_id}</span>
-                ${missions.completed_count >= 3 ? '<span class="mission-complete">✅</span>' : ''}
-            </div>
-            <div class="mission-progress">
-                ${missions.completed_count}/3 completed today
-            </div>
-        `;
     }
 
     async loadWeeklyQuest() {
@@ -341,7 +288,7 @@ class AuthManager {
                 </div>
             </div>
         `;
-        
+
         missionsElement.insertAdjacentHTML('beforeend', weeklyQuestHtml);
     }
 
@@ -378,7 +325,7 @@ class AuthManager {
         `;
 
         document.body.appendChild(recoveryDiv);
-        
+
         // Auto-remove after 10 seconds
         setTimeout(() => {
             if (document.body.contains(recoveryDiv)) {
@@ -403,10 +350,10 @@ class AuthManager {
         try {
             const response = await fetch('/api/daily-reflection');
             const existingReflection = await response.json();
-            
+
             if (!existingReflection) {
-                const takeaway = prompt('🤔 What was your key takeaway from today\'s SQL learning?\n\n(This helps reinforce your learning and builds positive habits!)');
-                
+                const takeaway = prompt('🤔 What was your key takeaway from today\'s CN learning?\n\n(This helps reinforce your learning and builds positive habits!)');
+
                 if (takeaway && takeaway.trim()) {
                     await fetch('/api/daily-reflection', {
                         method: 'POST',
@@ -415,7 +362,7 @@ class AuthManager {
                         },
                         body: JSON.stringify({ takeaway: takeaway.trim() })
                     });
-                    
+
                     if (window.app && window.app.showFeedback) {
                         window.app.showFeedback('✅ Daily reflection saved! Great job reflecting on your learning.', 'success');
                     }
@@ -432,7 +379,7 @@ class AuthManager {
 
         // Base XP: 10 points
         let xp = 10;
-        
+
         // Difficulty multiplier based on level
         let difficultyMultiplier = 1;
         if (levelId <= 4) difficultyMultiplier = 1; // Beginner
@@ -463,11 +410,11 @@ class AuthManager {
     // Track question attempts for fail-fast hints
     recordAnswer(levelId, questionId, isCorrect) {
         const questionKey = `${levelId}-${questionId}`;
-        
+
         if (!isCorrect) {
             const currentCount = this.wrongAnswerCount.get(questionKey) || 0;
             this.wrongAnswerCount.set(questionKey, currentCount + 1);
-            
+
             // Auto-reveal hint after 2 wrong answers
             if (currentCount + 1 >= 2) {
                 this.showFailFastHint(levelId, questionId);
@@ -477,14 +424,14 @@ class AuthManager {
             // Reset count on correct answer
             this.wrongAnswerCount.delete(questionKey);
         }
-        
+
         return false;
     }
 
     showFailFastHint(levelId, questionId) {
         // Award 5 XP for reading auto-revealed hint
         this.sessionXP += 5;
-        
+
         // Show the hint automatically
         if (window.app && window.app.showHint) {
             window.app.showHint();
@@ -509,7 +456,7 @@ class AuthManager {
         let message = '';
         switch (rewardType) {
             case 'insight_card':
-                message = '🎴 Insight Card earned! Check your collection for a SQL tip!';
+                message = '🎴 Insight Card earned! Check your collection for a CN tip!';
                 break;
             case 'bonus_quiz':
                 message = '🎯 Bonus Quiz unlocked! Double XP if answered correctly!';
@@ -518,7 +465,7 @@ class AuthManager {
                 message = '🛡️ Shield Fragment collected! Collect 2 to form a streak shield!';
                 break;
         }
-        
+
         if (window.app && window.app.showFeedback) {
             window.app.showFeedback(message, 'success');
         }
@@ -527,7 +474,7 @@ class AuthManager {
     // Session end warning
     checkSessionTime() {
         const sessionMinutes = (Date.now() - this.sessionStartTime) / (1000 * 60);
-        
+
         if (sessionMinutes >= 40) {
             if (window.app && window.app.showFeedback) {
                 window.app.showFeedback("⏰ You're done for today. Come back tomorrow for fresh challenges!", 'info');
@@ -538,13 +485,13 @@ class AuthManager {
                 window.app.showFeedback("⚠️ 5 minutes remaining in today's session!", 'warning');
             }
         }
-        
+
         return false;
     }
 
     async recordProgress(levelId, questionId, completed, hintsUsed = 0) {
         const xpEarned = this.calculateXP(levelId, completed, hintsUsed);
-        
+
         try {
             const response = await fetch('/api/user/progress', {
                 method: 'POST',
@@ -566,7 +513,7 @@ class AuthManager {
                     this.sessionQuestions += 1;
                     await this.checkVariableRewards();
                 }
-                
+
                 // Reload user stats
                 await this.loadUserStats();
             }
@@ -587,9 +534,9 @@ window.signInWithGoogle = () => {
 window.startDemoMode = async () => {
     if (window.authManager && typeof window.authManager.signInDemo === 'function') {
         await window.authManager.signInDemo();
-        // Navigate to game view
-        if (window.gameRouter) {
-            window.gameRouter.navigate('/');
+        // Navigate to CN hub
+        if (window.router && typeof window.router.navigate === 'function') {
+            window.router.navigate('/cn');
         }
     }
 };
@@ -603,49 +550,8 @@ window.logout = async () => {
     }
 };
 
-window.setupMySQL = async (event) => {
-    event.preventDefault();
-    
-    const formData = {
-        host: document.getElementById('mysqlHost').value,
-        port: parseInt(document.getElementById('mysqlPort').value),
-        user: document.getElementById('mysqlUser').value,
-        password: document.getElementById('mysqlPassword').value,
-        database: document.getElementById('mysqlDatabase').value
-    };
-
-    try {
-        const response = await fetch('/setup-mysql', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            authManager.hideMySQLSetup();
-            if (window.app) {
-                window.app.showFeedback('✅ MySQL setup completed successfully!', 'success');
-            }
-        } else {
-            alert('MySQL setup failed: ' + result.message);
-        }
-    } catch (error) {
-        console.error('MySQL setup error:', error);
-        alert('MySQL setup failed: ' + error.message);
-    }
-};
-
 // Initialize authentication when page loads
 document.addEventListener('DOMContentLoaded', () => {
     authManager.init();
-    
-    // Setup MySQL form handler
-    const mysqlForm = document.getElementById('mysqlSetupForm');
-    if (mysqlForm) {
-        mysqlForm.addEventListener('submit', setupMySQL);
-    }
+
 });

@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-# SQL Mastery Quest - Smart Installer Script
-# Usage: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/sql_mastery/install.sh | zsh
+# CN Mastery Quest - Smart Installer Script
+# Usage: curl -sSL https://raw.githubusercontent.com/DevangML/CS-Learning-Games/cn_mastery/install.sh | zsh
 
 set -e  # Exit on any error
 
@@ -14,9 +14,9 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_URL="https://github.com/DevangML/CS-Learning-Games.git"
-APP_DIR="sql_tutor"
-DB_NAME="sql_tutor"
-DB_USER="sql_tutor_user"
+APP_DIR="cn_mastery"
+DB_NAME="cn_mastery"
+DB_USER="cn_mastery_user"
 DB_PASSWORD=""
 PORT=3000
 GOOGLE_CLIENT_ID=""
@@ -61,18 +61,18 @@ install_dependencies() {
     if command_exists apt-get; then
         # Ubuntu/Debian
         sudo apt-get update >/dev/null 2>&1
-        sudo apt-get install -y git curl mysql-server mysql-client >/dev/null 2>&1 &
+        sudo apt-get install -y git curl sqlite3 >/dev/null 2>&1 &
         DEPS_PID=$!
     elif command_exists yum; then
         # CentOS/RHEL
-        sudo yum install -y git curl mysql-server mysql >/dev/null 2>&1 &
+        sudo yum install -y git curl sqlite >/dev/null 2>&1 &
         DEPS_PID=$!
     elif command_exists brew; then
         # macOS
-        brew install git curl mysql >/dev/null 2>&1 &
+        brew install git curl sqlite >/dev/null 2>&1 &
         DEPS_PID=$!
     else
-        log_error "Unsupported package manager. Please install git, curl, and MySQL manually."
+        log_error "Unsupported package manager. Please install git, curl, and SQLite manually."
         exit 1
     fi
     
@@ -130,9 +130,9 @@ setup_repository() {
     update_progress
 }
 
-# Setup MySQL
-setup_mysql() {
-    log_info "Setting up MySQL..."
+# Setup Database
+setup_database() {
+    log_info "Setting up database..."
     
     # Wait for dependencies installation to complete
     if [ -n "$DEPS_PID" ]; then
@@ -141,27 +141,8 @@ setup_mysql() {
         update_progress
     fi
     
-    # Start MySQL service
-    if ! service_running mysql && ! service_running mysqld; then
-        log_info "Starting MySQL service..."
-        if command_exists systemctl; then
-            sudo systemctl start mysql || sudo systemctl start mysqld
-            sudo systemctl enable mysql >/dev/null 2>&1 || sudo systemctl enable mysqld >/dev/null 2>&1
-        elif command_exists service; then
-            sudo service mysql start || sudo service mysqld start
-        elif command_exists brew; then
-            brew services start mysql >/dev/null 2>&1
-        fi
-    fi
-    
-    # Wait for MySQL to be ready
-    log_info "Waiting for MySQL to be ready..."
-    for i in {1..30}; do
-        if mysql -e "SELECT 1" >/dev/null 2>&1; then
-            break
-        fi
-        sleep 2
-    done
+    # SQLite database setup - no service needed
+    log_info "SQLite database will be initialized automatically..."
     
     # Generate secure random password if not provided
     if [ -z "$DB_PASSWORD" ]; then
@@ -171,26 +152,14 @@ setup_mysql() {
     
     # Generate secure session secret if not provided
     if [ -z "$SESSION_SECRET" ]; then
-        SESSION_SECRET="sql-quest-$(openssl rand -hex 16 2>/dev/null || date +%s | sha256sum | head -c 32)"
+        SESSION_SECRET="cn-quest-$(openssl rand -hex 16 2>/dev/null || date +%s | sha256sum | head -c 32)"
         log_info "Generated secure session secret"
     fi
     
-    # Create database and user
-    log_info "Creating database and user..."
-    mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;" 2>/dev/null || {
-        # Try with sudo if regular access fails
-        sudo mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
-    }
+    # SQLite database will be created automatically by the application
+    log_info "Database will be created automatically on first run..."
     
-    mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';" 2>/dev/null || {
-        sudo mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWORD';"
-    }
-    
-    mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null || {
-        sudo mysql -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
-    }
-    
-    log_success "MySQL setup completed"
+    log_success "Database setup completed"
     update_progress
 }
 
@@ -221,12 +190,8 @@ GOOGLE_REDIRECT_URI=http://localhost:$PORT/auth/google/callback
 # Session Configuration (auto-generated secure secret)
 SESSION_SECRET=$SESSION_SECRET
 
-# MySQL Configuration (auto-generated secure password)
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=$DB_USER
-MYSQL_PASSWORD=$DB_PASSWORD
-MYSQL_DATABASE=$DB_NAME
+# Database Configuration (SQLite)
+DATABASE_PATH=./user_data.db
 
 # Application Configuration
 PORT=$PORT
@@ -288,73 +253,20 @@ setup_database_tables() {
     
     # Create a temporary script to populate sample data
     cat > setup_db.js << 'EOF'
-const mysql = require('mysql2/promise');
+const path = require('path');
 require('dotenv').config();
 
 async function setupDatabase() {
-    const connection = await mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        port: process.env.MYSQL_PORT,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE
-    });
+    // SQLite database setup is handled automatically by the application
+    const dbPath = process.env.DATABASE_PATH || './user_data.db';
 
-    // Create sample tables
-    const tables = [
-        `CREATE TABLE IF NOT EXISTS employees (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            department_id INT,
-            salary DECIMAL(10,2),
-            hire_date DATE
-        )`,
-        `CREATE TABLE IF NOT EXISTS departments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            manager_id INT
-        )`,
-        `CREATE TABLE IF NOT EXISTS projects (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            budget DECIMAL(12,2),
-            start_date DATE,
-            end_date DATE
-        )`
-    ];
+    // Sample data will be loaded from CN topics and quizzes
+    // SQLite tables will be created automatically by the application
+    console.log('Database tables will be created automatically by the application');
 
-    for (const table of tables) {
-        await connection.execute(table);
-    }
+    // No manual database operations needed for SQLite
+    // The application will handle all database initialization
 
-    // Insert sample data if tables are empty
-    const [rows] = await connection.execute('SELECT COUNT(*) as count FROM employees');
-    if (rows[0].count === 0) {
-        await connection.execute(`
-            INSERT INTO departments (id, name, manager_id) VALUES 
-            (1, 'Engineering', 1),
-            (2, 'Marketing', 2),
-            (3, 'Sales', 3)
-        `);
-
-        await connection.execute(`
-            INSERT INTO employees (id, name, department_id, salary, hire_date) VALUES 
-            (1, 'John Doe', 1, 75000.00, '2022-01-15'),
-            (2, 'Jane Smith', 2, 65000.00, '2022-03-20'),
-            (3, 'Bob Johnson', 3, 60000.00, '2022-05-10'),
-            (4, 'Alice Brown', 1, 80000.00, '2021-11-30'),
-            (5, 'Charlie Davis', 2, 55000.00, '2023-02-14')
-        `);
-
-        await connection.execute(`
-            INSERT INTO projects (id, name, budget, start_date, end_date) VALUES 
-            (1, 'Website Redesign', 50000.00, '2023-01-01', '2023-06-30'),
-            (2, 'Mobile App', 100000.00, '2023-03-15', '2023-12-31'),
-            (3, 'Database Migration', 25000.00, '2023-02-01', '2023-04-30')
-        `);
-    }
-
-    await connection.end();
     console.log('Database setup completed successfully');
 }
 
@@ -388,7 +300,7 @@ check_port() {
 
 # Start the application
 start_application() {
-    log_info "Starting SQL Mastery Quest..."
+    log_info "Starting CN Mastery Quest..."
     
     check_port
     
@@ -416,7 +328,7 @@ start_application() {
 main() {
     echo -e "${GREEN}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║                   SQL Mastery Quest Installer               ║"
+    echo "║                   CN Mastery Quest Installer               ║"
     echo "║              Smart, Fast, and Parallel Setup                ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -441,7 +353,7 @@ main() {
     wait
     
     # Sequential steps that depend on previous ones
-    setup_mysql
+    setup_database
     create_env_file
     install_npm_dependencies
     setup_database_tables
@@ -455,21 +367,21 @@ main() {
     echo -e "${NC}"
     
     echo ""
-    log_success "SQL Mastery Quest is now running!"
+    log_success "CN Mastery Quest is now running!"
     log_info "Application URL: ${BLUE}http://localhost:$PORT${NC}"
-    log_info "Database: $DB_NAME (User: $DB_USER)"
+    log_info "Database: SQLite (user_data.db)"
     log_info "Log file: $(pwd)/app.log"
     
     echo ""
     echo -e "${YELLOW}Security Information:${NC}"
-    echo "✓ Auto-generated secure database password: $DB_PASSWORD"
+    echo "✓ SQLite database configured automatically"
     echo "✓ Auto-generated session secret (32 chars)"
     echo "✓ Git-secrets protection active"
     echo "✓ Environment file secured (600 permissions)"
     
     echo ""
     echo -e "${YELLOW}Next steps:${NC}"
-    echo "1. Visit http://localhost:$PORT to start learning SQL"
+    echo "1. Visit http://localhost:$PORT to start learning CN"
     echo "2. Configure Google OAuth credentials in .env (optional)"
     echo "3. Keep your .env file secure and never commit it"
     

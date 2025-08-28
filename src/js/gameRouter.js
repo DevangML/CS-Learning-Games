@@ -9,7 +9,7 @@ class GameRouter {
     setTheoryNavVisible(visible) {
         document.querySelectorAll('.nav-link').forEach(link => {
             const route = link.getAttribute('data-route') || link.getAttribute('href') || '';
-            if (route.startsWith('/blog')) {
+            if (route.startsWith('/blog') || route.startsWith('/cn')) {
                 link.style.display = visible ? '' : 'none';
             }
         });
@@ -20,10 +20,10 @@ class GameRouter {
         if (window.router) {
             window.router
                 .route('/', this.showGame.bind(this), {
-                    title: 'SQL Mastery Quest - Interactive SQL Learning'
+                    title: 'CN Mastery Quest - Interactive CN Learning'
                 })
                 .route('/game', this.showGame.bind(this), {
-                    title: 'SQL Mastery Quest - Practice Levels'
+                    title: 'CN Mastery Quest - Practice Levels'
                 });
         }
     }

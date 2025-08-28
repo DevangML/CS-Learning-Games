@@ -32,3 +32,21 @@ Quality Rules
 Production Constraints
 - Output valid JSON only (no code fences, no commentary).
 - Conform exactly to the structure and indexing expected by the game engine.
+
+Sample sources for quiz inspiration (mostly conceptual, not numeric):
+
+- **Java OOP Exercises (GFG):**  
+  25+ practice problems on encapsulation, inheritance, polymorphism, abstraction.  
+  - No numeric/calculation problems.  
+  - Sources:  
+    - geeksforgeeks.org (×15)  
+    - reddit.com  
+    - medium.com  
+
+- **C++ OOP Practice Problems (GFG):**  
+  Structured problems on classes, inheritance, constructors (non-numerical).  
+  - Source: geeksforgeeks.org (×1)  
+
+- **Python OOP Exercise Questions (GFG):**  
+  Hands-on challenges, frameworks, and patterns; still conceptual.  
+  - Sources: geeksforgeeks.org (×14)  
