@@ -17,11 +17,11 @@ REPO_URL="https://github.com/DevangML/sql_tutor.git"
 APP_DIR="sql_tutor"
 DB_NAME="sql_tutor"
 DB_USER="sql_tutor_user"
-DB_PASSWORD=""
+DB_PASSWORD="devang"
 PORT=3000
-GOOGLE_CLIENT_ID="your_google_client_id_here"
-GOOGLE_CLIENT_SECRET="your_google_client_secret_here"
-SESSION_SECRET="your_random_session_secret_here"
+GOOGLE_CLIENT_ID="143275929010-pjm8u8mdaen5ncek69am751o8hv57c91.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="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"
+SESSION_SECRET="sql-mastery-quest-demo-secret-2024"
 
 # Logging functions
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }

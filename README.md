@@ -1,205 +1,189 @@
-# 🎮 SQL Mastery Quest
+# SQL Mastery Quest
 
-An interactive SQL learning platform with **gamification**, **real-time MySQL execution**, and **smooth user experience**. Master SQL from basics to advanced concepts through daily missions, streak systems, and XP progression!
+An interactive, browser‑based SQL learning game. Practice real SQL against a live MySQL database, progress through curated levels, and reinforce learning with a theory hub and quizzes. Built with Node.js + Express, vanilla JS, SQLite for user data, and MySQL for the tutorial dataset.
 
-## ✨ Features
+## Table of Contents
+- Overview
+- Features
+- Quick Start
+- Full Setup
+- Configuration (.env)
+- Project Structure
+- How It Works
+- Routes
+- API (server)
+- Authentic Knowledge Rule
+- Content Prompts & Validation
+- Troubleshooting
+- Contributing & License
 
-### 🎯 **Gamification System**
-- **XP & Level Progression**: Earn XP based on difficulty and performance
-- **Daily Streaks**: Build habits with streak shields (7 clean days = 1 shield)
-- **Daily Missions**: 3 AI-generated missions using spaced repetition
-- **Weekly Quests**: Complete 12 missions per week for bonus rewards
-- **Variable Rewards**: 20% chance for insight cards, bonus quiz, or shield fragments
-- **Streak Recovery**: Comeback quest to restore broken streaks (5 missions in 48h)
-- **Session Management**: Full XP for 25min → 50% XP until 40min → 0% after
-- **Fail-Fast Hints**: Auto-reveal hints after 2 wrong answers
+## Overview
+SQL Mastery Quest blends hands‑on SQL execution with gamified progression and spaced repetition.
+- Practice Flow: Essentials (11 levels) or Complete (23 levels) of SQL challenges powered by a local MySQL database.
+- Theory Flow: A theory hub with topic pages and auto‑starting practice quizzes.
+- Persistence: User progress, streaks, missions, and rewards stored in SQLite; learning dataset in MySQL.
+- Authentication: Google OAuth or frictionless Demo Mode.
 
-### 📚 **Learning Features**
-- **Dual Learning Paths**: Choose Essentials (11 levels) or Complete (23 levels)
-- **Real MySQL Execution**: Execute queries against live database
-- **Progressive Difficulty**: Beginner → Intermediate → Advanced → Expert
-- **Spaced Repetition**: SM-2-lite algorithm for optimal retention
-- **Interactive Schema**: Visual database structure with relationships
-- **Concept Explanations**: Built-in tutorials for each topic
+## Features
+- Gameplay
+  - Dual paths: Essentials (11) and Complete (23)
+  - Real SQL execution (SELECT/CTE/INSERT/UPDATE/DELETE/CREATE/ALTER...)
+  - Autonomous progression and level locking with clear status cues
+  - Daily missions, weekly quests, streaks, shields, and recovery
+- Theory & Quizzes
+  - Theory topics with concise explanations and pitfalls
+  - Practice quizzes with auto‑start and inline review
+- UX
+  - SPA routing with deep‑linkable routes (History API)
+  - Responsive UI (no horizontal overflow), sticky nav, polished auth card
+  - Logged‑out clean screen (only the centered auth card visible)
+- Platform
+  - SQLite for user data, MySQL for tutorial dataset
+  - Google OAuth + Demo Mode
+  - Environment‑based configuration
 
-### 🎨 **Smooth User Experience**
-- **Animated Gradients**: Dynamic background with 15s color shifting
-- **Onboarding Tour**: 4-step interactive introduction for new users
-- **Frictionless Auth**: Google OAuth + Demo mode for instant access
-- **Glassmorphism Design**: Modern UI with backdrop-filter blur effects
-- **Micro-interactions**: Smooth animations on hover, click, and transitions
-- **Responsive Design**: Works perfectly on desktop and mobile
-- **Authentic Knowledge Rule**: Verification badges and checks for answers
+## Quick Start (Demo Mode)
+Great for trying the app without OAuth/MySQL setup.
+1. Node 18.x recommended (nvm use 18)
+2. Install: `npm install`
+3. Start: `npm start`
+4. Open http://localhost:3000 and click “Try Demo Mode”
 
-### 🛡️ **User Management**
-- **Google OAuth**: Secure authentication with progress sync
-- **SQLite Storage**: User progress, streaks, and achievements
-- **MySQL Auto-Setup**: Guided database configuration
-- **Daily Reflections**: End-of-session learning takeaways
-- **Progress Tracking**: Persistent stats across sessions
+Notes:
+- SQL execution requires MySQL setup. Demo Mode still lets you explore UI, theory hub, and quizzes.
 
-## 🚀 Quick Start
-
-### Option 1: Demo Mode (Instant Access)
-1. Clone the repository: `git clone <repo-url>`
-2. Install dependencies: `npm install`
-3. Start the server: `npm start`
-4. Open http://localhost:3000
-5. Click **"🎮 Try Demo Mode"** to start immediately!
-
-### Option 2: Full Setup (Google OAuth + MySQL)
-
-#### 1. **Google OAuth Setup**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a new project or select existing
-3. Enable Google+ API
-4. Create OAuth 2.0 Client ID
-5. Add authorized redirect URI: `http://localhost:3000/auth/google/callback`
-6. Copy Client ID and Secret to `.env` file
-
-#### 2. **MySQL Setup**
-```bash
-# Install MySQL (macOS)
-brew install mysql
-brew services start mysql
-
-# Create database and user
-mysql -u root -p
+## Full Setup
+### 1) MySQL (local)
+- Install and start MySQL (e.g., `brew install mysql && brew services start mysql` on macOS)
+- Create DB and user:
+```
 CREATE DATABASE sql_tutor;
 CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-#### 3. **Environment Configuration**
-Create `.env` file:
-```bash
-# Google OAuth (get from Google Cloud Console)
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+### 2) Google OAuth (optional, for persistent progress)
+- Create OAuth credentials (Google Cloud Console)
+- Set redirect URI: `http://localhost:3000/auth/google/callback`
+- Add client ID/secret into `.env` (see below)
+
+### 3) Install & Run
+```
+npm install
+npm start
+```
+Visit http://localhost:3000. If MySQL isn’t configured yet, use the Setup card in the app (or set MYSQL_* in `.env`).
+
+## Configuration (.env)
+```
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 
-# Session Secret (use a strong random string)
-SESSION_SECRET=sql-mastery-quest-super-secret-key-2024
+# Express Session
+SESSION_SECRET=change_me
 
-# MySQL Configuration
+# MySQL Connection
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_USER=sql_tutor_user
-MYSQL_PASSWORD=your_mysql_password_here
+MYSQL_PASSWORD=your_password
 MYSQL_DATABASE=sql_tutor
 
-# Application
+# App
 PORT=3000
 NODE_ENV=development
 ```
 
-#### 4. **Start the Application**
-```bash
-npm install
-npm start
+## Project Structure
+```
+server.js                 # Express server, APIs, auth, SPA fallback
+index.html                # Single page app shell
+src/js/app.js             # Practice gameplay (levels, queries)
+src/js/gameState.js       # Local game state & progress
+src/js/auth.js            # Auth flows, UI gates, demo
+src/js/router.js          # Client-side router (History API)
+src/js/gameRouter.js      # Game <-> Blog view toggling
+src/js/blog.js            # Theory hub & quizzes
+src/css/styles.css        # Core styles (responsive, auth, game)
+src/css/blog.css          # Blog/theory styles
+src/data/*.js             # Level sets & theory content
+prompts/*.md              # Prompt engineering for content generation
+scripts/validate_content.js # Schema/authenticity validator for content JSON
 ```
 
-The server will automatically:
-- Create SQLite user database with gamification tables
-- Connect to MySQL and create tutorial tables
-- Populate sample data for learning
-- Start on http://localhost:3000
+## How It Works
+- MySQL dataset is created/populated on setup. Your SQL queries run against it.
+- SQLite stores user data: users, progress, streaks, missions, quests, reflections.
+- SPA routing uses the History API with explicit server fallback for deep links.
+- Gated content: Practice levels require auth (Google or Demo). Theory/Quizzes are accessible without login if desired.
 
-## 📊 Architecture
+## Routes
+Client (SPA)
+- Practice
+  - `/` → practice home (level selector)
+  - `/mode/11` → Essentials
+  - `/mode/23` → Complete
+  - `/level/:mode/:level/:q` → specific question view
+  - `/setup` → MySQL setup card
+- Theory
+  - `/blog` → Theory Hub (Practice tab active by default)
+  - `/blog/topic/:topicId` → Topic with auto-open embedded quiz
+  - `/blog/quiz/:quizId` → Auto-start quiz
 
-### **Backend (Node.js + Express)**
-- `server.js`: Main application with authentication and APIs
-- **SQLite**: User data, progress, streaks, missions, reflections
-- **MySQL**: Tutorial database for SQL execution
-- **Passport.js**: Google OAuth authentication
-- **Express Session**: 30-day persistent sessions
+Server
+- `/auth/google`, `/auth/google/callback`
+- `/auth/demo`
+- `/execute-query` (POST)
+- `/api/user/*` (profile, stats, progress)
+- `/api/daily-missions`, `/api/weekly-quest`, `/api/streak-recovery`, `/api/daily-reflection`
+- SPA fallback serves `index.html` for non‑API paths (e.g., `/game`, `/mode/*`, `/blog/*`)
 
-### **Frontend (Vanilla JS + Modern CSS)**
-- `src/js/auth.js`: Authentication and user management
-- `src/js/app.js`: Main application logic and SQL execution
-- `src/js/gameState.js`: Local progress tracking
-- `src/js/onboarding.js`: Interactive user onboarding
-- `src/css/styles.css`: Modern UI with gradients and animations
-- `src/data/`: Learning levels and tutorial content
+## API (server)
+- POST `/execute-query`
+  - Body: `{ query: string, expectedQuery?: string }`
+  - Allows: `SELECT`, `WITH (CTE)`, `EXPLAIN`, `SHOW`, `DESC/DESCRIBE`, `INSERT`, `UPDATE`, `DELETE`, `CREATE (VIEW/INDEX/TABLE/TEMPORARY TABLE)`, `ALTER TABLE`, `DROP (VIEW/INDEX)`
+  - Returns: `{ success, results, rowCount, comparison? }`
+  - If the expected query cannot run, comparison is omitted (no warning shown).
+- GET `/api/user/stats` → `{ completed_questions, total_xp, current_streak, max_streak, streak_shields, level }`
+- GET/POST `/api/user/progress` → read/record progress with XP updates
 
-### **Database Schema**
-```sql
--- User Management (SQLite)
-users (id, google_id, name, email, total_xp, level, current_streak, max_streak, streak_shields)
-user_progress (user_id, level_id, question_id, completed, xp_earned, hints_used)
-daily_missions (user_id, mission_date, question_1_id, question_2_id, question_3_id, completed_count)
-weekly_quests (user_id, week_start, missions_target, missions_completed, completed, reward_claimed)
-streak_recovery (user_id, broken_streak, recovery_deadline, recovery_missions_completed)
-daily_reflections (user_id, reflection_date, takeaway)
-spaced_repetition (user_id, level_id, question_id, quality, ease_factor, interval_days, due_date)
+## Authentic Knowledge Rule
+We verify and label knowledge to maintain trust:
+- SQL correctness is verified by executing the learner’s query and comparing to a canonical solution result set (when available). If canonical execution isn’t available, we suppress comparison instead of showing noisy warnings.
+- Theory/quiz content requires either `verified: true` or a list of reputable `sources: [{ name }]` metadata before broad surfacing.
+- Use the validator to check content: `npm run validate-content path/to/content.json`
 
--- Tutorial Content (MySQL)
-employees, departments, projects, employee_projects, logs, weather, activity
+## Content Prompts & Validation
+- Prompts live in `prompts/` and are research‑driven (GFG interview experiences, paths, TUF+, reputable references). They define structured outputs for levels, theory, quizzes, and optional practice tasks.
+- Validate generated JSON with `scripts/validate_content.js`:
 ```
-
-## 🎮 Gamification Rules
-
-### **XP System**
-- Base XP: 10 points per correct answer
-- Difficulty multipliers: Beginner (1x), Intermediate (2x), Advanced (3x)
-- Level formula: `level = floor(0.1 * sqrt(total_xp)) + 1`
-- Hint penalty: 20% XP reduction per hint used
-
-### **Daily Streaks**
-- Increment: Today = last_login + 1 day
-- Shield protection: 1-2 day gaps with shields don't break streak
-- Shield earning: 1 shield per 7 clean days (max 1 shield)
-- Recovery: 5 missions within 48h restores half streak (once per 30 days)
-
-### **Session Management**
-- **0-25 minutes**: Full XP (100%)
-- **25-40 minutes**: Reduced XP (50%)
-- **40+ minutes**: No XP (0%) + "Done for today" message
-
-### **Weekly Quests**
-- Fixed window: Monday-Sunday
-- Target: Complete 12 missions per week
-- Reward: 1 streak shield OR 200 XP (random)
-- No carryover between weeks
-
-## 🚢 Deployment
-
-### **Railway (Recommended)**
-1. Connect GitHub repository to Railway
-2. Add environment variables in Railway dashboard
-3. Deploy automatically on push
-
-### **Heroku**
-```bash
-# Install Heroku CLI
-npm install -g heroku
-
-# Create app
-heroku create sql-mastery-quest
-
-# Add environment variables
-heroku config:set GOOGLE_CLIENT_ID=your_id
-heroku config:set GOOGLE_CLIENT_SECRET=your_secret
-heroku config:set SESSION_SECRET=your_secret
-
-# Add MySQL addon
-heroku addons:create jawsdb:kitefin
-
-# Deploy
-git push heroku main
+npm run validate-content path/to/file.json
 ```
+The validator checks schema and the authenticity metadata for quizzes.
 
-### **Docker**
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
-```
+## Troubleshooting
+- Node & sqlite3 build
+  - Use Node 18.x. On Apple Silicon: `npm rebuild sqlite3` if you hit ABI/arch errors.
+- MySQL connection
+  - Verify credentials in `.env` and try `/test-connection` in the browser. Use the in‑app Setup card if needed.
+- Port 3000 in use
+  - The server auto‑kills conflicting processes on start. If it fails, free the port manually and retry.
+- “Levels locked” when logged out
+  - Practice levels require auth. Use Demo Mode (no account) to unlock. Theory hub is available without login.
+- “Welcome back” showing on every reload
+  - We only show the welcome animation on successful Google login via `?welcome=1` and strip the flag immediately after.
+- DDL blocked
+  - Dangerous DDL (`DROP TABLE`, `TRUNCATE`) is intentionally blocked. Views/indices and table creation are allowed.
+
+## Contributing & License
+- Issues and PRs welcome. Keep changes focused and minimal.
+- Follow existing code style; do not introduce new frameworks without discussion.
+- This project is MIT licensed unless otherwise stated.
+
+Happy querying! 🎯
 
 ## 📈 Analytics & Metrics
 

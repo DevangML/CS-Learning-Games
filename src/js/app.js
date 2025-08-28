@@ -186,6 +186,15 @@ class SQLTutorApp {
     startLevel(levelNum) {
         this.gameState.setCurrentLevel(levelNum);
         
+        // Ensure theory/blog container is hidden when entering gameplay
+        const blog = document.getElementById('blog-main');
+        if (blog) blog.style.display = 'none';
+
+        // Ensure full practice UI is visible (stats, nav highlights, etc.)
+        if (window.gameRouter && typeof window.gameRouter.showGame === 'function') {
+            window.gameRouter.showGame();
+        }
+
         document.getElementById('levelSelector').style.display = 'none';
         document.getElementById('gameArea').classList.add('active');
         
@@ -585,17 +594,6 @@ class SQLTutorApp {
             }
             resultArea.appendChild(comparisonDiv);
         }
-
-        // Authentic Knowledge note
-        if (window.KnowledgeGuard && window.KnowledgeGuard.enforce && result.comparison) {
-            const authDiv = document.createElement('div');
-            const ok = window.KnowledgeGuard.isSqlAnswerVerified(result);
-            authDiv.className = `feedback ${ok ? 'info' : 'warning'}`;
-            authDiv.textContent = ok
-                ? '🔎 Authentic Knowledge: Verified by canonical execution.'
-                : '🔎 Authentic Knowledge: Not verified — revise your query and compare again.';
-            resultArea.appendChild(authDiv);
-        }
     }
 
     checkAchievements() {
@@ -634,29 +632,44 @@ class SQLTutorApp {
         if (!window.router) return;
         const that = this;
 
-        // Home
-        window.router.route('/', function () {
-            document.getElementById('levelSelector').style.display = 'grid';
-            document.getElementById('gameArea').classList.remove('active');
-            that.renderLevelSelector();
-        });
+    // Home
+    window.router.route('/', function () {
+        const blog = document.getElementById('blog-main');
+        if (blog) blog.style.display = 'none';
+        if (window.gameRouter && typeof window.gameRouter.showGame === 'function') {
+            window.gameRouter.showGame();
+        }
+        document.getElementById('levelSelector').style.display = 'grid';
+        document.getElementById('gameArea').classList.remove('active');
+        that.renderLevelSelector();
+    });
 
         // Mode route
-        window.router.route('/mode/:mode', function (ctx) {
-            const mode = ctx.params.mode;
-            const m = isNaN(mode) ? mode : parseInt(mode, 10);
-            that.switchMode(m, { noNav: true });
-            document.getElementById('levelSelector').style.display = 'grid';
-            document.getElementById('gameArea').classList.remove('active');
-        });
+    window.router.route('/mode/:mode', function (ctx) {
+        const blog = document.getElementById('blog-main');
+        if (blog) blog.style.display = 'none';
+        if (window.gameRouter && typeof window.gameRouter.showGame === 'function') {
+            window.gameRouter.showGame();
+        }
+        const mode = ctx.params.mode;
+        const m = isNaN(mode) ? mode : parseInt(mode, 10);
+        that.switchMode(m, { noNav: true });
+        document.getElementById('levelSelector').style.display = 'grid';
+        document.getElementById('gameArea').classList.remove('active');
+    });
 
         // Level route: /level/:mode/:level/:q
-        window.router.route('/level/:mode/:level/:q', function (ctx) {
-            const m = parseInt(ctx.params.mode, 10);
-            that.switchMode(m, { noNav: true });
-            if (!(that.authManager && that.authManager.currentUser)) {
-                // Gate real content when not authenticated
-                window.router.navigate('/');
+    window.router.route('/level/:mode/:level/:q', function (ctx) {
+        const blog = document.getElementById('blog-main');
+        if (blog) blog.style.display = 'none';
+        if (window.gameRouter && typeof window.gameRouter.showGame === 'function') {
+            window.gameRouter.showGame();
+        }
+        const m = parseInt(ctx.params.mode, 10);
+        that.switchMode(m, { noNav: true });
+        if (!(that.authManager && that.authManager.currentUser)) {
+            // Gate real content when not authenticated
+            window.router.navigate('/');
                 if (that.authManager) that.authManager.showAuthenticationUI();
                 return;
             }

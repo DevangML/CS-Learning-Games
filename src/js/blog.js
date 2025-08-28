@@ -65,14 +65,14 @@ class BlogSystem {
                     <h1>📚 SQL Theory Hub</h1>
                     <p>Master DBMS concepts with interactive theory and quizzes</p>
                     <div class="blog-nav">
-                        <button class="nav-btn active" data-section="theory">📖 Theory Topics</button>
-                        <button class="nav-btn" data-section="quizzes">🎯 Practice Quizzes</button>
+                        <button class="nav-btn" data-section="theory">📖 Theory Topics</button>
+                        <button class="nav-btn active" data-section="quizzes">🎯 Practice Quizzes</button>
                         <a href="/game" class="nav-btn" data-route="/game">🎮 Back to Game</a>
                     </div>
                 </header>
 
                 <div class="blog-content">
-                    <section id="theory-section" class="content-section active">
+                    <section id="theory-section" class="content-section">
                         <h2>💡 Theory Topics</h2>
                         <div class="topic-grid">
                             ${Object.keys(categories).map(category => `
@@ -98,7 +98,7 @@ class BlogSystem {
                         </div>
                     </section>
 
-                    <section id="quizzes-section" class="content-section">
+                    <section id="quizzes-section" class="content-section active">
                         <h2>🎯 Practice Quizzes</h2>
                         <div class="quiz-grid">
                             ${Object.entries(window.THEORY_QUIZZES).map(([id, quiz]) => `
@@ -125,6 +125,10 @@ class BlogSystem {
 
         // Add navigation functionality
         this.setupBlogNavigation();
+
+        // Default to Practice Quizzes section active
+        const quizBtn = document.querySelector('.blog-nav .nav-btn[data-section="quizzes"]');
+        if (quizBtn) quizBtn.click();
     }
 
     // Show individual topic
@@ -186,6 +190,8 @@ class BlogSystem {
 
         // Add topic-specific quiz functionality
         window.startTopicQuiz = (topicId) => this.startTopicQuiz(topicId);
+        // Auto-open embedded topic quiz by default
+        this.startTopicQuiz(topicId);
     }
 
     // Show standalone quiz
@@ -265,6 +271,9 @@ class BlogSystem {
                 </div>
             </div>
         `;
+
+        // Auto-start the quiz (skip the start screen)
+        this.startQuiz(quizId);
     }
 
     // Show quiz results

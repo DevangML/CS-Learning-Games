@@ -1079,14 +1079,14 @@ app.post('/execute-query', requireAuth, async (req, res) => {
         if (expectedQuery && typeof expectedQuery === 'string') {
             try {
                 const expTrim = expectedQuery.trim();
-                const expAllowed = allowedCommands.some(cmd => expTrim.toLowerCase().startsWith(cmd));
+                const expAllowed = allowedPatterns.some((re) => re.test(expTrim.toLowerCase()));
                 if (expAllowed) {
                     const [expectedRows] = await mysqlConnection.execute(expTrim);
                     comparison = compareResultSets(rows, expectedRows);
                 }
             } catch (cmpErr) {
-                // If expected query fails, return without comparison
-                comparison = { matches: false, differences: ['Failed to execute expected solution for comparison.'] };
+                // Suppress comparison if expected solution cannot be executed
+                comparison = null;
             }
         }
 
