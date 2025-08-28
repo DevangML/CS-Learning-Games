@@ -319,17 +319,22 @@ class SQLTutorApp {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ query: userQuery })
+                body: JSON.stringify({ query: userQuery, expectedQuery: question.solution })
             });
             
             const result = await response.json();
             
             if (result.success) {
-                // Enhanced answer checking
-                const normalizedUser = this.normalizeQuery(userQuery);
-                const normalizedSolution = this.normalizeQuery(question.solution);
-                
-                const isCorrect = this.checkQueryCorrectness(normalizedUser, normalizedSolution, question);
+                // Prefer server-side result comparison when available
+                let isCorrect = false;
+                if (result.comparison && typeof result.comparison.matches === 'boolean') {
+                    isCorrect = result.comparison.matches;
+                } else {
+                    // Fallback heuristic
+                    const normalizedUser = this.normalizeQuery(userQuery);
+                    const normalizedSolution = this.normalizeQuery(question.solution);
+                    isCorrect = this.checkQueryCorrectness(normalizedUser, normalizedSolution, question);
+                }
                 
                 // Record answer for fail-fast hints
                 let autoHintShown = false;
@@ -342,7 +347,7 @@ class SQLTutorApp {
                     this.gameState.updateScore(xpEarned);
                     this.gameState.updateStreak(true);
                     this.showFeedback('🎉 Excellent! Your query is correct!', 'success');
-                    
+                
                     // Save progress to database
                     await this.gameState.saveQuestionProgress(
                         currentState.currentLevel,
@@ -369,7 +374,7 @@ class SQLTutorApp {
                 
                 // Show actual query results
                 this.showQueryResults(result, question.solution);
-                
+            
                 this.checkAchievements();
             } else {
                 this.showFeedback(`❌ Query failed: ${result.message}`, 'error');
@@ -558,6 +563,17 @@ class SQLTutorApp {
                 }
             }
             resultArea.appendChild(comparisonDiv);
+        }
+
+        // Authentic Knowledge note
+        if (window.KnowledgeGuard && window.KnowledgeGuard.enforce && result.comparison) {
+            const authDiv = document.createElement('div');
+            const ok = window.KnowledgeGuard.isSqlAnswerVerified(result);
+            authDiv.className = `feedback ${ok ? 'info' : 'warning'}`;
+            authDiv.textContent = ok
+                ? '🔎 Authentic Knowledge: Verified by canonical execution.'
+                : '🔎 Authentic Knowledge: Not verified — revise your query and compare again.';
+            resultArea.appendChild(authDiv);
         }
     }
 

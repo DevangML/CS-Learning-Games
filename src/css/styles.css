@@ -185,6 +185,8 @@ body::before {
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid rgba(255,255,255,0.1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .table-schema {
@@ -235,6 +237,8 @@ body::before {
     color: var(--text-high-contrast);
     font-weight: 500;
     line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .sql-editor {
@@ -270,6 +274,7 @@ body::before {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -313,6 +318,8 @@ body::before {
 
 .result-area {
     margin-top: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .feedback {
@@ -346,6 +353,8 @@ body::before {
     background: rgba(0,0,0,0.2);
     border-radius: 8px;
     overflow: hidden;
+    table-layout: auto;
+    min-width: 640px;
 }
 
 .result-table th,
@@ -353,6 +362,8 @@ body::before {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .result-table th {
@@ -366,6 +377,8 @@ body::before {
     border-radius: 10px;
     padding: 20px;
     margin: 20px 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .concept-title {
@@ -418,6 +431,8 @@ body::before {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
 }
 
 .code-highlight {

@@ -29,6 +29,7 @@ An interactive SQL learning platform with **gamification**, **real-time MySQL ex
 - **Glassmorphism Design**: Modern UI with backdrop-filter blur effects
 - **Micro-interactions**: Smooth animations on hover, click, and transitions
 - **Responsive Design**: Works perfectly on desktop and mobile
+- **Authentic Knowledge Rule**: Verification badges and checks for answers
 
 ### 🛡️ **User Management**
 - **Google OAuth**: Secure authentication with progress sync
@@ -229,3 +230,12 @@ MIT License - see LICENSE file for details.
 ---
 
 **Ready to Master SQL? Start your quest today!** 🚀
+## 🔎 Authentic Knowledge Rule
+
+To maintain content integrity and learner trust:
+
+- SQL challenges are verified by canonical execution. The server compares the result of the learner’s query with the expected solution query and displays an authenticity note.
+- Theory/MCQ content (CN/OS/OOP/LLD/HLD/Aptitude) must be marked `verified: true` or include reputable `sources: []` metadata before broad surfacing. A validation script helps enforce this: `npm run validate-content <content.json>`.
+- The UI shows “Verified by canonical execution” when a SQL result exactly matches the expected output.
+
+This rule prevents unverified knowledge from being presented as authoritative and encourages transparent sourcing and checks.

@@ -1033,7 +1033,7 @@ app.get('/api/weekly-recap', requireAuth, (req, res) => {
 // Execute SQL query with gamification
 app.post('/execute-query', requireAuth, async (req, res) => {
     try {
-        const { query } = req.body;
+        const { query, expectedQuery } = req.body;
         
         if (!mysqlConnection) {
             return res.status(500).json({ error: 'MySQL not configured. Please set up your database connection.' });
@@ -1055,11 +1055,27 @@ app.post('/execute-query', requireAuth, async (req, res) => {
         }
 
         const [rows] = await mysqlConnection.execute(sanitizedQuery);
-        
+
+        let comparison = null;
+        if (expectedQuery && typeof expectedQuery === 'string') {
+            try {
+                const expTrim = expectedQuery.trim();
+                const expAllowed = allowedCommands.some(cmd => expTrim.toLowerCase().startsWith(cmd));
+                if (expAllowed) {
+                    const [expectedRows] = await mysqlConnection.execute(expTrim);
+                    comparison = compareResultSets(rows, expectedRows);
+                }
+            } catch (cmpErr) {
+                // If expected query fails, return without comparison
+                comparison = { matches: false, differences: ['Failed to execute expected solution for comparison.'] };
+            }
+        }
+
         res.json({
             success: true,
             results: rows,
-            rowCount: rows.length
+            rowCount: rows.length,
+            comparison
         });
 
     } catch (error) {
@@ -1070,6 +1086,38 @@ app.post('/execute-query', requireAuth, async (req, res) => {
         });
     }
 });
+
+// Shallow result set comparison: columns and unordered rows
+function compareResultSets(actualRows, expectedRows) {
+    const summary = { matches: true, differences: [] };
+    const toKeys = rows => (rows && rows[0]) ? Object.keys(rows[0]) : [];
+    const actualCols = toKeys(actualRows);
+    const expectedCols = toKeys(expectedRows);
+
+    // Compare column sets (order-insensitive)
+    const setEq = (a, b) => a.length === b.length && a.every(k => b.includes(k));
+    if (!setEq(actualCols, expectedCols)) {
+        summary.matches = false;
+        summary.differences.push(`Column mismatch: got [${actualCols.join(', ')}], expected [${expectedCols.join(', ')}]`);
+    }
+
+    // Row count
+    if ((actualRows?.length || 0) !== (expectedRows?.length || 0)) {
+        summary.matches = false;
+        summary.differences.push(`Row count differs: got ${(actualRows||[]).length}, expected ${(expectedRows||[]).length}`);
+    }
+
+    // Normalize rows by sorting keys and stringifying; compare as sets
+    const normalize = (rows, cols) => (rows||[]).map(r => JSON.stringify(cols.reduce((o, c) => { o[c] = r[c]; return o; }, {}))).sort();
+    const aNorm = normalize(actualRows, expectedCols.length ? expectedCols : actualCols);
+    const eNorm = normalize(expectedRows, expectedCols.length ? expectedCols : actualCols);
+    if (aNorm.length !== eNorm.length || aNorm.some((v, i) => v !== eNorm[i])) {
+        summary.matches = false;
+        summary.differences.push('Row set differs from expected.');
+    }
+
+    return summary;
+}
 
 app.get('/test-connection', async (req, res) => {
     try {
