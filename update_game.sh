@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="https://github.com/DevangML/sql_tutor.git"
+REPO_URL="https://github.com/DevangML/CS-Learning-Games.git"
 APP_DIR="sql_tutor"
 PORT=3000
 
@@ -26,7 +26,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Progress tracking
 STEPS_COMPLETED=0
-TOTAL_STEPS=6
+TOTAL_STEPS=7
 
 update_progress() {
     STEPS_COMPLETED=$((STEPS_COMPLETED + 1))
@@ -289,6 +289,54 @@ EOF
     update_progress
 }
 
+# Ensure git-secrets is properly configured
+ensure_git_secrets() {
+    log_info "Ensuring git-secrets is properly configured..."
+    
+    cd "$INSTALL_DIR"
+    
+    # Check if git-secrets is installed
+    if ! command_exists git-secrets; then
+        log_info "Installing git-secrets..."
+        if command_exists brew; then
+            brew install git-secrets >/dev/null 2>&1
+        else
+            log_warning "git-secrets not found. Please install manually for repository protection."
+            update_progress
+            return 0
+        fi
+    fi
+    
+    # Setup git-secrets hooks and patterns if not already configured
+    if [ ! -f ".git/hooks/pre-commit" ] || ! grep -q "git-secrets" ".git/hooks/pre-commit" 2>/dev/null; then
+        git secrets --install >/dev/null 2>&1 || true
+        git secrets --register-aws >/dev/null 2>&1 || true
+        
+        # Add custom patterns for common secrets
+        git secrets --add 'GOOGLE_CLIENT_ID=[0-9]+-[a-zA-Z0-9_]+\.apps\.googleusercontent\.com' >/dev/null 2>&1 || true
+        git secrets --add 'GOOGLE_CLIENT_SECRET=GOCSPX-[a-zA-Z0-9_-]+' >/dev/null 2>&1 || true
+        git secrets --add 'SESSION_SECRET=[a-zA-Z0-9-]+' >/dev/null 2>&1 || true
+        git secrets --add 'MYSQL_PASSWORD=[a-zA-Z0-9]+' >/dev/null 2>&1 || true
+        git secrets --add 'password.*=.*[a-zA-Z0-9]{4,}' >/dev/null 2>&1 || true
+    fi
+    
+    # Ensure .gitallowed file exists
+    if [ ! -f ".gitallowed" ]; then
+        cat > .gitallowed << 'EOF'
+# Allow false positives - patterns in node_modules and legitimate code
+node_modules/.*password.*
+# Generic password field in HTML
+input type="password"
+# Generic variable names for password fields in legitimate code
+password.*database.*req\.body
+password.*config\.password
+EOF
+    fi
+    
+    log_success "Git-secrets configuration verified"
+    update_progress
+}
+
 # Restart application
 restart_application() {
     log_info "Restarting application..."
@@ -359,6 +407,7 @@ main() {
     backup_installation
     stop_application
     update_repository
+    ensure_git_secrets
     update_dependencies
     update_database
     restart_application

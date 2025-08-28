@@ -1,0 +1,11 @@
+# Allow false positives - patterns in node_modules and legitimate code
+node_modules/.*password.*
+# Generic password field in HTML
+input type="password"
+# Generic variable names for password fields in legitimate code
+password.*database.*req\.body
+password.*config\.password
+# Git-secrets configuration patterns in setup scripts
+git secrets --add.*password.*
+update_game\.sh.*password.*=.*\[a-zA-Z0-9\]
+install\.sh.*password.*=.*\[a-zA-Z0-9\]
