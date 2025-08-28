@@ -7,6 +7,12 @@ const THEORY_TOPICS = {
         difficulty: "Beginner",
         estimatedTime: "15 min",
         description: "Essential database concepts and terminology",
+        verified: true,
+        sources: [
+            "https://www.geeksforgeeks.org/dbms/introduction-of-dbms-database-management-system-set-1/",
+            "https://www.geeksforgeeks.org/dbms/advantages-of-dbms-over-file-system/",
+            "https://www.geeksforgeeks.org/dbms/difference-between-file-system-and-dbms/"
+        ],
         content: `
         <h2>What is a Database?</h2>
         <p>A <strong>database</strong> is an organized collection of structured information or data, typically stored electronically in a computer system. It's managed by a Database Management System (DBMS).</p>
@@ -33,16 +39,23 @@ const THEORY_TOPICS = {
         <h3>Database vs File System:</h3>
         <div class="pros-cons">
             <div class="pros">
-                <h4>Database Advantages:</h4>
+                <h4>DBMS Advantages over File Systems:</h4>
                 <ul>
-                    <li>Data integrity and consistency</li>
-                    <li>Concurrent access control</li>
-                    <li>Query optimization</li>
-                    <li>Backup and recovery</li>
-                    <li>Security and access control</li>
+                    <li><strong>Data Integrity:</strong> Enforces constraints automatically to maintain data consistency</li>
+                    <li><strong>Data Recovery:</strong> Recovery manager retrieves lost data after system crashes</li>
+                    <li><strong>Enhanced Security:</strong> Specialized features beyond simple password protection</li>
+                    <li><strong>Reduced Data Redundancy:</strong> Centralized storage minimizes duplication</li>
+                    <li><strong>Data Independence:</strong> Separates logical structure from physical storage</li>
+                    <li><strong>Concurrent Access Control:</strong> Multiple users can access data simultaneously</li>
                 </ul>
             </div>
         </div>
+        
+        <h3>📚 References:</h3>
+        <ul class="reference-list">
+            <li><a href="https://www.geeksforgeeks.org/dbms/introduction-of-dbms-database-management-system-set-1/" target="_blank">GeeksforGeeks - Introduction of DBMS</a></li>
+            <li><a href="https://www.geeksforgeeks.org/dbms/advantages-of-dbms-over-file-system/" target="_blank">GeeksforGeeks - Advantages of DBMS over File System</a></li>
+        </ul>
         `,
         quiz: [
             {
@@ -77,6 +90,11 @@ const THEORY_TOPICS = {
         difficulty: "Intermediate",
         estimatedTime: "20 min",
         description: "Understanding transaction properties for data integrity",
+        verified: true,
+        sources: [
+            "https://www.geeksforgeeks.org/dbms/commonly-asked-dbms-interview-questions/",
+            "https://www.geeksforgeeks.org/dbms/acid-properties-in-dbms/"
+        ],
         content: `
         <h2>ACID Properties Explained</h2>
         <p>ACID properties ensure reliable transaction processing in database systems. Every database transaction must guarantee these four properties:</p>
@@ -84,7 +102,7 @@ const THEORY_TOPICS = {
         <div class="acid-cards">
             <div class="property-card atomicity">
                 <h3>🔬 Atomicity</h3>
-                <p><strong>All or Nothing:</strong> A transaction is treated as a single, indivisible unit.</p>
+                <p><strong>All or Nothing:</strong> All operations within the transaction are completed successfully, or none are applied.</p>
                 <div class="example">
                     <h4>Example: Bank Transfer</h4>
                     <code>
@@ -94,26 +112,26 @@ const THEORY_TOPICS = {
                     COMMIT; -- Both updates succeed or both fail
                     </code>
                 </div>
-                <p>If any part fails, the entire transaction is rolled back.</p>
+                <p>If any part fails, the entire transaction is rolled back to maintain atomicity.</p>
             </div>
             
             <div class="property-card consistency">
                 <h3>⚖️ Consistency</h3>
-                <p><strong>Valid State:</strong> Database remains in a consistent state before and after transaction.</p>
+                <p><strong>Valid State:</strong> The transaction brings the database from one valid state to another valid state.</p>
                 <div class="example">
                     <h4>Constraints Maintained:</h4>
                     <ul>
                         <li>Primary key uniqueness</li>
                         <li>Foreign key references</li>
                         <li>Check constraints</li>
-                        <li>Business rules</li>
+                        <li>Business rules and data integrity</li>
                     </ul>
                 </div>
             </div>
             
             <div class="property-card isolation">
                 <h3>🔐 Isolation</h3>
-                <p><strong>Concurrent Execution:</strong> Transactions execute independently without interference.</p>
+                <p><strong>Concurrent Execution:</strong> The operations of one transaction are isolated from others; intermediate results are not visible to other transactions.</p>
                 <div class="isolation-levels">
                     <h4>Isolation Levels:</h4>
                     <table>
@@ -128,14 +146,14 @@ const THEORY_TOPICS = {
             
             <div class="property-card durability">
                 <h3>💾 Durability</h3>
-                <p><strong>Persistent Changes:</strong> Committed transactions survive system failures.</p>
+                <p><strong>Persistent Changes:</strong> Once a transaction is committed, its effects are permanent, even in the event of a system crash.</p>
                 <div class="example">
-                    <h4>Implementation:</h4>
+                    <h4>Implementation Methods:</h4>
                     <ul>
                         <li>Write-Ahead Logging (WAL)</li>
                         <li>Regular checkpoints</li>
-                        <li>Backup and recovery</li>
-                        <li>Disk-based storage</li>
+                        <li>Backup and recovery mechanisms</li>
+                        <li>Persistent disk-based storage</li>
                     </ul>
                 </div>
             </div>
@@ -149,6 +167,12 @@ const THEORY_TOPICS = {
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Failed → Aborted
             </div>
         </div>
+        
+        <h3>📚 References:</h3>
+        <ul class="reference-list">
+            <li><a href="https://www.geeksforgeeks.org/dbms/acid-properties-in-dbms/" target="_blank">GeeksforGeeks - ACID Properties in DBMS</a></li>
+            <li><a href="https://www.geeksforgeeks.org/dbms/commonly-asked-dbms-interview-questions/" target="_blank">GeeksforGeeks - DBMS Interview Questions</a></li>
+        </ul>
         `,
         quiz: [
             {
@@ -183,17 +207,22 @@ const THEORY_TOPICS = {
         difficulty: "Intermediate", 
         estimatedTime: "25 min",
         description: "Eliminate redundancy and improve data integrity",
+        verified: true,
+        sources: [
+            "https://www.geeksforgeeks.org/introduction-of-database-normalization/",
+            "https://www.geeksforgeeks.org/normal-forms-in-dbms/"
+        ],
         content: `
         <h2>Database Normalization</h2>
-        <p>Normalization is the process of organizing data in a database to reduce redundancy and improve data integrity by dividing large tables into smaller, related tables.</p>
+        <p>Database normalization is "a process that organizes the attributes of a database to reduce or eliminate data redundancy." The key goals are to eliminate redundancy and prevent anomalies during data operations.</p>
         
         <h3>Why Normalize?</h3>
         <div class="benefits">
             <ul>
-                <li><strong>Eliminate Redundancy:</strong> Store each piece of data only once</li>
-                <li><strong>Prevent Anomalies:</strong> Avoid insertion, update, and deletion problems</li>
-                <li><strong>Save Storage:</strong> Reduce database size</li>
-                <li><strong>Maintain Integrity:</strong> Ensure data consistency</li>
+                <li><strong>Eliminate Data Redundancy:</strong> Reduce repeated data across database tables</li>
+                <li><strong>Prevent Inconsistencies:</strong> Avoid insertion, update, and deletion anomalies</li>
+                <li><strong>Improve Database Efficiency:</strong> Simplifies data management and saves storage</li>
+                <li><strong>Ensure Data Consistency:</strong> Maintains data integrity across the system</li>
             </ul>
         </div>
         
@@ -272,23 +301,29 @@ const THEORY_TOPICS = {
                 <div class="pros">
                     <h4>When to Denormalize:</h4>
                     <ul>
-                        <li>Read performance is critical</li>
-                        <li>Complex joins are expensive</li>
-                        <li>Data warehouse scenarios</li>
-                        <li>Reporting requirements</li>
+                        <li><strong>Read performance is critical:</strong> Query speed outweighs storage concerns</li>
+                        <li><strong>Complex joins are expensive:</strong> Reduce computational overhead</li>
+                        <li><strong>Data warehouse scenarios:</strong> OLAP systems favor query performance</li>
+                        <li><strong>Reporting requirements:</strong> Pre-calculated aggregations needed</li>
                     </ul>
                 </div>
                 <div class="cons">
                     <h4>Costs of Denormalization:</h4>
                     <ul>
-                        <li>Increased storage requirements</li>
-                        <li>Update complexity</li>
-                        <li>Data inconsistency risk</li>
-                        <li>More complex maintenance</li>
+                        <li><strong>Increased storage requirements:</strong> Data duplication consumes space</li>
+                        <li><strong>Update complexity:</strong> Multiple locations require synchronization</li>
+                        <li><strong>Data inconsistency risk:</strong> Potential for conflicting information</li>
+                        <li><strong>More complex maintenance:</strong> Requires careful transaction design</li>
                     </ul>
                 </div>
             </div>
         </div>
+        
+        <h3>📚 References:</h3>
+        <ul class="reference-list">
+            <li><a href="https://www.geeksforgeeks.org/introduction-of-database-normalization/" target="_blank">GeeksforGeeks - Introduction of Database Normalization</a></li>
+            <li><a href="https://www.geeksforgeeks.org/normal-forms-in-dbms/" target="_blank">GeeksforGeeks - Normal Forms in DBMS</a></li>
+        </ul>
         `,
         quiz: [
             {
@@ -323,6 +358,12 @@ const THEORY_TOPICS = {
         difficulty: "Advanced",
         estimatedTime: "20 min",
         description: "Optimize query performance with smart indexing strategies",
+        verified: true,
+        sources: [
+            "https://www.geeksforgeeks.org/dbms/indexing-in-databases-set-1/",
+            "https://www.geeksforgeeks.org/difference-between-indexing-and-hashing-in-dbms/",
+            "https://www.geeksforgeeks.org/difference-between-indexing-techniques-in-dbms/"
+        ],
         content: `
         <h2>Database Indexing</h2>
         <p>An <strong>index</strong> is a database object that improves the speed of data retrieval operations by creating shortcuts to find data without scanning every row.</p>
@@ -434,25 +475,25 @@ const THEORY_TOPICS = {
             </div>
         </div>
         
-        <h3>Index Trade-offs:</h3>
+        <h3>Index Performance Trade-offs:</h3>
         <div class="tradeoffs">
             <div class="pros-cons">
                 <div class="pros">
-                    <h4>✅ Benefits:</h4>
+                    <h4>✅ Performance Benefits:</h4>
                     <ul>
-                        <li>Faster SELECT queries</li>
-                        <li>Faster JOIN operations</li>
-                        <li>Faster ORDER BY</li>
-                        <li>Unique constraint enforcement</li>
+                        <li><strong>Faster SELECT queries:</strong> O(log n) vs O(n) table scans</li>
+                        <li><strong>Efficient JOIN operations:</strong> Reduces join execution time</li>
+                        <li><strong>Quick sorting:</strong> ORDER BY uses pre-sorted index</li>
+                        <li><strong>Constraint enforcement:</strong> UNIQUE and PRIMARY KEY validation</li>
                     </ul>
                 </div>
                 <div class="cons">
-                    <h4>❌ Costs:</h4>
+                    <h4>❌ Performance Costs:</h4>
                     <ul>
-                        <li>Additional storage space</li>
-                        <li>Slower INSERT/UPDATE/DELETE</li>
-                        <li>Index maintenance overhead</li>
-                        <li>Memory usage</li>
+                        <li><strong>Additional storage space:</strong> Indexes consume disk space</li>
+                        <li><strong>Slower modifications:</strong> INSERT/UPDATE/DELETE must update indexes</li>
+                        <li><strong>Maintenance overhead:</strong> Index fragmentation and reorganization</li>
+                        <li><strong>Memory usage:</strong> Index pages consume buffer pool memory</li>
                     </ul>
                 </div>
             </div>
@@ -463,23 +504,30 @@ const THEORY_TOPICS = {
             <div class="do">
                 <h4>✅ Create indexes for:</h4>
                 <ul>
-                    <li>Frequently queried columns</li>
-                    <li>JOIN conditions</li>
-                    <li>WHERE clause columns</li>
-                    <li>ORDER BY columns</li>
-                    <li>Foreign key columns</li>
+                    <li><strong>Frequently queried columns:</strong> High-selectivity search conditions</li>
+                    <li><strong>JOIN conditions:</strong> Foreign key relationships</li>
+                    <li><strong>WHERE clause columns:</strong> Filter conditions in queries</li>
+                    <li><strong>ORDER BY columns:</strong> Sorting requirements</li>
+                    <li><strong>GROUP BY columns:</strong> Aggregation operations</li>
                 </ul>
             </div>
             <div class="dont">
                 <h4>❌ Avoid indexes on:</h4>
                 <ul>
-                    <li>Frequently updated columns</li>
-                    <li>Very small tables</li>
-                    <li>Low-selectivity columns</li>
-                    <li>Columns with many NULLs</li>
+                    <li><strong>Frequently updated columns:</strong> High maintenance cost</li>
+                    <li><strong>Very small tables:</strong> Full scan may be faster</li>
+                    <li><strong>Low-selectivity columns:</strong> Returns large result sets</li>
+                    <li><strong>Tables with heavy write operations:</strong> Index maintenance overhead</li>
                 </ul>
             </div>
         </div>
+        
+        <h3>📚 References:</h3>
+        <ul class="reference-list">
+            <li><a href="https://www.geeksforgeeks.org/dbms/indexing-in-databases-set-1/" target="_blank">GeeksforGeeks - Indexing in Databases</a></li>
+            <li><a href="https://www.geeksforgeeks.org/difference-between-indexing-techniques-in-dbms/" target="_blank">GeeksforGeeks - Difference Between Indexing Techniques</a></li>
+            <li><a href="https://www.geeksforgeeks.org/difference-between-indexing-and-hashing-in-dbms/" target="_blank">GeeksforGeeks - Indexing vs Hashing in DBMS</a></li>
+        </ul>
         `,
         quiz: [
             {

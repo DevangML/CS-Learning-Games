@@ -1045,13 +1045,31 @@ app.post('/execute-query', requireAuth, async (req, res) => {
 
         const sanitizedQuery = query.trim();
         
-        // Allow SELECT, EXPLAIN, and some DDL commands
-        const allowedCommands = ['select', 'explain', 'create view', 'create index', 'create table', 'alter table'];
-        const queryLower = sanitizedQuery.toLowerCase();
-        const isAllowed = allowedCommands.some(cmd => queryLower.startsWith(cmd));
+        // Allow common DQL/DML/DDL for learning (safe subset)
+        // Notes:
+        // - DDL destructive ops like DROP TABLE/TRUNCATE are limited to avoid blowing away seed tables
+        // - We do allow DROP VIEW/INDEX as they are reversible
+        const ql = sanitizedQuery.toLowerCase();
+        const allowedPatterns = [
+            /^select\b/,
+            /^with\b/,              // CTEs
+            /^explain\b/,
+            /^show\b/,
+            /^(desc|describe)\b/,
+            /^insert\b/,
+            /^update\b/,
+            /^delete\b/,
+            /^create\s+(view|index|table|temporary\s+table)\b/,
+            /^alter\s+table\b/,
+            /^drop\s+(view|index)\b/
+        ];
+        const isAllowed = allowedPatterns.some((re) => re.test(ql));
         
         if (!isAllowed) {
-            return res.status(400).json({ error: 'Only SELECT, EXPLAIN, CREATE VIEW, CREATE INDEX, CREATE TABLE, and ALTER TABLE queries are allowed' });
+            return res.status(400).json({ 
+                error: 'Query type not allowed',
+                message: 'Allowed: SELECT, WITH (CTE), EXPLAIN, SHOW, DESCRIBE/DESC, INSERT, UPDATE, DELETE, CREATE (VIEW/INDEX/TABLE), ALTER TABLE, DROP (VIEW/INDEX)'
+            });
         }
 
         const [rows] = await mysqlConnection.execute(sanitizedQuery);
@@ -1132,6 +1150,20 @@ app.get('/test-connection', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Explicit SPA entry routes for client router
+app.get(['/game', '/mode/:mode', '/level/:mode/:level/:q', '/blog', '/blog/*'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// SPA fallback: serve index.html for non-API routes to enable client-side routing
+app.get('*', (req, res, next) => {
+    const ignorePrefixes = ['/api/', '/auth/', '/setup-mysql', '/test-connection', '/execute-query', '/assets/', '/src/', '/node_modules/'];
+    if (ignorePrefixes.some(p => req.path.startsWith(p))) {
+        return next();
+    }
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 

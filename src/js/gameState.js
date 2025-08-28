@@ -327,6 +327,10 @@ class GameStateManager {
         this.gameState.currentQuestionIndex++;
     }
 
+    setQuestionIndex(index) {
+        this.gameState.currentQuestionIndex = Math.max(0, parseInt(index, 10) || 0);
+    }
+
     isLevelCompleted(levelId) {
         return this.gameState.completedLevels.has(levelId);
     }

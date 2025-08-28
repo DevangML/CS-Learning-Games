@@ -84,34 +84,32 @@ class AuthManager {
     }
 
     showAuthenticationUI() {
-        // Show only authentication section
-        document.getElementById('authSection').style.display = 'block';
-        
-        // Hide all other game content until authenticated
-        document.getElementById('userProfile').style.display = 'none';
-        document.getElementById('gameStats').style.display = 'none';
-        document.getElementById('dailyMissions').style.display = 'none';
-        
-        // Hide mode selector and navigation
+        // Show only the authentication section (centered)
+        const auth = document.getElementById('authSection');
+        if (auth) auth.style.display = 'flex';
+
+        // Hide everything else for a clean logged-out view
+        const hideIds = ['userProfile', 'gameStats', 'dailyMissions', 'roadmapHeader', 'levelSelector', 'gameArea'];
+        hideIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        const header = document.querySelector('.header');
+        if (header) header.style.display = 'none';
         const modeSelector = document.querySelector('.mode-selector');
         if (modeSelector) modeSelector.style.display = 'none';
         const mainNav = document.querySelector('.main-navigation');
         if (mainNav) mainNav.style.display = 'none';
-        
-        // Hide roadmap and level list - show only after auth
-        const roadmap = document.getElementById('roadmapHeader');
-        if (roadmap) roadmap.style.display = 'none';
-        const levels = document.getElementById('levelSelector');
-        if (levels) levels.style.display = 'none';
+        const blog = document.getElementById('blog-main');
+        if (blog) blog.style.display = 'none';
 
-        // Always offer Demo Mode for quick start and show guest banner
+        // Offer Demo Mode for quick start
         this.injectDemoModeButton();
-        this.showGuestBanner();
     }
 
     injectDemoModeButton() {
         // Demo mode button is now part of the HTML, so just ensure the function exists
-        window.startDemoMode = () => this.startDemoMode();
+        window.startDemoMode = () => this.signInDemo();
     }
 
     setupDemoModeButton() {
@@ -573,6 +571,17 @@ window.authManager = new AuthManager();
 
 window.signInWithGoogle = () => {
     window.location.href = '/auth/google';
+};
+
+// Global helper for demo mode button in HTML
+window.startDemoMode = async () => {
+    if (window.authManager && typeof window.authManager.signInDemo === 'function') {
+        await window.authManager.signInDemo();
+        // Navigate to game view
+        if (window.gameRouter) {
+            window.gameRouter.navigate('/');
+        }
+    }
 };
 
 window.logout = async () => {

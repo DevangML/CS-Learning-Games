@@ -34,6 +34,10 @@ class SQLTutorApp {
         this.bindEvents();
         this.updateProgressDisplay();
         SchemaViewer.renderSchema();
+
+        // Set up routes and start router
+        if (typeof this.setupRoutes === 'function') this.setupRoutes();
+        if (window.router && typeof window.router.start === 'function') window.router.start();
     }
 
     // Render Level Selection
@@ -51,7 +55,7 @@ class SQLTutorApp {
         }
 
         const isAuthed = !!(this.authManager && this.authManager.currentUser);
-        if (!isAuthed) {
+        if (!isAuthed && this.currentMode !== 'theory') {
             // Do not show actual levels when not logged in or in demo
             const placeholderCount = 6;
             for (let i = 0; i < placeholderCount; i++) {
@@ -187,6 +191,10 @@ class SQLTutorApp {
         
         SchemaViewer.renderSchema();
         this.loadQuestion();
+        if (window.router) {
+            const q = this.gameState.getCurrentState().currentQuestionIndex || 0;
+            window.router.navigate(`/level/${this.currentMode}/${levelNum}/${q}`);
+        }
     }
 
     // Load current question
@@ -211,7 +219,7 @@ class SQLTutorApp {
     }
 
     // Switch between learning modes
-    switchMode(mode) {
+    switchMode(mode, options = {}) {
         this.currentMode = mode;
         if (mode === 11) {
             this.currentLevels = window.ESSENTIALS_LEVELS;
@@ -229,6 +237,13 @@ class SQLTutorApp {
         // Reinitialize with new levels
         this.renderLevelSelector();
         this.updateProgressDisplay();
+        if (!options.noNav && window.router) {
+            if (mode === 'theory') {
+                window.router.navigate('/blog');
+            } else {
+                window.router.navigate(`/mode/${mode}`);
+            }
+        }
     }
 
     // Update progress display for current mode
@@ -420,6 +435,9 @@ class SQLTutorApp {
         if (currentState.currentQuestionIndex < level.questions.length - 1) {
             this.gameState.nextQuestion();
             this.loadQuestion();
+            if (window.router) {
+                window.router.navigate(`/level/${this.currentMode}/${currentState.currentLevel}/${this.gameState.getCurrentState().currentQuestionIndex}`);
+            }
         } else {
             // Level completed
             this.gameState.completeLevel(currentState.currentLevel);
@@ -436,6 +454,9 @@ class SQLTutorApp {
         document.getElementById('levelSelector').style.display = 'grid';
         document.getElementById('gameArea').classList.remove('active');
         this.renderLevelSelector();
+        if (window.router) {
+            window.router.navigate(`/mode/${this.currentMode}`);
+        }
     }
 
     // Reset progress
@@ -607,5 +628,52 @@ class SQLTutorApp {
         }, 4000);
     }
 }
+
+// Attach router setup to prototype
+    SQLTutorApp.prototype.setupRoutes = function () {
+        if (!window.router) return;
+        const that = this;
+
+        // Home
+        window.router.route('/', function () {
+            document.getElementById('levelSelector').style.display = 'grid';
+            document.getElementById('gameArea').classList.remove('active');
+            that.renderLevelSelector();
+        });
+
+        // Mode route
+        window.router.route('/mode/:mode', function (ctx) {
+            const mode = ctx.params.mode;
+            const m = isNaN(mode) ? mode : parseInt(mode, 10);
+            that.switchMode(m, { noNav: true });
+            document.getElementById('levelSelector').style.display = 'grid';
+            document.getElementById('gameArea').classList.remove('active');
+        });
+
+        // Level route: /level/:mode/:level/:q
+        window.router.route('/level/:mode/:level/:q', function (ctx) {
+            const m = parseInt(ctx.params.mode, 10);
+            that.switchMode(m, { noNav: true });
+            if (!(that.authManager && that.authManager.currentUser)) {
+                // Gate real content when not authenticated
+                window.router.navigate('/');
+                if (that.authManager) that.authManager.showAuthenticationUI();
+                return;
+            }
+            that.gameState.setCurrentLevel(parseInt(ctx.params.level, 10));
+            that.gameState.setQuestionIndex(parseInt(ctx.params.q, 10) || 0);
+            document.getElementById('levelSelector').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            SchemaViewer.renderSchema();
+            that.loadQuestion();
+        });
+
+        // Setup route
+        window.router.route('/setup', function () {
+            if (that.authManager && typeof that.authManager.showMySQLSetup === 'function') {
+                that.authManager.showMySQLSetup();
+            }
+        });
+    };
 
 // Intentionally no auto-init here. index.html initializes the app once on DOMContentLoaded.

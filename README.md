@@ -232,10 +232,28 @@ MIT License - see LICENSE file for details.
 **Ready to Master SQL? Start your quest today!** 🚀
 ## 🔎 Authentic Knowledge Rule
 
-To maintain content integrity and learner trust:
+To maintain content integrity and learner trust across all learning modes:
 
-- SQL challenges are verified by canonical execution. The server compares the result of the learner’s query with the expected solution query and displays an authenticity note.
-- Theory/MCQ content (CN/OS/OOP/LLD/HLD/Aptitude) must be marked `verified: true` or include reputable `sources: []` metadata before broad surfacing. A validation script helps enforce this: `npm run validate-content <content.json>`.
-- The UI shows “Verified by canonical execution” when a SQL result exactly matches the expected output.
+### SQL Practice Verification
+- **Canonical Execution**: SQL challenges are verified by comparing learner query results with expected solution results on actual database
+- **Real-time Validation**: Server executes both queries and compares outputs for exact matching
+- **Authenticity Indicators**: UI displays "🔎 Verified by canonical execution" when results match perfectly
 
-This rule prevents unverified knowledge from being presented as authoritative and encourages transparent sourcing and checks.
+### Theory Content Verification  
+- **Source Authority**: All DBMS theory topics must reference GeeksforGeeks as authoritative source
+- **Verification Flags**: Content marked `verified: true` with `sources: []` metadata including reputable references
+- **Reference Links**: Direct links to GeeksforGeeks articles for learner verification
+- **Content Alignment**: Definitions and examples must match authoritative sources exactly
+
+### Multi-Domain Content Standards
+- **Theory/MCQ Content**: CN/OS/OOP/LLD/HLD/Aptitude domains require `verified: true` or reputable `sources: []` metadata
+- **Validation Pipeline**: `npm run validate-content <content.json>` enforces verification standards
+- **Transparent Sourcing**: All theoretical claims must be traceable to authoritative educational sources
+
+### Implementation
+- **DBMS Theory Hub**: Interactive theory pages with embedded GeeksforGeeks references
+- **Quiz Verification**: Theory-based quizzes include source attribution and verification badges  
+- **Practice Integration**: SQL levels combine verified theory concepts with hands-on query execution
+- **Content Integrity**: System prevents unverified knowledge from being presented as authoritative
+
+This comprehensive rule ensures learners receive accurate, trustworthy information across both theoretical understanding and practical SQL skills, with clear verification indicators and transparent sourcing throughout the learning experience.

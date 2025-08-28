@@ -5,6 +5,16 @@ class GameRouter {
         this.bindNavigationEvents();
     }
 
+    // Show/hide Theory nav links in top bar
+    setTheoryNavVisible(visible) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const route = link.getAttribute('data-route') || link.getAttribute('href') || '';
+            if (route.startsWith('/blog')) {
+                link.style.display = visible ? '' : 'none';
+            }
+        });
+    }
+
     setupGameRoutes() {
         // Add game-specific routes
         if (window.router) {
@@ -59,6 +69,9 @@ class GameRouter {
 
         // Update navigation active state
         this.updateNavigation('/');
+
+        // Hide theory-specific nav links in practice modes
+        this.setTheoryNavVisible(false);
 
         // Ensure game is initialized
         if (window.app) {

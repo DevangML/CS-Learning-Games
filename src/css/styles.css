@@ -587,7 +587,7 @@ body::before {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 70vh;
+    min-height: calc(100vh - 220px);
     margin: 40px 0;
     position: relative;
 }
@@ -620,11 +620,12 @@ body::before {
         rgba(255,255,255,0.1) 100%);
     backdrop-filter: blur(20px);
     border-radius: 25px;
-    padding: 50px;
+    padding: 40px 36px;
     border: 1px solid rgba(255,255,255,0.3);
     text-align: center;
-    max-width: 520px;
-    width: 100%;
+    max-width: 560px;
+    width: min(560px, 92vw);
+    margin-inline: auto;
     box-shadow: 
         0 20px 40px rgba(0,0,0,0.1),
         inset 0 1px 0 rgba(255,255,255,0.3);
@@ -738,9 +739,9 @@ body::before {
 }
 
 .btn-google-signin img {
-    width: 24px;
-    height: 24px;
-    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
     flex-shrink: 0;
 }
 
@@ -769,7 +770,7 @@ body::before {
 
 .auth-divider {
     text-align: center;
-    margin: 20px 0;
+    margin: 14px 0 10px;
     position: relative;
     color: rgba(255, 255, 255, 0.6);
 }

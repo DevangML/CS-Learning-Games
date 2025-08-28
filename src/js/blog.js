@@ -52,6 +52,11 @@ class BlogSystem {
         const mainContent = this.getMainContent();
         if (!mainContent) return;
 
+        // Ensure theory-specific nav links are visible
+        if (window.gameRouter && typeof window.gameRouter.setTheoryNavVisible === 'function') {
+            window.gameRouter.setTheoryNavVisible(true);
+        }
+
         const categories = this.groupTopicsByCategory();
         
         mainContent.innerHTML = `
@@ -62,7 +67,7 @@ class BlogSystem {
                     <div class="blog-nav">
                         <button class="nav-btn active" data-section="theory">📖 Theory Topics</button>
                         <button class="nav-btn" data-section="quizzes">🎯 Practice Quizzes</button>
-                        <a href="/game" class="nav-btn">🎮 Back to Game</a>
+                        <a href="/game" class="nav-btn" data-route="/game">🎮 Back to Game</a>
                     </div>
                 </header>
 
@@ -109,7 +114,7 @@ class BlogSystem {
                                     <div class="quiz-description">
                                         Test your knowledge on database design, ACID properties, normalization, and indexing.
                                     </div>
-                                    <button class="start-quiz-btn">Start Quiz</button>
+                                    <button class="start-quiz-btn" onclick="window.router.navigate('/blog/quiz/${id}')">Start Quiz</button>
                                 </div>
                             `).join('')}
                         </div>
@@ -138,11 +143,15 @@ class BlogSystem {
         const mainContent = this.getMainContent();
         if (!mainContent) return;
 
+        if (window.gameRouter && typeof window.gameRouter.setTheoryNavVisible === 'function') {
+            window.gameRouter.setTheoryNavVisible(true);
+        }
+
         mainContent.innerHTML = `
             <div class="topic-container">
                 <header class="topic-header">
                     <div class="breadcrumb">
-                        <a href="/blog">📚 Theory Hub</a> / ${topic.title}
+                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / ${topic.title}
                     </div>
                     <div class="topic-title-section">
                         <h1>${topic.title}</h1>
@@ -193,11 +202,15 @@ class BlogSystem {
         const mainContent = this.getMainContent();
         if (!mainContent) return;
 
+        if (window.gameRouter && typeof window.gameRouter.setTheoryNavVisible === 'function') {
+            window.gameRouter.setTheoryNavVisible(true);
+        }
+
         mainContent.innerHTML = `
             <div class="quiz-container">
                 <header class="quiz-header">
                     <div class="breadcrumb">
-                        <a href="/blog">📚 Theory Hub</a> / Quiz
+                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / Quiz
                     </div>
                     <h1>${quiz.title}</h1>
                 </header>
@@ -268,7 +281,7 @@ class BlogSystem {
             <div class="quiz-results-container">
                 <header class="results-header">
                     <div class="breadcrumb">
-                        <a href="/blog">📚 Theory Hub</a> / Quiz Results
+                        <a href="/blog" data-route="/blog">📚 Theory Hub</a> / Quiz Results
                     </div>
                     <h1>🎯 Quiz Results</h1>
                 </header>
@@ -630,6 +643,10 @@ class BlogSystem {
         if (gameStats) gameStats.style.display = 'none';
         if (userProfile) userProfile.style.display = 'none';
 
+        // Ensure top navigation is visible in theory/practice hub
+        const mainNav = document.querySelector('.main-navigation');
+        if (mainNav) mainNav.style.display = 'block';
+
         // Update navigation active state
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
@@ -662,7 +679,7 @@ class BlogSystem {
             <div class="error-page">
                 <h1>404 - Topic Not Found</h1>
                 <p>The requested theory topic could not be found.</p>
-                <a href="/blog" class="btn-primary">← Back to Theory Hub</a>
+                <a href="/blog" class="btn-primary" data-route="/blog">← Back to Theory Hub</a>
             </div>
         `;
     }

@@ -4,6 +4,7 @@ How to use
 - Replace {COUNT} with the number of levels to generate (e.g., 11 for Essentials, 23 for Complete).
 - Feed the entire prompt file to your content generator.
 - Require the generator to output only JSON (no code fences), following the schema and constraints.
+- For DBMS content, use the specialized DBMS.md prompt that includes SQL practice components.
 
 Shared Schema and Constraints (Updated)
 - Output: a JSON object whose top‑level keys are stringified level numbers starting at "1".
@@ -51,8 +52,9 @@ Shared Schema and Constraints (Updated)
 
 Files
 - CN.md: Computer Networks
-- OS.md: Operating Systems
+- OS.md: Operating Systems  
 - OOP.md: Object‑Oriented Programming
 - LLD.md: Low‑Level Design
 - HLD.md: High‑Level Design
 - Aptitude.md: Logical, Quantitative, Verbal Aptitude
+- DBMS.md: Database Management Systems with SQL Practice (specialized format)
