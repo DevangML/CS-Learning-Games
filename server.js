@@ -360,7 +360,8 @@ app.get('/auth/google/callback', (req, res) => {
         return res.redirect('/?error=oauth_not_configured');
     }
     passport.authenticate('google', { failureRedirect: '/login-failed' })(req, res, () => {
-        res.redirect('/');
+        // Redirect with a one-time flag to show welcome animation
+        res.redirect('/?welcome=1');
     });
 });
 

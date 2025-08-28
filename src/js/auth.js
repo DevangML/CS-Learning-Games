@@ -27,7 +27,17 @@ class AuthManager {
                 await this.loadUserStats();
                 this.showAuthenticatedUI();
                 await this.checkMySQLConnection();
-                this.showLoginSuccess();
+
+                // Show welcome animation only on explicit login (via one-time URL flag)
+                const params = new URLSearchParams(window.location.search || '');
+                if (params.get('welcome') === '1') {
+                    this.showLoginSuccess();
+                    // Remove the flag from the URL without reloading
+                    params.delete('welcome');
+                    const newSearch = params.toString();
+                    const newUrl = window.location.pathname + (newSearch ? ('?' + newSearch) : '') + window.location.hash;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
             } else {
                 this.showAuthenticationUI();
             }
