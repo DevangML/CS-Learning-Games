@@ -10,7 +10,9 @@
       "Bash(python3:*)",
       "Bash(npm install)",
       "WebFetch(domain:we-plus.be)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "WebFetch(domain:www.geeksforgeeks.org)",
+      "WebFetch(domain:www.geeksforgeeks.org)"
     ],
     "additionalDirectories": [
       "/private/tmp"

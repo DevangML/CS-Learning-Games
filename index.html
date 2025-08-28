@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SQL Mastery Quest</title>
     <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="stylesheet" href="src/css/blog.css">
 </head>
 <body>
     <div class="container">
@@ -24,18 +25,66 @@
                     🎓 Complete (23 Levels)
                     <small>Comprehensive SQL mastery</small>
                 </button>
+                <button class="mode-btn" id="theory-mode" onclick="switchMode('theory')">
+                    🏗️ Theory & Practice (7 Levels)
+                    <small>DBMS concepts with SQL examples</small>
+                </button>
             </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="main-navigation">
+            <nav class="nav-bar">
+                <a href="/" class="nav-link active" data-route="/">🎮 Practice</a>
+                <a href="/blog" class="nav-link" data-route="/blog">📚 Theory Hub</a>
+                <a href="/blog/quiz/database-design" class="nav-link" data-route="/blog/quiz/database-design">🎯 Quick Quiz</a>
+            </nav>
         </div>
 
         <!-- Authentication Section -->
         <div id="authSection" class="auth-section" style="display: none;">
             <div class="auth-card">
-                <h2>🔐 Sign In to Continue</h2>
-                <p>Track your progress, maintain streaks, and unlock achievements!</p>
-                <button class="btn-google-signin" onclick="signInWithGoogle()">
-                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
-                    Sign in with Google
-                </button>
+                <h2>🔐 Welcome to SQL Mastery Quest</h2>
+                <p>Choose how you'd like to start your SQL learning journey:</p>
+                
+                <div class="auth-options">
+                    <button class="btn-google-signin primary-auth" onclick="signInWithGoogle()">
+                        <img src="/assets/google-logo.svg" alt="Google">
+                        <div class="auth-text">
+                            <strong>Sign in with Google</strong>
+                            <small>Save progress, track streaks, compete with others</small>
+                        </div>
+                    </button>
+                    
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <button class="btn-demo-mode" onclick="startDemoMode()">
+                        <span class="demo-icon">🎮</span>
+                        <div class="auth-text">
+                            <strong>Try Demo Mode</strong>
+                            <small>Explore features with sample data (no account needed)</small>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="auth-features">
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">📊</span>
+                            <span>Interactive SQL Practice</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>DBMS Theory & Quizzes</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏆</span>
+                            <span>Progress Tracking & Achievements</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -139,7 +188,12 @@
     <script src="src/config/schema.js"></script>
     <script src="src/data/learningLevels.js"></script>
     <script src="src/data/essentialsLevels.js"></script>
+    <script src="src/data/theoryTopics.js"></script>
+    <script src="src/data/theoryLevels.js"></script>
     <script src="src/js/onboarding.js"></script>
+    <script src="src/js/router.js"></script>
+    <script src="src/js/gameRouter.js"></script>
+    <script src="src/js/blog.js"></script>
     <script src="src/js/auth.js"></script>
     <script src="src/js/gameState.js"></script>
     <script src="src/js/app.js"></script>

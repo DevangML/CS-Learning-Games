@@ -72,6 +72,11 @@ class AuthManager {
                 if (window.gameStateManager && window.gameStateManager.loadUserProgress) {
                     await window.gameStateManager.loadUserProgress();
                 }
+                // Refresh level selector and progress bar if app is mounted
+                if (window.app && window.app.renderLevelSelector && window.app.updateProgressDisplay) {
+                    window.app.renderLevelSelector();
+                    window.app.updateProgressDisplay();
+                }
             }
         } catch (error) {
             console.error('Failed to load user stats:', error);
@@ -79,19 +84,37 @@ class AuthManager {
     }
 
     showAuthenticationUI() {
+        // Show only authentication section
         document.getElementById('authSection').style.display = 'block';
+        
+        // Hide all other game content until authenticated
         document.getElementById('userProfile').style.display = 'none';
         document.getElementById('gameStats').style.display = 'none';
         document.getElementById('dailyMissions').style.display = 'none';
-        document.getElementById('roadmapHeader').style.display = 'none';
-        document.getElementById('levelSelector').style.display = 'none';
         
-        // Check if OAuth is configured
-        this.checkOAuthConfiguration();
+        // Hide mode selector and navigation
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.display = 'none';
+        const mainNav = document.querySelector('.main-navigation');
+        if (mainNav) mainNav.style.display = 'none';
+        
+        // Hide roadmap and level list - show only after auth
+        const roadmap = document.getElementById('roadmapHeader');
+        if (roadmap) roadmap.style.display = 'none';
+        const levels = document.getElementById('levelSelector');
+        if (levels) levels.style.display = 'none';
+
+        // Always offer Demo Mode for quick start and show guest banner
+        this.injectDemoModeButton();
+        this.showGuestBanner();
     }
 
-    async checkOAuthConfiguration() {
-        // Add demo mode button if OAuth is not configured
+    injectDemoModeButton() {
+        // Demo mode button is now part of the HTML, so just ensure the function exists
+        window.startDemoMode = () => this.startDemoMode();
+    }
+
+    setupDemoModeButton() {
         const authCard = document.querySelector('.auth-card');
         if (authCard && !document.getElementById('demoModeBtn')) {
             const demoButton = document.createElement('button');
@@ -99,18 +122,29 @@ class AuthManager {
             demoButton.className = 'btn-demo-mode';
             demoButton.innerHTML = '🎮 Try Demo Mode';
             demoButton.onclick = () => this.signInDemo();
-            
+
             const existingButton = authCard.querySelector('.btn-google-signin');
             if (existingButton) {
-                existingButton.parentNode.insertBefore(demoButton, existingButton.nextSibling);
-                
-                // Add separator
+                // Add separator and button after Google button
                 const separator = document.createElement('div');
                 separator.className = 'auth-separator';
                 separator.innerHTML = '<span>or</span>';
-                existingButton.parentNode.insertBefore(separator, demoButton);
+                existingButton.parentNode.insertBefore(separator, existingButton.nextSibling);
+                existingButton.parentNode.insertBefore(demoButton, separator.nextSibling);
+            } else {
+                authCard.appendChild(demoButton);
             }
         }
+    }
+
+    showGuestBanner() {
+        if (document.getElementById('guestBanner')) return;
+        const banner = document.createElement('div');
+        banner.id = 'guestBanner';
+        banner.style.cssText = 'margin:12px 0;padding:10px 12px;background:#fffbe6;border:1px solid #ffe58f;color:#614700;border-radius:8px;';
+        banner.innerHTML = '👋 You are browsing in guest mode. Progress will not sync. Use <strong>Demo Mode</strong> for a quick start or <strong>Sign in</strong> to save your progress.';
+        const container = document.querySelector('.container');
+        if (container) container.insertBefore(banner, container.firstChild.nextSibling);
     }
 
     async signInDemo() {
@@ -167,10 +201,30 @@ class AuthManager {
         document.getElementById('gameStats').style.display = 'block';
         document.getElementById('dailyMissions').style.display = 'block';
         
+        // Show mode selector and navigation now that user is authenticated
+        const modeSelector = document.querySelector('.mode-selector');
+        if (modeSelector) modeSelector.style.display = 'block';
+        const mainNav = document.querySelector('.main-navigation');
+        if (mainNav) mainNav.style.display = 'block';
+        
+        // Show roadmap and level list
+        const roadmap = document.getElementById('roadmapHeader');
+        if (roadmap) roadmap.style.display = 'block';
+        const levels = document.getElementById('levelSelector');
+        if (levels) levels.style.display = 'grid';
+        
+        // Remove guest banner
+        const banner = document.getElementById('guestBanner');
+        if (banner && banner.parentElement) banner.parentElement.removeChild(banner);
+
         // Update user profile
         document.getElementById('userName').textContent = this.currentUser.name;
         document.getElementById('userLevel').textContent = `Level ${this.currentUser.level || 1}`;
-        document.getElementById('userAvatar').src = this.currentUser.avatar || '/default-avatar.png';
+        const avatar = document.getElementById('userAvatar');
+        if (avatar) {
+            avatar.src = this.currentUser.avatar || '/assets/default-avatar.svg';
+            avatar.onerror = () => { avatar.src = '/assets/default-avatar.svg'; };
+        }
         
         this.loadDailyMissions();
         this.loadWeeklyQuest();

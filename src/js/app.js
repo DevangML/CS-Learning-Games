@@ -20,11 +20,16 @@ class SQLTutorApp {
             await this.authManager.init();
             window.authManager = this.authManager;
         }
-        
+
         // Initialize game state with auth manager reference
         this.gameState = new GameStateManager(this.authManager);
         window.gameStateManager = this.gameState; // Make available for auth manager
-        
+
+        // If authenticated, load stats/progress again now that game state exists
+        if (this.authManager && this.authManager.currentUser) {
+            await this.authManager.loadUserStats();
+        }
+
         this.renderLevelSelector();
         this.bindEvents();
         this.updateProgressDisplay();
@@ -43,6 +48,28 @@ class SQLTutorApp {
         if (roadmapHeader) {
             roadmapHeader.style.display = 'block';
             this.updateRoadmapMessage();
+        }
+
+        const isAuthed = !!(this.authManager && this.authManager.currentUser);
+        if (!isAuthed) {
+            // Do not show actual levels when not logged in or in demo
+            const placeholderCount = 6;
+            for (let i = 0; i < placeholderCount; i++) {
+                const card = document.createElement('div');
+                card.className = 'level-card locked-level';
+                card.innerHTML = `
+                    <div class="level-header">
+                        <h3>Level ${i + 1}</h3>
+                        <span class="difficulty-badge" style="background-color: #9e9e9e;">Locked</span>
+                    </div>
+                    <p>Sign in or try Demo Mode to unlock levels.</p>
+                    <div style="margin-top: 15px; color:#888;">
+                        <small>🔒 Content hidden</small>
+                    </div>
+                `;
+                levelSelector.appendChild(card);
+            }
+            return;
         }
         
         Object.keys(this.currentLevels).forEach(levelNum => {
@@ -186,11 +213,18 @@ class SQLTutorApp {
     // Switch between learning modes
     switchMode(mode) {
         this.currentMode = mode;
-        this.currentLevels = (mode === 11) ? window.ESSENTIALS_LEVELS : window.LEARNING_LEVELS;
+        if (mode === 11) {
+            this.currentLevels = window.ESSENTIALS_LEVELS;
+        } else if (mode === 'theory') {
+            this.currentLevels = window.THEORY_LEVELS;
+        } else {
+            this.currentLevels = window.LEARNING_LEVELS;
+        }
         
         // Update UI to show active mode
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`mode${mode}`).classList.add('active');
+        const targetBtn = mode === 'theory' ? document.getElementById('theory-mode') : document.getElementById(`mode${mode}`);
+        if (targetBtn) targetBtn.classList.add('active');
         
         // Reinitialize with new levels
         this.renderLevelSelector();
