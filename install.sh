@@ -163,9 +163,16 @@ setup_mysql() {
         sleep 2
     done
     
-    # Use configured password or generate random one
+    # Generate secure random password if not provided
     if [ -z "$DB_PASSWORD" ]; then
-        DB_PASSWORD=$(openssl rand -base64 12 2>/dev/null || date +%s | sha256sum | base64 | head -c 12)
+        DB_PASSWORD=$(openssl rand -base64 16 2>/dev/null || date +%s | sha256sum | base64 | head -c 16)
+        log_info "Generated secure random database password"
+    fi
+    
+    # Generate secure session secret if not provided
+    if [ -z "$SESSION_SECRET" ]; then
+        SESSION_SECRET="sql-quest-$(openssl rand -hex 16 2>/dev/null || date +%s | sha256sum | head -c 32)"
+        log_info "Generated secure session secret"
     fi
     
     # Create database and user
@@ -191,17 +198,30 @@ setup_mysql() {
 create_env_file() {
     log_info "Creating environment configuration..."
     
+    # Check if environment variables are provided
+    if [ -n "$GOOGLE_CLIENT_ID_ENV" ]; then
+        GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID_ENV"
+        log_info "Using Google Client ID from environment variable"
+    fi
+    
+    if [ -n "$GOOGLE_CLIENT_SECRET_ENV" ]; then
+        GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET_ENV"
+        log_info "Using Google Client Secret from environment variable"
+    fi
+    
+    # Create .env file with current values
     cat > .env << EOF
 # Google OAuth Configuration
 # Visit: https://console.cloud.google.com/apis/credentials
-GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+# Set GOOGLE_CLIENT_ID_ENV and GOOGLE_CLIENT_SECRET_ENV environment variables before installation
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-your_google_client_id_here}
+GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-your_google_client_secret_here}
 GOOGLE_REDIRECT_URI=http://localhost:$PORT/auth/google/callback
 
-# Session Configuration
+# Session Configuration (auto-generated secure secret)
 SESSION_SECRET=$SESSION_SECRET
 
-# MySQL Configuration
+# MySQL Configuration (auto-generated secure password)
 MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_USER=$DB_USER
@@ -213,7 +233,23 @@ PORT=$PORT
 NODE_ENV=development
 EOF
     
-    log_success "Environment file created"
+    # Set secure file permissions
+    chmod 600 .env
+    
+    # Display setup information
+    if [ "$GOOGLE_CLIENT_ID" = "your_google_client_id_here" ]; then
+        log_warning "Google OAuth credentials not configured"
+        echo ""
+        echo -e "${YELLOW}To enable Google OAuth:${NC}"
+        echo "1. Visit: https://console.cloud.google.com/apis/credentials"
+        echo "2. Create OAuth 2.0 Client ID"
+        echo "3. Set authorized redirect URI: http://localhost:$PORT/auth/google/callback"
+        echo "4. Update GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file"
+        echo "5. Restart the application: npm start"
+        echo ""
+    fi
+    
+    log_success "Environment file created with secure permissions"
     update_progress
 }
 
@@ -425,17 +461,24 @@ main() {
     log_info "Log file: $(pwd)/app.log"
     
     echo ""
+    echo -e "${YELLOW}Security Information:${NC}"
+    echo "✓ Auto-generated secure database password: $DB_PASSWORD"
+    echo "✓ Auto-generated session secret (32 chars)"
+    echo "✓ Git-secrets protection active"
+    echo "✓ Environment file secured (600 permissions)"
+    
+    echo ""
     echo -e "${YELLOW}Next steps:${NC}"
     echo "1. Visit http://localhost:$PORT to start learning SQL"
-    echo "2. For Google OAuth, update GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env"
-    echo "3. Restart with: npm start"
+    echo "2. Configure Google OAuth credentials in .env (optional)"
+    echo "3. Keep your .env file secure and never commit it"
     
     echo ""
     echo -e "${BLUE}Commands:${NC}"
     echo "  Start:   npm start"
     echo "  Stop:    pkill -f 'node.*server.js'"
     echo "  Logs:    tail -f app.log"
-    echo "  Update:  git pull && npm install && npm start"
+    echo "  Update:  ./update_game.sh"
 }
 
 # Run main installation
