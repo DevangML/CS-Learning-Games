@@ -2,7 +2,6 @@
 .next
 *.log
 node_modules/*
-/lib/generated/prisma
 
 # Environment files
 .env

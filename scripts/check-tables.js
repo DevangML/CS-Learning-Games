@@ -3,7 +3,7 @@
 // Load environment variables from .env file
 require('dotenv').config({ path: '.env' });
 
-const { PrismaClient } = require('../lib/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 
 async function checkTables() {
     console.log('🔍 Checking database tables...\n');

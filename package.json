@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "dev:server": "nodemon server.js",
     "setup": "node setup.js",
@@ -13,7 +13,8 @@
     "migrate-cloud": "node scripts/migrate_to_cloud.js",
     "test-redis": "node scripts/test-redis-connection.js",
     "test-prisma": "node scripts/test-prisma-connection.js",
-    "test-quiz": "node scripts/test-quiz-queries.js"
+    "test-quiz": "node scripts/test-quiz-queries.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "next-auth": "^4.24.7",
