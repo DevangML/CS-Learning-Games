@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '../../../../lib/api-helpers';
-import { getUserStats } from '../../../../lib/user-db';
+import { getUserStats } from '../../../../lib/vercel-kv';
 
 export const runtime = 'nodejs';
 

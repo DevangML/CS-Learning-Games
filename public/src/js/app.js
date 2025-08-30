@@ -34,6 +34,9 @@ class SQLTutorApp {
         this.bindEvents();
         this.updateProgressDisplay();
         SchemaViewer.renderSchema();
+        
+        // Initialize SQL Editor with formatter
+        this.initializeSQLEditor();
 
         // Set up routes and start router
         if (typeof this.setupRoutes === 'function') this.setupRoutes();
@@ -271,6 +274,110 @@ class SQLTutorApp {
         if (nextLevelEl) nextLevelEl.textContent = `Level ${this.getNextLevel()}`;
 
         // Stats like totalXP and currentStreak are handled by AuthManager.updateStatsDisplay()
+    }
+
+    // Initialize SQL Editor with formatter and intellisense
+    initializeSQLEditor() {
+        if (window.SQLEditor) {
+            this.sqlEditor = new SQLEditor('sqlInput', {
+                autoFormat: true,
+                showSuggestions: true,
+                showErrors: true,
+                autoComplete: true
+            });
+            
+            // Add additional buttons for SQL editor features
+            this.addSQLEditorButtons();
+        }
+    }
+    
+    // Add SQL editor feature buttons
+    addSQLEditorButtons() {
+        const buttonGroup = document.querySelector('.button-group');
+        if (!buttonGroup) return;
+        
+        // Add auto-correct button
+        const autoCorrectBtn = document.createElement('button');
+        autoCorrectBtn.className = 'btn btn-secondary';
+        autoCorrectBtn.innerHTML = '🔧 Auto-Correct';
+        autoCorrectBtn.onclick = () => this.autoCorrectQuery();
+        buttonGroup.appendChild(autoCorrectBtn);
+        
+        // Add format button
+        const formatBtn = document.createElement('button');
+        formatBtn.className = 'btn btn-secondary';
+        formatBtn.innerHTML = '📝 Format';
+        formatBtn.onclick = () => this.formatQuery();
+        buttonGroup.appendChild(formatBtn);
+        
+        // Add table info button
+        const tableInfoBtn = document.createElement('button');
+        tableInfoBtn.className = 'btn btn-secondary';
+        tableInfoBtn.innerHTML = '📋 Tables';
+        tableInfoBtn.onclick = () => this.showTableInfo();
+        buttonGroup.appendChild(tableInfoBtn);
+    }
+    
+    // Auto-correct the current query
+    autoCorrectQuery() {
+        if (this.sqlEditor) {
+            const wasCorrected = this.sqlEditor.autoCorrect();
+            if (wasCorrected) {
+                this.showNotification('Query auto-corrected!', 'success');
+            } else {
+                this.showNotification('No corrections needed.', 'info');
+            }
+        }
+    }
+    
+    // Format the current query
+    formatQuery() {
+        if (this.sqlEditor) {
+            const formatted = this.sqlEditor.getFormattedValue();
+            this.sqlEditor.setValue(formatted);
+            this.showNotification('Query formatted!', 'success');
+        }
+    }
+    
+    // Show table information
+    showTableInfo() {
+        if (this.sqlEditor) {
+            this.sqlEditor.showTableInfo();
+        }
+    }
+    
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        // Set background color based on type
+        const colors = {
+            success: '#4CAF50',
+            error: '#f44336',
+            warning: '#ff9800',
+            info: '#2196F3'
+        };
+        notification.style.backgroundColor = colors[type] || colors.info;
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 
     // Bind event handlers

@@ -7,7 +7,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Calculate each employee's annual bonus as 10% of their salary using addition (+).",
-                solution: "SELECT name, salary, salary * 0.10 as bonus, salary + (salary * 0.10) as total_compensation FROM employees;",
+                solution: "SELECT name, salary, salary * 0.10 as bonus, salary + (salary * 0.10) as total_compensation FROM \"Employee\";",
                 hint: "Use + for addition, * for multiplication",
                 concept: {
                     title: "Arithmetic Operations",
@@ -16,7 +16,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find the salary difference between each employee and the highest paid employee (80000).",
-                solution: "SELECT name, salary, 80000 - salary as salary_gap FROM employees;",
+                solution: "SELECT name, salary, 80000 - salary as salary_gap FROM \"Employee\";",
                 hint: "Use - for subtraction",
                 concept: {
                     title: "Subtraction Operations",
@@ -25,7 +25,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Calculate monthly salary by dividing annual salary by 12.",
-                solution: "SELECT name, salary, salary / 12 as monthly_salary FROM employees;",
+                solution: "SELECT name, salary, salary / 12 as monthly_salary FROM \"Employee\";",
                 hint: "Use / for division",
                 concept: {
                     title: "Division Operations",
@@ -34,7 +34,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees whose employee ID is even using modulo operator (%).",
-                solution: "SELECT * FROM employees WHERE id % 2 = 0;",
+                solution: "SELECT * FROM \"Employee\" WHERE id % 2 = 0;",
                 hint: "Use % for modulo (remainder). Even numbers have remainder 0 when divided by 2",
                 concept: {
                     title: "Modulo Operations",
@@ -50,7 +50,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find employees with salary equal to exactly 75000.",
-                solution: "SELECT * FROM employees WHERE salary = 75000;",
+                solution: "SELECT * FROM \"Employee\" WHERE salary = 75000;",
                 hint: "Use = for equality comparison",
                 concept: {
                     title: "Equality Operator",
@@ -59,7 +59,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees with salary not equal to 50000 using != operator.",
-                solution: "SELECT * FROM employees WHERE salary != 50000;",
+                solution: "SELECT * FROM \"Employee\" WHERE salary != 50000;",
                 hint: "Both != and <> mean 'not equal to'. They are interchangeable",
                 concept: {
                     title: "Inequality Operators",
@@ -68,7 +68,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees with salary less than 60000 and greater than or equal to 70000.",
-                solution: "SELECT * FROM employees WHERE salary < 60000 OR salary >= 70000;",
+                solution: "SELECT * FROM \"Employee\" WHERE salary < 60000 OR salary >= 70000;",
                 hint: "Use < for less than, >= for greater than or equal to",
                 concept: {
                     title: "Range Comparisons",
@@ -77,7 +77,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Show employees hired on or before '2021-01-01'.",
-                solution: "SELECT * FROM employees WHERE hire_date <= '2021-01-01';",
+                solution: "SELECT * FROM \"Employee\" WHERE hire_date <= '2021-01-01';",
                 hint: "Use <= for 'less than or equal to'",
                 concept: {
                     title: "Date Comparisons",
@@ -92,8 +92,8 @@ const LEARNING_LEVELS = {
         difficulty: "Beginner",
         questions: [
             {
-                question: "Find employees in Engineering (department_id=1) AND with salary > 70000.",
-                solution: "SELECT * FROM employees WHERE department_id = 1 AND salary > 70000;",
+                question: "Find employees in Engineering (departmentId=1) AND with salary > 70000.",
+                solution: "SELECT * FROM \"Employee\" WHERE \"departmentId\" = 1 AND salary > 70000;",
                 hint: "AND requires both conditions to be true",
                 concept: {
                     title: "AND Operator",
@@ -101,8 +101,8 @@ const LEARNING_LEVELS = {
                 }
             },
             {
-                question: "Find employees in either Marketing (dept_id=2) OR Sales (dept_id=3).",
-                solution: "SELECT * FROM employees WHERE department_id = 2 OR department_id = 3;",
+                question: "Find employees in either Marketing (department_id=2) OR Sales (department_id=3).",
+                solution: "SELECT * FROM \"Employee\" WHERE \"departmentId\" = 2 OR \"departmentId\" = 3;",
                 hint: "OR requires at least one condition to be true",
                 concept: {
                     title: "OR Operator",
@@ -110,8 +110,8 @@ const LEARNING_LEVELS = {
                 }
             },
             {
-                question: "Find employees NOT in the HR department (dept_id=4).",
-                solution: "SELECT * FROM employees WHERE NOT department_id = 4;",
+                question: "Find employees NOT in the HR department (department_id=4).",
+                solution: "SELECT * FROM \"Employee\" WHERE NOT \"departmentId\" = 4;",
                 hint: "NOT reverses the truth value of a condition",
                 concept: {
                     title: "NOT Operator",
@@ -120,7 +120,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find if ANY employee has salary greater than 60000.",
-                solution: "SELECT EXISTS(SELECT 1 FROM employees WHERE salary > 60000) as has_high_salary;",
+                solution: "SELECT EXISTS(SELECT 1 FROM \"Employee\" WHERE salary > 60000) as has_high_salary;",
                 hint: "Use EXISTS to check if ANY record matches condition",
                 concept: {
                     title: "ANY/EXISTS Operators",
@@ -136,7 +136,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find employees whose name starts with 'J' using LIKE.",
-                solution: "SELECT * FROM employees WHERE name LIKE 'J%';",
+                solution: "SELECT * FROM \"Employee\" WHERE name LIKE 'J%';",
                 hint: "% matches any number of characters",
                 concept: {
                     title: "LIKE with Wildcards",
@@ -145,7 +145,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees whose name does NOT contain 'Smith' using NOT LIKE.",
-                solution: "SELECT * FROM employees WHERE name NOT LIKE '%Smith%';",
+                solution: "SELECT * FROM \"Employee\" WHERE name NOT LIKE '%Smith%';",
                 hint: "NOT LIKE negates pattern matching",
                 concept: {
                     title: "NOT LIKE",
@@ -154,7 +154,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees with exactly 9-character names using LIKE with underscore.",
-                solution: "SELECT * FROM employees WHERE name LIKE '_________';",
+                solution: "SELECT * FROM \"Employee\" WHERE name LIKE '_________';",
                 hint: "Each _ represents exactly one character",
                 concept: {
                     title: "Underscore Wildcard",
@@ -163,7 +163,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees whose name contains 'ohn' using REGEXP.",
-                solution: "SELECT * FROM employees WHERE name REGEXP 'ohn';",
+                solution: "SELECT * FROM \"Employee\" WHERE name REGEXP 'ohn';",
                 hint: "REGEXP uses regular expressions for pattern matching",
                 concept: {
                     title: "Regular Expressions",
@@ -179,7 +179,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find employees with salary BETWEEN 60000 and 80000.",
-                solution: "SELECT * FROM employees WHERE salary BETWEEN 60000 AND 80000;",
+                solution: "SELECT * FROM \"Employee\" WHERE salary BETWEEN 60000 AND 80000;",
                 hint: "BETWEEN includes both boundary values",
                 concept: {
                     title: "BETWEEN Operator",
@@ -188,7 +188,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees with salary NOT BETWEEN 50000 and 70000.",
-                solution: "SELECT * FROM employees WHERE salary NOT BETWEEN 50000 AND 70000;",
+                solution: "SELECT * FROM \"Employee\" WHERE salary NOT BETWEEN 50000 AND 70000;",
                 hint: "NOT BETWEEN excludes the range",
                 concept: {
                     title: "NOT BETWEEN",
@@ -197,7 +197,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees in specific departments using IN operator.",
-                solution: "SELECT * FROM employees WHERE department_id IN (1, 3);",
+                solution: "SELECT * FROM \"Employee\" WHERE \"departmentId\" IN (1, 3);",
                 hint: "IN checks if value exists in a list",
                 concept: {
                     title: "IN Operator",
@@ -206,7 +206,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees NOT in Marketing or Sales departments.",
-                solution: "SELECT * FROM employees WHERE department_id NOT IN (2, 3);",
+                solution: "SELECT * FROM \"Employee\" WHERE \"departmentId\" NOT IN (2, 3);",
                 hint: "NOT IN excludes values in the list",
                 concept: {
                     title: "NOT IN Operator", 
@@ -222,7 +222,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "INNER JOIN employees with departments to show matching records only.",
-                solution: "SELECT e.name, d.name as dept_name FROM employees e INNER JOIN departments d ON e.department_id = d.id;",
+                solution: "SELECT e.name, d.name as dept_name FROM \"Employee\" e INNER JOIN \"Department\" d ON e.\"departmentId\" = d.id;",
                 hint: "INNER JOIN returns only matching records from both tables",
                 concept: {
                     title: "INNER JOIN",
@@ -231,7 +231,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "LEFT JOIN to show all departments and their employees (including empty departments).",
-                solution: "SELECT d.name as dept, e.name as employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id;",
+                solution: "SELECT d.name as dept, e.name as employee FROM \"Department\" d LEFT JOIN \"Employee\" e ON d.id = e.\"departmentId\";",
                 hint: "LEFT JOIN keeps all rows from left table",
                 concept: {
                     title: "LEFT JOIN",
@@ -240,7 +240,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "RIGHT JOIN to show all employees and their departments (including unassigned).",
-                solution: "SELECT d.name as dept, e.name as employee FROM departments d RIGHT JOIN employees e ON d.id = e.department_id;",
+                solution: "SELECT d.name as dept, e.name as employee FROM \"Department\" d RIGHT JOIN \"Employee\" e ON d.id = e.\"departmentId\";",
                 hint: "RIGHT JOIN keeps all rows from right table",
                 concept: {
                     title: "RIGHT JOIN",
@@ -249,7 +249,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "CROSS JOIN to get all possible combinations of employees and departments.",
-                solution: "SELECT e.name as employee, d.name as dept FROM employees e CROSS JOIN departments d;",
+                solution: "SELECT e.name as employee, d.name as dept FROM \"Employee\" e CROSS JOIN \"Department\" d;",
                 hint: "CROSS JOIN creates Cartesian product (all combinations)",
                 concept: {
                     title: "CROSS JOIN",
@@ -265,7 +265,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Count the number of employees in each department.",
-                solution: "SELECT department_id, COUNT(*) as employee_count FROM employees GROUP BY department_id;",
+                solution: "SELECT \"departmentId\", COUNT(*) as employee_count FROM \"Employee\" GROUP BY \"departmentId\";",
                 hint: "Use COUNT(*) with GROUP BY",
                 concept: {
                     title: "Basic Aggregation",
@@ -274,7 +274,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find the average salary for each department.",
-                solution: "SELECT department_id, AVG(salary) as avg_salary FROM employees GROUP BY department_id;",
+                solution: "SELECT \"departmentId\", AVG(salary) as avg_salary FROM \"Employee\" GROUP BY \"departmentId\";",
                 hint: "Use AVG() function with GROUP BY",
                 concept: {
                     title: "AVG Function",
@@ -283,7 +283,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find the highest and lowest salary in each department.",
-                solution: "SELECT department_id, MAX(salary) as highest, MIN(salary) as lowest FROM employees GROUP BY department_id;",
+                solution: "SELECT \"departmentId\", MAX(salary) as highest, MIN(salary) as lowest FROM \"Employee\" GROUP BY \"departmentId\";",
                 hint: "Use MAX() and MIN() functions",
                 concept: {
                     title: "MIN/MAX Functions",
@@ -292,7 +292,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find departments with more than 2 employees using HAVING.",
-                solution: "SELECT department_id, COUNT(*) as emp_count FROM employees GROUP BY department_id HAVING COUNT(*) > 2;",
+                solution: "SELECT \"departmentId\", COUNT(*) as emp_count FROM \"Employee\" GROUP BY \"departmentId\" HAVING COUNT(*) > 2;",
                 hint: "Use HAVING to filter groups after aggregation",
                 concept: {
                     title: "HAVING Clause",
@@ -308,7 +308,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find employees earning more than the average salary.",
-                solution: "SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);",
+                solution: "SELECT * FROM \"Employee\" WHERE salary > (SELECT AVG(salary) FROM \"Employee\");",
                 hint: "Use a subquery to calculate the average first",
                 concept: {
                     title: "Simple Subqueries",
@@ -317,7 +317,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees earning more than their department's average salary.",
-                solution: "SELECT e1.name, e1.salary, e1.department_id FROM employees e1 WHERE e1.salary > (SELECT AVG(e2.salary) FROM employees e2 WHERE e2.department_id = e1.department_id);",
+                solution: "SELECT e1.name, e1.salary, e1.\"departmentId\" FROM \"Employee\" e1 WHERE e1.salary > (SELECT AVG(e2.salary) FROM \"Employee\" e2 WHERE e2.\"departmentId\" = e1.\"departmentId\");",
                 hint: "Use correlated subquery that references outer query table",
                 concept: {
                     title: "Correlated Subqueries",
@@ -326,7 +326,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find employees who work in departments that have ANY employee earning > 75000.",
-                solution: "SELECT e.name FROM employees e WHERE e.department_id = ANY (SELECT DISTINCT e2.department_id FROM employees e2 WHERE e2.salary > 75000);",
+                solution: "SELECT e.name FROM \"Employee\" e WHERE e.\"departmentId\" = ANY (SELECT DISTINCT e2.\"departmentId\" FROM \"Employee\" e2 WHERE e2.salary > 75000);",
                 hint: "ANY returns true if condition matches at least one subquery row",
                 concept: {
                     title: "ANY Operator",
@@ -335,7 +335,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find departments that have employees using EXISTS.",
-                solution: "SELECT d.name FROM departments d WHERE EXISTS (SELECT 1 FROM employees e WHERE e.department_id = d.id);",
+                solution: "SELECT d.name FROM \"Department\" d WHERE EXISTS (SELECT 1 FROM \"Employee\" e WHERE e.\"departmentId\" = d.id);",
                 hint: "EXISTS checks if subquery returns any rows",
                 concept: {
                     title: "EXISTS Operator",
@@ -351,7 +351,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find the 2nd highest salary using ROW_NUMBER() window function.",
-                solution: "SELECT salary FROM (SELECT salary, ROW_NUMBER() OVER (ORDER BY salary DESC) as row_num FROM employees) ranked WHERE row_num = 2;",
+                solution: "SELECT salary FROM (SELECT salary, ROW_NUMBER() OVER (ORDER BY salary DESC) as row_num FROM \"Employee\") ranked WHERE row_num = 2;",
                 hint: "Use ROW_NUMBER() OVER (ORDER BY salary DESC) and filter for row 2",
                 concept: {
                     title: "ROW_NUMBER Window Function",
@@ -360,7 +360,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Rank employees by salary within their department using RANK().",
-                solution: "SELECT name, department_id, salary, RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as salary_rank FROM employees;",
+                solution: "SELECT name, \"departmentId\", salary, RANK() OVER (PARTITION BY \"departmentId\" ORDER BY salary DESC) as salary_rank FROM \"Employee\";",
                 hint: "Use RANK() with PARTITION BY department_id",
                 concept: {
                     title: "RANK with PARTITION BY",
@@ -369,7 +369,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Calculate running total of salaries ordered by hire date.",
-                solution: "SELECT name, hire_date, salary, SUM(salary) OVER (ORDER BY hire_date ROWS UNBOUNDED PRECEDING) as running_total FROM employees ORDER BY hire_date;",
+                solution: "SELECT name, hire_date, salary, SUM(salary) OVER (ORDER BY hire_date ROWS UNBOUNDED PRECEDING) as running_total FROM \"Employee\" ORDER BY hire_date;",
                 hint: "Use SUM() OVER with ORDER BY and ROWS frame",
                 concept: {
                     title: "Running Totals",
@@ -378,7 +378,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find each employee's previous and next salary using LAG() and LEAD().",
-                solution: "SELECT name, salary, LAG(salary, 1) OVER (ORDER BY salary) as prev_salary, LEAD(salary, 1) OVER (ORDER BY salary) as next_salary FROM employees ORDER BY salary;",
+                solution: "SELECT name, salary, LAG(salary, 1) OVER (ORDER BY salary) as prev_salary, LEAD(salary, 1) OVER (ORDER BY salary) as next_salary FROM \"Employee\" ORDER BY salary;",
                 hint: "LAG looks backward, LEAD looks forward in the ordered result set",
                 concept: {
                     title: "LAG and LEAD Functions",
@@ -394,7 +394,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Find employees hired in the last 5 years using date arithmetic.",
-                solution: "SELECT name, hire_date FROM employees WHERE hire_date >= DATE_SUB(CURDATE(), INTERVAL 5 YEAR);",
+                solution: "SELECT name, hire_date FROM \"Employee\" WHERE hire_date >= DATE_SUB(CURDATE(), INTERVAL 5 YEAR);",
                 hint: "Use DATE_SUB with INTERVAL for date calculations",
                 concept: {
                     title: "Date Arithmetic",
@@ -403,7 +403,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Calculate each employee's years of service using DATEDIFF.",
-                solution: "SELECT name, hire_date, ROUND(DATEDIFF(CURDATE(), hire_date) / 365.25, 1) as years_of_service FROM employees;",
+                solution: "SELECT name, hire_date, ROUND(DATEDIFF(CURDATE(), hire_date) / 365.25, 1) as years_of_service FROM \"Employee\";",
                 hint: "DATEDIFF returns difference in days, divide by 365.25 for years",
                 concept: {
                     title: "DATEDIFF Function",
@@ -412,7 +412,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Group employees by hire year and count them.",
-                solution: "SELECT YEAR(hire_date) as hire_year, COUNT(*) as employees_hired FROM employees GROUP BY YEAR(hire_date) ORDER BY hire_year;",
+                solution: "SELECT YEAR(hire_date) as hire_year, COUNT(*) as employees_hired FROM \"Employee\" GROUP BY YEAR(hire_date) ORDER BY hire_year;",
                 hint: "Use YEAR() function to extract year from date",
                 concept: {
                     title: "Date Extraction Functions",
@@ -420,8 +420,8 @@ const LEARNING_LEVELS = {
                 }
             },
             {
-                question: "Find employees hired in the same month as their department was created (using department_id as month).",
-                solution: "SELECT e.name, e.hire_date, e.department_id FROM employees e WHERE MONTH(e.hire_date) = e.department_id;",
+                question: "Find employees hired in the same month as their department was created (using \"departmentId\" as month).",
+                solution: "SELECT e.name, e.hire_date, e.\"departmentId\" FROM \"Employee\" e WHERE MONTH(e.hire_date) = e.\"departmentId\";",
                 hint: "Use MONTH() function and compare with numeric values",
                 concept: {
                     title: "Date Comparison Patterns",
@@ -437,7 +437,7 @@ const LEARNING_LEVELS = {
         questions: [
             {
                 question: "Solve 'Nth Highest Salary' pattern: Find 3rd highest salary.",
-                solution: "SELECT DISTINCT salary as ThirdHighestSalary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 2;",
+                solution: "SELECT DISTINCT salary as ThirdHighestSalary FROM \"Employee\" ORDER BY salary DESC LIMIT 1 OFFSET 2;",
                 hint: "Use DISTINCT, ORDER BY DESC, LIMIT with OFFSET for Nth highest patterns",
                 concept: {
                     title: "Nth Highest Value Pattern",
@@ -446,7 +446,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Solve 'Department Highest Salary' pattern: Find highest paid employee per department.",
-                solution: "SELECT d.name as Department, e.name as Employee, e.salary as Salary FROM employees e JOIN departments d ON e.department_id = d.id WHERE (e.department_id, e.salary) IN (SELECT department_id, MAX(salary) FROM employees GROUP BY department_id);",
+                solution: "SELECT d.name as Department, e.name as Employee, e.salary as Salary FROM \"Employee\" e JOIN \"Department\" d ON e.\"departmentId\" = d.id WHERE (e.\"departmentId\", e.salary) IN (SELECT \"departmentId\", MAX(salary) FROM \"Employee\" GROUP BY \"departmentId\");",
                 hint: "Use tuple IN with GROUP BY MAX to find highest in each group",
                 concept: {
                     title: "Group Maximum Pattern",
@@ -455,7 +455,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Find pairs of employees with similar salaries (within 5000 difference).",
-                solution: "SELECT e1.name as employee1, e2.name as employee2, e1.salary, e2.salary, ABS(e1.salary - e2.salary) as salary_diff FROM employees e1 JOIN employees e2 ON e1.id < e2.id AND ABS(e1.salary - e2.salary) <= 5000 ORDER BY salary_diff;",
+                solution: "SELECT e1.name as employee1, e2.name as employee2, e1.salary, e2.salary, ABS(e1.salary - e2.salary) as salary_diff FROM \"Employee\" e1 JOIN \"Employee\" e2 ON e1.id < e2.id AND ABS(e1.salary - e2.salary) <= 5000 ORDER BY salary_diff;",
                 hint: "Use self-join with ABS() and e1.id < e2.id to avoid duplicates",
                 concept: {
                     title: "Similarity Matching Pattern",
@@ -464,7 +464,7 @@ const LEARNING_LEVELS = {
             },
             {
                 question: "Create employee hierarchy levels by salary within departments.",
-                solution: "SELECT e1.name, e1.department_id, e1.salary, COUNT(e2.id) + 1 as hierarchy_level FROM employees e1 LEFT JOIN employees e2 ON e1.department_id = e2.department_id AND e1.salary < e2.salary GROUP BY e1.id, e1.name, e1.department_id, e1.salary ORDER BY e1.department_id, hierarchy_level;",
+                solution: "SELECT e1.name, e1.\"departmentId\", e1.salary, COUNT(e2.id) + 1 as hierarchy_level FROM \"Employee\" e1 LEFT JOIN \"Employee\" e2 ON e1.\"departmentId\" = e2.\"departmentId\" AND e1.salary < e2.salary GROUP BY e1.id, e1.name, e1.\"departmentId\", e1.salary ORDER BY e1.\"departmentId\", hierarchy_level;",
                 hint: "Count how many employees earn more to determine hierarchy level",
                 concept: {
                     title: "Hierarchy Building Pattern",

@@ -60,7 +60,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Check if the update was successful, then COMMIT the transaction.",
-                solution: "SELECT * FROM employees WHERE id = 1; COMMIT;",
+                solution: "SELECT * FROM \"Employee\" WHERE id = 1; COMMIT;",
                 hint: "Use SELECT to verify, then COMMIT to make changes permanent",
                 concept: {
                     title: "Transaction Durability",
@@ -78,7 +78,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Demonstrate transaction isolation by setting isolation level to READ committed.",
-                solution: "SET TRANSACTION ISOLATION LEVEL READ COMMITTED; START TRANSACTION; SELECT * FROM employees; COMMIT;",
+                solution: "SET TRANSACTION ISOLATION LEVEL READ COMMITTED; START TRANSACTION; SELECT * FROM \"Employee\"; COMMIT;",
                 hint: "Use SET TRANSACTION ISOLATION LEVEL",
                 concept: {
                     title: "Transaction Isolation",
@@ -138,8 +138,8 @@ const THEORY_LEVELS = {
         difficulty: "Expert",
         questions: [
             {
-                question: "Create a composite index on employees table for department_id and salary to optimize department salary queries.",
-                solution: "CREATE INDEX idx_dept_salary ON employees(department_id, salary);",
+                question: "Create a composite index on employees table for \"departmentId\" and salary to optimize department salary queries.",
+                solution: "CREATE INDEX idx_dept_salary ON employees(\"departmentId\", salary);",
                 hint: "Use CREATE INDEX with multiple columns",
                 concept: {
                     title: "Composite Indexes",
@@ -147,8 +147,8 @@ const THEORY_LEVELS = {
                 }
             },
             {
-                question: "Analyze query performance: EXPLAIN the query 'SELECT * FROM employees WHERE department_id = 1 ORDER BY salary DESC'.",
-                solution: "EXPLAIN SELECT * FROM employees WHERE department_id = 1 ORDER BY salary DESC;",
+                question: "Analyze query performance: EXPLAIN the query 'SELECT * FROM \"Employee\" WHERE \"departmentId\" = 1 ORDER BY salary DESC'.",
+                solution: "EXPLAIN SELECT * FROM \"Employee\" WHERE \"departmentId\" = 1 ORDER BY salary DESC;",
                 hint: "Use EXPLAIN to see query execution plan",
                 concept: {
                     title: "Query Execution Plans",
@@ -156,8 +156,8 @@ const THEORY_LEVELS = {
                 }
             },
             {
-                question: "Create a covering index for the query 'SELECT name, salary FROM employees WHERE department_id = 1'.",
-                solution: "CREATE INDEX idx_covering_dept ON employees(department_id, name, salary);",
+                question: "Create a covering index for the query 'SELECT name, salary FROM \"Employee\" WHERE \"departmentId\" = 1'.",
+                solution: "CREATE INDEX idx_covering_dept ON employees(\"departmentId\", name, salary);",
                 hint: "Include all columns needed by the query in the index",
                 concept: {
                     title: "Covering Indexes",
@@ -201,7 +201,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Create a view that hides salary information and grant access to it instead of the full table.",
-                solution: "CREATE VIEW employee_public AS SELECT id, name, department_id, hire_date FROM employees; GRANT SELECT ON sql_tutor.employee_public TO 'report_user'@'localhost';",
+                solution: "CREATE VIEW employee_public AS SELECT id, name, \"departmentId\", hire_date FROM \"Employee\"; GRANT SELECT ON sql_tutor.employee_public TO 'report_user'@'localhost';",
                 hint: "Views can hide sensitive columns while allowing access to needed data",
                 concept: {
                     title: "Data Hiding with Views",
@@ -236,7 +236,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Demonstrate point-in-time recovery by creating a savepoint before making changes.",
-                solution: "START TRANSACTION; SAVEPOINT before_update; UPDATE employees SET salary = salary * 1.1 WHERE department_id = 1;",
+                solution: "START TRANSACTION; SAVEPOINT before_update; UPDATE employees SET salary = salary * 1.1 WHERE \"departmentId\" = 1;",
                 hint: "Use SAVEPOINT within a transaction",
                 concept: {
                     title: "Savepoints",
@@ -254,7 +254,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Complete the transaction successfully and commit all changes.",
-                solution: "SELECT * FROM employees WHERE department_id = 1; COMMIT;",
+                solution: "SELECT * FROM \"Employee\" WHERE \"departmentId\" = 1; COMMIT;",
                 hint: "Verify the changes look correct, then COMMIT",
                 concept: {
                     title: "Recovery Testing",
@@ -271,7 +271,7 @@ const THEORY_LEVELS = {
         questions: [
             {
                 question: "Simulate horizontal partitioning: Create employees_dept1 table for department 1 employees only.",
-                solution: "CREATE TABLE employees_dept1 AS SELECT * FROM employees WHERE department_id = 1;",
+                solution: "CREATE TABLE employees_dept1 AS SELECT * FROM \"Employee\" WHERE \"departmentId\" = 1;",
                 hint: "Use CREATE TABLE AS SELECT with a WHERE condition",
                 concept: {
                     title: "Horizontal Partitioning (Sharding)",
@@ -280,7 +280,7 @@ const THEORY_LEVELS = {
             },
             {
                 question: "Create a union view to query across partitioned tables.",
-                solution: "CREATE VIEW all_employees AS SELECT * FROM employees_dept1 UNION ALL SELECT * FROM employees WHERE department_id != 1;",
+                solution: "CREATE VIEW all_employees AS SELECT * FROM \"Employee\"_dept1 UNION ALL SELECT * FROM \"Employee\" WHERE \"departmentId\" != 1;",
                 hint: "Use UNION ALL to combine partitioned data",
                 concept: {
                     title: "Federated Queries",
@@ -288,8 +288,8 @@ const THEORY_LEVELS = {
                 }
             },
             {
-                question: "Simulate vertical partitioning: Create employee_personal with id, name and employee_work with id, salary, department_id.",
-                solution: "CREATE TABLE employee_personal AS SELECT id, name FROM employees; CREATE TABLE employee_work AS SELECT id, salary, department_id, hire_date FROM employees;",
+                question: "Simulate vertical partitioning: Create employee_personal with id, name and employee_work with id, salary, \"departmentId\".",
+                solution: "CREATE TABLE employee_personal AS SELECT id, name FROM \"Employee\"; CREATE TABLE employee_work AS SELECT id, salary, \"departmentId\", hire_date FROM \"Employee\";",
                 hint: "Split columns into separate tables by usage patterns",
                 concept: {
                     title: "Vertical Partitioning",

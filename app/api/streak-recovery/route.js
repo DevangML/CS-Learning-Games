@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '../../../lib/api-helpers';
-import { getStreakRecovery } from '../../../lib/user-db';
+import { getStreakRecovery } from '../../../lib/vercel-kv';
 
 export const runtime = 'nodejs';
 

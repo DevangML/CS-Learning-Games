@@ -2,3 +2,4 @@
 .next
 *.log
 node_modules/*
+/lib/generated/prisma
