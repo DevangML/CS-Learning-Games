@@ -1,6 +1,6 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const virtualDB = require('./virtual-db');
+const sqliteDB = require('./sqlite-db');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
@@ -331,16 +331,16 @@ const requireAuth = (req, res, next) => {
     res.status(401).json({ error: 'Authentication required' });
 };
 
-// Virtual database connection
+// SQLite database connection
 let dbPool;
 
 const connectDatabase = async () => {
     try {
-        console.log('🗄️  Initializing virtual database...');
-        dbPool = virtualDB.createPool();
-        console.log('✅ Virtual database initialized successfully');
+        console.log('🗄️  Initializing SQLite database...');
+        dbPool = sqliteDB.createPool();
+        console.log('✅ SQLite database initialized successfully');
     } catch (error) {
-        console.error('❌ Virtual database initialization failed:', error.message);
+        console.error('❌ SQLite database initialization failed:', error.message);
         throw error;
     }
 };
@@ -894,7 +894,7 @@ app.post('/execute-query', requireAuth, async (req, res) => {
         const { query, expectedQuery } = req.body;
         
         if (!dbPool) {
-            return res.status(500).json({ error: 'Virtual database not initialized.' });
+            return res.status(500).json({ error: 'SQLite database not initialized.' });
         }
         
         if (!query || typeof query !== 'string') {
@@ -998,7 +998,7 @@ function compareResultSets(actualRows, expectedRows) {
 app.get('/test-connection', async (req, res) => {
     try {
         if (!dbPool) {
-            return res.status(500).json({ success: false, error: 'Virtual database not initialized' });
+            return res.status(500).json({ success: false, error: 'SQLite database not initialized' });
         }
         await dbPool.execute('SELECT 1');
         res.json({ success: true, message: 'Database connection is working' });
@@ -1080,7 +1080,7 @@ const startServer = async () => {
             if (!process.env.GOOGLE_CLIENT_ID) {
                 console.log('⚠️  Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env');
             }
-            console.log('✅ Virtual database ready for SQL queries');
+            console.log('✅ SQLite database ready for SQL queries');
         });
     } catch (error) {
         console.error('Server startup error:', error);

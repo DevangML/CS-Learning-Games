@@ -50,13 +50,14 @@ Great for trying the app without OAuth/MySQL setup.
 4. Open http://localhost:3000 and click “Try Demo Mode”
 
 Notes:
-- SQL execution requires MySQL setup. Demo Mode still lets you explore UI, theory hub, and quizzes.
+- SQL execution uses real SQLite database - no external database setup required!
+- All SQL queries are executed against the actual database
 
 ## Full Setup
-### 1) Virtual Database (Automatic)
-- No setup required! The app uses a built-in virtual database
+### 1) SQLite Database (Automatic)
+- No setup required! The app uses a built-in SQLite database
 - All sample data is automatically loaded
-- SQL queries work immediately without any configuration
+- Real SQL queries are executed against the database
 
 ### 2) Google OAuth (optional, for persistent progress)
 
@@ -85,7 +86,7 @@ SESSION_SECRET=change_me
 # App
 NODE_ENV=development
 
-# Note: No MySQL configuration needed - using virtual database
+# Note: No MySQL configuration needed - using SQLite database
 # Note: PORT is set automatically by Vercel in production
 ```
 
@@ -107,7 +108,7 @@ scripts/validate_content.js # Schema/authenticity validator for content JSON
 ```
 
 ## How It Works
-- Virtual database provides sample data for SQL queries. Your SQL queries run against it.
+- SQLite database provides sample data for SQL queries. Your SQL queries run against it.
 - SQLite stores user data: users, progress, streaks, missions, quests, reflections.
 - SPA routing uses the History API with explicit server fallback for deep links.
 - Gated content: Practice levels require auth (Google or Demo). Theory/Quizzes are accessible without login if desired.
