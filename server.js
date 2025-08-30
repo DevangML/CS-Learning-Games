@@ -1013,6 +1013,7 @@ app.get('/', (req, res) => {
 
 // Explicit SPA entry routes for client router
 app.get(['/game', '/mode/:mode', '/level/:mode/:level/:q', '/blog', '/blog/*'], (req, res) => {
+    console.log(`Explicit SPA route serving index.html for path: ${req.path}`);
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -1022,6 +1023,7 @@ app.get('*', (req, res, next) => {
     if (ignorePrefixes.some(p => req.path.startsWith(p))) {
         return next();
     }
+    console.log(`SPA fallback serving index.html for path: ${req.path}`);
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
