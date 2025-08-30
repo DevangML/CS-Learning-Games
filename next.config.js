@@ -5,6 +5,19 @@ const nextConfig = {
   experimental: {
     // Keep this empty unless needed; using route-level runtime flags
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://*.googleapis.com; frame-src 'self' https://accounts.google.com; connect-src 'self' https://*.googleapis.com https://accounts.google.com;",
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [
       // Map legacy auth endpoints to App Router API routes
