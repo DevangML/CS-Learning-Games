@@ -9,3 +9,32 @@ password.*config\.password
 git secrets --add.*password.*
 update_game\.sh.*password.*=.*\[a-zA-Z0-9\]
 install\.sh.*password.*=.*\[a-zA-Z0-9\]
+
+# Virtual database patterns (false positives)
+virtual.*database.*initialized
+virtual.*database.*sample.*data
+virtual.*database.*not.*initialized
+virtual.*database.*ready.*for.*sql.*queries
+
+# Environment variable examples (false positives)
+SESSION_SECRET=.*session.*key
+GOOGLE_CLIENT_ID=.*client.*id
+GOOGLE_CLIENT_SECRET=.*client.*secret
+MYSQL_PASSWORD=.*mysql.*password
+
+# Database connection patterns (false positives)
+database.*connection.*failed
+database.*not.*configured
+database.*connection.*working
+
+# SQL and database patterns (false positives)
+sql.*query.*execution
+sql.*tutor.*database
+mysql.*create.*connection
+mysql.*create.*pool
+mysql.*execute.*query
+
+# Error message patterns (false positives)
+error.*database.*not.*initialized
+error.*mysql.*not.*configured
+error.*database.*connection.*failed

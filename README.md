@@ -53,15 +53,12 @@ Notes:
 - SQL execution requires MySQL setup. Demo Mode still lets you explore UI, theory hub, and quizzes.
 
 ## Full Setup
-### 1) MySQL (local)
-- Install and start MySQL (e.g., `brew install mysql && brew services start mysql` on macOS)
-- Create DB and user:
-```
-CREATE DATABASE sql_tutor;
-CREATE USER 'sql_tutor_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON sql_tutor.* TO 'sql_tutor_user'@'localhost';
-FLUSH PRIVILEGES;
-```
+### 1) Virtual Database (Automatic)
+- No setup required! The app uses a built-in virtual database
+- All sample data is automatically loaded
+- SQL queries work immediately without any configuration
+
+### 2) Google OAuth (optional, for persistent progress)
 
 ### 2) Google OAuth (optional, for persistent progress)
 - Create OAuth credentials (Google Cloud Console)
@@ -85,16 +82,11 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 # Express Session
 SESSION_SECRET=change_me
 
-# MySQL Connection
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=sql_tutor_user
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=sql_tutor
-
 # App
-PORT=3000
 NODE_ENV=development
+
+# Note: No MySQL configuration needed - using virtual database
+# Note: PORT is set automatically by Vercel in production
 ```
 
 ## Project Structure
@@ -115,7 +107,7 @@ scripts/validate_content.js # Schema/authenticity validator for content JSON
 ```
 
 ## How It Works
-- MySQL dataset is created/populated on setup. Your SQL queries run against it.
+- Virtual database provides sample data for SQL queries. Your SQL queries run against it.
 - SQLite stores user data: users, progress, streaks, missions, quests, reflections.
 - SPA routing uses the History API with explicit server fallback for deep links.
 - Gated content: Practice levels require auth (Google or Demo). Theory/Quizzes are accessible without login if desired.
@@ -127,7 +119,6 @@ Client (SPA)
   - `/mode/11` → Essentials
   - `/mode/23` → Complete
   - `/level/:mode/:level/:q` → specific question view
-  - `/setup` → MySQL setup card
 - Theory
   - `/blog` → Theory Hub (Practice tab active by default)
   - `/blog/topic/:topicId` → Topic with auto-open embedded quiz
