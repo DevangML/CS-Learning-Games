@@ -13,7 +13,11 @@
       "Bash(chmod:*)",
       "WebFetch(domain:www.geeksforgeeks.org)",
       "WebFetch(domain:www.geeksforgeeks.org)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma:*)",
+      "Bash(lsof:*)"
     ],
     "additionalDirectories": [
       "/private/tmp"

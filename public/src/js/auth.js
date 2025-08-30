@@ -1,4 +1,7 @@
-// Authentication and User Management
+/**
+ * Authentication and User Management
+ * @class AuthManager
+ */
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -18,8 +21,45 @@ class AuthManager {
     }
 
     async checkAuthStatus() {
+        this.showLoading('Checking authentication...');
+        
+        // Check for OAuth errors in URL
+        const params = new URLSearchParams(window.location.search || '');
+        const oauthError = params.get('error');
+        const oauthMessage = params.get('message');
+        
+        if (oauthError) {
+            this.hideLoading();
+            this.showAuthenticationUI();
+            
+            // Show OAuth error message
+            let errorMessage = 'Authentication failed.';
+            if (oauthError === 'oauth_not_configured') {
+                errorMessage = 'Google OAuth is not configured. Please use Demo Mode for now.';
+            } else if (oauthError === 'oauth_failed') {
+                errorMessage = `OAuth failed: ${oauthMessage || 'Unknown error'}`;
+            }
+            
+            this.showNotification(errorMessage, 'error');
+            
+            // Clear error from URL
+            params.delete('error');
+            params.delete('message');
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? ('?' + newSearch) : '') + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            return;
+        }
+        
         try {
-            const response = await fetch('/auth/user');
+            const response = await fetch('/api/auth/user', { credentials: 'same-origin' });
+            
+            // Handle network errors or server issues
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             
             if (data.user) {
@@ -38,12 +78,122 @@ class AuthManager {
                     const newUrl = window.location.pathname + (newSearch ? ('?' + newSearch) : '') + window.location.hash;
                     window.history.replaceState({}, document.title, newUrl);
                 }
+                
+                // Handle edge case: if we're on a protected route but not authenticated, redirect
+                this.handleRouteProtection();
             } else {
+                this.hideLoading();
                 this.showAuthenticationUI();
+                
+                // Handle edge case: if we're on a protected route, redirect to base
+                this.handleRouteProtection();
             }
         } catch (error) {
             console.error('Auth check failed:', error);
+            this.hideLoading();
             this.showAuthenticationUI();
+            
+            // Handle edge case: if auth check fails, redirect to base route
+            this.handleRouteProtection();
+        }
+    }
+
+    // Lightweight notification helper (delegates to app if present)
+    showNotification(message, type = 'info') {
+        if (window.app && typeof window.app.showNotification === 'function') {
+            window.app.showNotification(message, type);
+            return;
+        }
+        const note = document.createElement('div');
+        note.className = `notification ${type}`;
+        note.style.cssText = `position:fixed;top:20px;right:20px;padding:12px 16px;border-radius:6px;color:#fff;font-weight:600;z-index:10000`;
+        const colors = { success: '#4CAF50', error: '#f44336', warning: '#ff9800', info: '#2196F3' };
+        note.style.background = colors[type] || colors.info;
+        note.textContent = message;
+        document.body.appendChild(note);
+        setTimeout(() => note.remove(), 3000);
+    }
+
+    showLoading(message = 'Loading...') {
+        // Remove existing loading overlay
+        this.hideLoading();
+        
+        const loading = document.createElement('div');
+        loading.id = 'loading-overlay';
+        loading.className = 'loading-overlay';
+        loading.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        document.body.appendChild(loading);
+    }
+    
+    hideLoading() {
+        const loading = document.getElementById('loading-overlay');
+        if (loading) {
+            loading.remove();
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Handle route protection for edge cases
+    handleRouteProtection() {
+        const currentPath = window.location.pathname;
+        
+        // Define protected routes that require authentication
+        const protectedRoutes = [
+            '/level/',
+            '/mode/',
+            '/blog/quiz/',
+            '/profile',
+            '/stats'
+        ];
+        
+        // Check if current path is protected
+        const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route));
+        
+        // If on protected route but not authenticated, redirect to base
+        if (isProtectedRoute && !this.currentUser) {
+            console.log('Redirecting from protected route to base route');
+            window.location.href = '/';
+        }
+        
+        // If authenticated but on base route, redirect to game
+        if (this.currentUser && currentPath === '/') {
+            // Only redirect if we're not in the middle of a login process
+            const params = new URLSearchParams(window.location.search || '');
+            if (!params.get('welcome') && !params.get('error')) {
+                console.log('Redirecting authenticated user to game');
+                if (window.gameRouter) {
+                    window.gameRouter.navigate('/mode/11');
+                }
+            }
         }
     }
 
@@ -72,8 +222,9 @@ class AuthManager {
     }
 
     async loadUserStats() {
+        this.showLoading('Loading user stats...');
         try {
-            const response = await fetch('/api/user/stats');
+            const response = await fetch('/api/user/stats', { credentials: 'same-origin' });
             if (response.ok) {
                 this.userStats = await response.json();
                 this.updateStatsDisplay();
@@ -90,6 +241,8 @@ class AuthManager {
             }
         } catch (error) {
             console.error('Failed to load user stats:', error);
+        } finally {
+            this.hideLoading();
         }
     }
 
@@ -157,11 +310,12 @@ class AuthManager {
 
     async signInDemo() {
         try {
-            const response = await fetch('/auth/demo', {
+            const response = await fetch('/api/auth/demo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                credentials: 'same-origin'
             });
             
             if (response.ok) {
@@ -171,11 +325,17 @@ class AuthManager {
                 this.showAuthenticatedUI();
                 await this.checkMySQLConnection();
                 this.showDemoWelcome();
+                // Navigate to default practice view
+                if (window.router) {
+                    window.router.navigate('/mode/11');
+                }
             } else {
                 console.error('Demo login failed');
+                this.showNotification('Demo login failed. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Demo login error:', error);
+            this.showNotification('Network error during demo login.', 'error');
         }
     }
 
@@ -242,7 +402,7 @@ class AuthManager {
 
     async checkMySQLConnection() {
         try {
-            const response = await fetch('/test-connection');
+            const response = await fetch('/api/test-connection');
             const result = await response.json();
             
             if (!result.success) {
@@ -275,6 +435,7 @@ class AuthManager {
     }
 
     async loadDailyMissions() {
+        this.showLoading('Loading daily missions...');
         try {
             const response = await fetch('/api/daily-missions');
             if (response.ok) {
@@ -283,6 +444,8 @@ class AuthManager {
             }
         } catch (error) {
             console.error('Failed to load daily missions:', error);
+        } finally {
+            this.hideLoading();
         }
     }
 
@@ -313,6 +476,7 @@ class AuthManager {
     }
 
     async loadWeeklyQuest() {
+        this.showLoading('Loading weekly quest...');
         try {
             const response = await fetch('/api/weekly-quest');
             if (response.ok) {
@@ -321,6 +485,8 @@ class AuthManager {
             }
         } catch (error) {
             console.error('Failed to load weekly quest:', error);
+        } finally {
+            this.hideLoading();
         }
     }
 
@@ -542,6 +708,27 @@ class AuthManager {
         return false;
     }
 
+    // Handle session expiration
+    showSessionExpired() {
+        // Clear user data
+        this.currentUser = null;
+        this.userStats = null;
+        
+        // Clear game state
+        if (window.gameStateManager) {
+            window.gameStateManager.clearState();
+        }
+        
+        // Show session expired message
+        this.showNotification('Session expired. Please log in again.', 'warning');
+        
+        // Redirect to base route
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+    }
+
+
     async recordProgress(levelId, questionId, completed, hintsUsed = 0) {
         const xpEarned = this.calculateXP(levelId, completed, hintsUsed);
         
@@ -577,10 +764,11 @@ class AuthManager {
 }
 
 // Global authentication functions
+/** @type {AuthManager} */
 window.authManager = new AuthManager();
 
 window.signInWithGoogle = () => {
-    window.location.href = '/auth/google';
+    window.location.href = '/api/auth/google';
 };
 
 // Global helper for demo mode button in HTML
@@ -596,10 +784,30 @@ window.startDemoMode = async () => {
 
 window.logout = async () => {
     try {
-        await fetch('/auth/logout', { method: 'POST' });
-        window.location.reload();
+        // Show loading state
+        if (window.authManager) {
+            window.authManager.showLoading('Logging out...');
+        }
+        
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        
+        // Clear any cached user data
+        if (window.authManager) {
+            window.authManager.currentUser = null;
+            window.authManager.userStats = null;
+        }
+        
+        // Clear any game state
+        if (window.gameStateManager) {
+            window.gameStateManager.clearState();
+        }
+        
+        // Redirect to base route
+        window.location.href = '/';
     } catch (error) {
         console.error('Logout failed:', error);
+        // Even if logout fails, redirect to base route
+        window.location.href = '/';
     }
 };
 
@@ -615,7 +823,7 @@ window.setupMySQL = async (event) => {
     };
 
     try {
-        const response = await fetch('/setup-mysql', {
+        const response = await fetch('/api/setup-mysql', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -640,13 +848,28 @@ window.setupMySQL = async (event) => {
 };
 
 // Initialize authentication when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    authManager.init();
-    
-    // Setup MySQL form handler
-    const mysqlForm = document.getElementById('mysqlSetupForm');
-    if (mysqlForm) {
-        mysqlForm.addEventListener('submit', setupMySQL);
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await authManager.init();
+        
+        // Setup MySQL form handler
+        const mysqlForm = document.getElementById('mysqlSetupForm');
+        if (mysqlForm) {
+            mysqlForm.addEventListener('submit', setupMySQL);
+        }
+        
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', () => {
+            // Re-check auth status when navigating
+            setTimeout(() => {
+                authManager.handleRouteProtection();
+            }, 100);
+        });
+        
+    } catch (error) {
+        console.error('Failed to initialize authentication:', error);
+        // Show authentication UI as fallback
+        authManager.showAuthenticationUI();
     }
 });
 // moved to public/src for Next.js

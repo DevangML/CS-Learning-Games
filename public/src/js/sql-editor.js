@@ -31,8 +31,8 @@ class SQLEditor {
         // Add event listeners
         this.addEventListeners();
         
-        // Initial validation
-        this.validateAndFormat();
+        // Don't validate on initialization - only when user starts typing
+        // this.validateAndFormat();
     }
 
     createSuggestionBox() {
@@ -92,9 +92,11 @@ class SQLEditor {
             setTimeout(() => this.hideSuggestions(), 200);
         });
 
-        // Focus events
+        // Focus events - only validate if there's content
         this.textarea.addEventListener('focus', () => {
-            this.validateAndFormat();
+            if (this.textarea.value.trim()) {
+                this.validateAndFormat();
+            }
         });
 
         // Paste events
@@ -284,6 +286,13 @@ class SQLEditor {
 
     validateQuery() {
         const query = this.textarea.value;
+        
+        // Only validate if there's actual content or if user is actively typing
+        if (!query || query.trim() === '') {
+            this.hideErrors();
+            return;
+        }
+        
         const validation = this.formatter.validateQuery(query);
         
         if (validation.errors.length > 0 || validation.warnings.length > 0) {

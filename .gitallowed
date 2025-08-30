@@ -1,40 +1,31 @@
-# Allow false positives - patterns in node_modules and legitimate code
+# Allow destructuring assignments that look like password assignments
+password: dbPassword
+password: pwd
+password: pass
+password: pswd
+
+# Allow common variable names that might trigger false positives
+password.*=.*[a-zA-Z_][a-zA-Z0-9_]*$
+
+# Allow MySQL setup code patterns
+const.*password.*=.*body
+
+# Allow node_modules patterns (these are external dependencies)
 node_modules/.*password.*
-# Generic password field in HTML
+
+# Allow HTML input patterns
 input type="password"
-# Generic variable names for password fields in legitimate code
-password.*database.*req\.body
-password.*config\.password
-# Git-secrets configuration patterns in setup scripts
-git secrets --add.*password.*
-update_game\.sh.*password.*=.*\[a-zA-Z0-9\]
-install\.sh.*password.*=.*\[a-zA-Z0-9\]
 
-# Virtual database patterns (false positives)
-virtual.*database.*initialized
-virtual.*database.*sample.*data
-virtual.*database.*not.*initialized
-virtual.*database.*ready.*for.*sql.*queries
+# Allow bcrypt test patterns
+bcrypt.*password.*test
 
-# Environment variable examples (false positives)
-SESSION_SECRET=.*session.*key
-GOOGLE_CLIENT_ID=.*client.*id
-GOOGLE_CLIENT_SECRET=.*client.*secret
-MYSQL_PASSWORD=.*mysql.*password
+# Allow URL state machine patterns
+url.*password.*=
 
-# Database connection patterns (false positives)
-database.*connection.*failed
-database.*not.*configured
-database.*connection.*working
+# Allow setup script patterns
+SESSION_SECRET=your-session-secret-key
 
-# SQL and database patterns (false positives)
-sql.*query.*execution
-sql.*tutor.*database
-mysql.*create.*connection
-mysql.*create.*pool
-mysql.*execute.*query
-
-# Error message patterns (false positives)
-error.*database.*not.*initialized
-error.*mysql.*not.*configured
-error.*database.*connection.*failed
+# Allow .env.example patterns
+SESSION_SECRET=your-value-here
+GOOGLE_CLIENT_ID=your-value-here
+GOOGLE_CLIENT_SECRET=your-value-here

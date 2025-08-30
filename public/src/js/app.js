@@ -1,4 +1,7 @@
-// Main Application Logic
+/**
+ * Main Application Logic
+ * @class SQLTutorApp
+ */
 class SQLTutorApp {
     constructor() {
         this.gameState = null;
@@ -8,7 +11,8 @@ class SQLTutorApp {
 
     // Initialize Application
     async init() {
-        // Initialize or reuse global auth manager to avoid duplicate instances
+        // Use the global auth manager that's already created in auth.js
+        /** @type {AuthManager} */
         if (window.authManager) {
             this.authManager = window.authManager;
             // If not initialized yet, initialize now
@@ -16,9 +20,8 @@ class SQLTutorApp {
                 await this.authManager.init();
             }
         } else {
-            this.authManager = new AuthManager();
-            await this.authManager.init();
-            window.authManager = this.authManager;
+            console.error('AuthManager not found. Make sure auth.js is loaded before app.js');
+            throw new Error('AuthManager not available');
         }
 
         // Initialize game state with auth manager reference
@@ -346,6 +349,32 @@ class SQLTutorApp {
         }
     }
     
+    // Show loading overlay
+    showLoading(message = 'Loading...') {
+        // Remove existing loading overlay
+        this.hideLoading();
+        
+        const loading = document.createElement('div');
+        loading.id = 'loading-overlay';
+        loading.className = 'loading-overlay';
+        loading.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>${message}</p>
+            </div>
+        `;
+        
+        document.body.appendChild(loading);
+    }
+    
+    // Hide loading overlay
+    hideLoading() {
+        const loading = document.getElementById('loading-overlay');
+        if (loading) {
+            loading.remove();
+        }
+    }
+
     // Show notification
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
@@ -443,13 +472,17 @@ class SQLTutorApp {
             return;
         }
 
+        // Show loading state
+        this.showLoading('Executing query...');
+        
         // Execute query against MySQL database
         try {
-            const response = await fetch('/execute-query', {
+            const response = await fetch('/api/execute-query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify({ query: userQuery, expectedQuery: question.solution })
             });
             
@@ -514,6 +547,8 @@ class SQLTutorApp {
         } catch (error) {
             console.error('Error executing query:', error);
             this.showFeedback('❌ Connection error. Please check your setup.', 'error');
+        } finally {
+            this.hideLoading();
         }
     }
 

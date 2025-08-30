@@ -1,4 +1,7 @@
-// Game State Management Module
+/**
+ * Game State Management Module
+ * @class GameStateManager
+ */
 class GameStateManager {
     constructor(authManager = null) {
         this.authManager = authManager;
@@ -51,6 +54,31 @@ class GameStateManager {
     addAchievement(achievement) {
         this.gameState.achievements.push(achievement);
         this.saveProgress();
+    }
+
+    // Clear all game state (for logout)
+    clearState() {
+        this.gameState = {
+            score: 0,
+            currentLevel: null,
+            currentQuestionIndex: 0,
+            currentQuestion: null,
+            streak: 0,
+            hintsUsed: 0,
+            completedLevels: new Set(),
+            completedQuestions: new Set(),
+            achievements: [],
+            totalXP: 0
+        };
+        
+        // Clear localStorage
+        localStorage.removeItem('sqlQuestProgress');
+        
+        // Clear any cached data
+        if (this.authManager) {
+            this.authManager.currentUser = null;
+            this.authManager.userStats = null;
+        }
     }
 
     async saveProgress() {

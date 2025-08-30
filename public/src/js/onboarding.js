@@ -178,11 +178,16 @@ class OnboardingManager {
 
     completeOnboarding() {
         const overlay = document.getElementById('onboardingOverlay');
+        if (!overlay) return; // Guard against missing element
+        
         overlay.style.opacity = '0';
         overlay.style.transform = 'scale(0.95)';
         
         setTimeout(() => {
-            document.body.removeChild(overlay);
+            // Check if element still exists before removing
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
             this.showWelcomeAnimation();
         }, 300);
     }
@@ -203,7 +208,12 @@ class OnboardingManager {
         // Remove after animation
         setTimeout(() => {
             welcome.style.opacity = '0';
-            setTimeout(() => document.body.removeChild(welcome), 500);
+            setTimeout(() => {
+                // Check if element still exists before removing
+                if (document.body.contains(welcome)) {
+                    document.body.removeChild(welcome);
+                }
+            }, 500);
         }, 2500);
     }
 
@@ -234,14 +244,17 @@ class OnboardingManager {
 
 // Auto-start onboarding when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    const onboarding = new OnboardingManager();
+    // Only create one instance
+    if (!window.onboardingManager) {
+        window.onboardingManager = new OnboardingManager();
+    }
     
     // Delay onboarding slightly to let auth check complete
     setTimeout(() => {
-        onboarding.init();
-        OnboardingManager.enhanceElements();
+        if (window.onboardingManager) {
+            window.onboardingManager.init();
+            OnboardingManager.enhanceElements();
+        }
     }, 1000);
 });
-
-window.onboardingManager = new OnboardingManager();
 // moved to public/src for Next.js

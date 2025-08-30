@@ -16,6 +16,7 @@
     "test-quiz": "node scripts/test-quiz-queries.js"
   },
   "dependencies": {
+    "next-auth": "^4.24.7",
     "@prisma/client": "^6.15.0",
     "@vercel/kv": "^3.0.0",
     "bcrypt": "^5.1.1",

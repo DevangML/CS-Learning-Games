@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SQL Mastery Quest</title>
-    <link rel="stylesheet" href="src/css/styles.css">
-    <link rel="stylesheet" href="src/css/blog.css">
-    <link rel="stylesheet" href="src/css/blogStyles.css">
+
+    <link rel="stylesheet" href="/src/css/styles.css">
+    <link rel="stylesheet" href="/src/css/blog.css">
+    <link rel="stylesheet" href="/src/css/blogStyles.css">
 </head>
 <body>
     <div class="container">
@@ -185,28 +186,95 @@
         </div>
     </div>
 
-    <!-- Load JavaScript modules -->
-    <script src="src/config/schema.js"></script>
-    <script src="src/data/learningLevels.js"></script>
-    <script src="src/data/essentialsLevels.js"></script>
-    <script src="src/data/theoryTopics.js"></script>
-    <script src="src/data/theoryLevels.js"></script>
-    <script src="src/js/onboarding.js"></script>
-    <script src="src/js/router.js"></script>
-    <script src="src/js/gameRouter.js"></script>
-    <script src="src/js/blog.js"></script>
-    <script src="src/js/auth.js"></script>
-    <script src="src/js/gameState.js"></script>
-    <script src="src/js/knowledgeGuard.js"></script>
-    <script src="src/js/sql-formatter.js"></script>
-    <script src="src/js/sql-editor.js"></script>
-    <script src="src/js/app.js"></script>
+    <!-- Load JavaScript modules in dependency order -->
+    <script src="/src/config/schema.js"></script>
+    <script src="/src/data/learningLevels.js"></script>
+    <script src="/src/data/essentialsLevels.js"></script>
+    <script src="/src/data/theoryTopics.js"></script>
+    <script src="/src/data/theoryLevels.js"></script>
+    <script src="/src/js/onboarding.js"></script>
+    <script src="/src/js/router.js"></script>
+    <script src="/src/js/gameRouter.js"></script>
+    <script src="/src/js/blog.js"></script>
+    <script src="/src/js/auth.js"></script>
+    <script src="/src/js/gameState.js"></script>
+    <script src="/src/js/sql-formatter.js"></script>
+    <script src="/src/js/sql-editor.js"></script>
+    <script src="/src/js/app.js"></script>
     
     <script>
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', async () => {
-            window.app = new SQLTutorApp();
-            await window.app.init();
+        // Initialize the application with error handling and fallback
+        function initializeApp() {
+            try {
+                // Check if all required classes are available
+                if (typeof SQLTutorApp === 'undefined') {
+                    console.error('SQLTutorApp is not defined. Script loading order issue.');
+                    return false;
+                }
+                
+                if (typeof AuthManager === 'undefined') {
+                    console.error('AuthManager is not defined. Script loading order issue.');
+                    return false;
+                }
+                
+                if (typeof GameStateManager === 'undefined') {
+                    console.error('GameStateManager is not defined. Script loading order issue.');
+                    return false;
+                }
+                
+                // Initialize the app
+                window.app = new SQLTutorApp();
+                window.app.init().catch(error => {
+                    console.error('Failed to initialize SQLTutorApp:', error);
+                    showError('Failed to initialize application. Please refresh the page.');
+                });
+                
+                return true;
+            } catch (error) {
+                console.error('Failed to create SQLTutorApp:', error);
+                showError('Failed to load application. Please refresh the page.');
+                return false;
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #f44336;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                text-align: center;
+                max-width: 400px;
+            `;
+            errorDiv.innerHTML = `
+                <h3>⚠️ Application Error</h3>
+                <p>${message}</p>
+                <button onclick="window.location.reload()" style="margin-top: 10px; padding: 8px 16px; background: white; color: #f44336; border: none; border-radius: 4px; cursor: pointer;">Refresh Page</button>
+            `;
+            document.body.appendChild(errorDiv);
+        }
+        
+        // Try to initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!initializeApp()) {
+                // If initialization fails, try again after a short delay
+                setTimeout(() => {
+                    if (!initializeApp()) {
+                        // If still fails, try one more time
+                        setTimeout(() => {
+                            if (!initializeApp()) {
+                                showError('Application failed to load. Please check your internet connection and refresh the page.');
+                            }
+                        }, 1000);
+                    }
+                }, 500);
+            }
         });
     </script>
     <!-- Migrated to Next.js (served from public/index.html) -->
