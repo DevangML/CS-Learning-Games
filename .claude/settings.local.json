@@ -17,7 +17,8 @@
       "Bash(npm run dev:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx prisma:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "WebFetch(domain:err.sh)"
     ],
     "additionalDirectories": [
       "/private/tmp"
