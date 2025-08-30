@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "npm run vercel-build",
+        "outputDirectory": "."
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/execute-query",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/test-connection",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/setup-mysql",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

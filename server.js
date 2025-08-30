@@ -23,7 +23,11 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'sql-mastery-quest-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    }
 }));
 
 // Passport configuration
@@ -35,7 +39,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/auth/google/callback"
+        callbackURL: process.env.GOOGLE_REDIRECT_URI || (process.env.NODE_ENV === 'production' ? `https://${process.env.VERCEL_URL}/auth/google/callback` : "http://localhost:3000/auth/google/callback")
     }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Check if user exists in SQLite
@@ -331,15 +335,30 @@ const requireAuth = (req, res, next) => {
     res.status(401).json({ error: 'Authentication required' });
 };
 
-// MySQL connection (for SQL queries)
+// MySQL connection pool (for SQL queries) - optimized for serverless
+let mysqlPool;
+
 const connectMySQL = async () => {
     try {
-        mysqlConnection = await mysql.createConnection({
+        // Use connection pool for better serverless performance
+        mysqlPool = mysql.createPool({
             host: process.env.MYSQL_HOST || 'localhost',
             user: process.env.MYSQL_USER || process.env.DB_USER || 'sql_tutor_user',
             password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD,
-            database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'sql_tutor'
+            database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'sql_tutor',
+            port: process.env.MYSQL_PORT || 3306,
+            connectionLimit: 10,
+            acquireTimeout: 60000,
+            timeout: 60000,
+            reconnect: true,
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         });
+        
+        // Test the connection
+        const connection = await mysqlPool.getConnection();
+        await connection.ping();
+        connection.release();
+        
         console.log('Connected to MySQL database');
     } catch (error) {
         console.error('MySQL connection failed:', error);
@@ -427,16 +446,26 @@ app.post('/setup-mysql', async (req, res) => {
         await testConnection.end();
         
         // Connect to the new database
-        mysqlConnection = await mysql.createConnection({
+        mysqlPool = mysql.createPool({
             host: host || 'localhost',
             port: port || 3306,
             user: user,
             password: password,
-            database: database
+            database: database,
+            connectionLimit: 10,
+            acquireTimeout: 60000,
+            timeout: 60000,
+            reconnect: true,
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         });
         
         // Create tables
         await createMySQLTables();
+        
+        // Test the new connection
+        const connection = await mysqlPool.getConnection();
+        await connection.ping();
+        connection.release();
         
         res.json({ success: true, message: 'MySQL setup completed successfully' });
     } catch (error) {
@@ -546,7 +575,7 @@ const createMySQLTables = async () => {
     ];
 
     for (const sql of sqlStatements) {
-        await mysqlConnection.execute(sql);
+        await mysqlPool.execute(sql);
     }
     
     console.log('MySQL tables created and populated');
@@ -1036,7 +1065,7 @@ app.post('/execute-query', requireAuth, async (req, res) => {
     try {
         const { query, expectedQuery } = req.body;
         
-        if (!mysqlConnection) {
+        if (!mysqlPool) {
             return res.status(500).json({ error: 'MySQL not configured. Please set up your database connection.' });
         }
         
@@ -1073,7 +1102,7 @@ app.post('/execute-query', requireAuth, async (req, res) => {
             });
         }
 
-        const [rows] = await mysqlConnection.execute(sanitizedQuery);
+        const [rows] = await mysqlPool.execute(sanitizedQuery);
 
         let comparison = null;
         if (expectedQuery && typeof expectedQuery === 'string') {
@@ -1081,7 +1110,7 @@ app.post('/execute-query', requireAuth, async (req, res) => {
                 const expTrim = expectedQuery.trim();
                 const expAllowed = allowedPatterns.some((re) => re.test(expTrim.toLowerCase()));
                 if (expAllowed) {
-                    const [expectedRows] = await mysqlConnection.execute(expTrim);
+                    const [expectedRows] = await mysqlPool.execute(expTrim);
                     comparison = compareResultSets(rows, expectedRows);
                 }
             } catch (cmpErr) {
@@ -1140,10 +1169,10 @@ function compareResultSets(actualRows, expectedRows) {
 
 app.get('/test-connection', async (req, res) => {
     try {
-        if (!mysqlConnection) {
+        if (!mysqlPool) {
             return res.status(500).json({ success: false, error: 'MySQL not configured' });
         }
-        await mysqlConnection.execute('SELECT 1');
+        await mysqlPool.execute('SELECT 1');
         res.json({ success: true, message: 'Database connection is working' });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -1223,7 +1252,7 @@ const startServer = async () => {
             if (!process.env.GOOGLE_CLIENT_ID) {
                 console.log('⚠️  Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env');
             }
-            if (!mysqlConnection) {
+            if (!mysqlPool) {
                 console.log('⚠️  MySQL not configured. Users will be prompted to set it up.');
             }
         });

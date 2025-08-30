@@ -52,6 +52,13 @@ Great for trying the app without OAuth/MySQL setup.
 Notes:
 - SQL execution requires MySQL setup. Demo Mode still lets you explore UI, theory hub, and quizzes.
 
+## 🚀 Vercel Deployment
+For production deployment with MySQL and Google OAuth:
+1. Follow the detailed guide in [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)
+2. Or run the quick deployment script: `./deploy-vercel.sh`
+3. Set up a cloud MySQL database (PlanetScale, Railway, AWS RDS)
+4. Configure Google OAuth with your Vercel URL
+
 ## Full Setup
 ### 1) MySQL (local)
 - Install and start MySQL (e.g., `brew install mysql && brew services start mysql` on macOS)

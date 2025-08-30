@@ -9,3 +9,8 @@ password.*config\.password
 git secrets --add.*password.*
 update_game\.sh.*password.*=.*\[a-zA-Z0-9\]
 install\.sh.*password.*=.*\[a-zA-Z0-9\]
+
+# Documentation examples (false positives)
+VERCEL_DEPLOYMENT\.md.*SESSION_SECRET=.*
+VERCEL_DEPLOYMENT\.md.*MYSQL_PASSWORD=.*
+setup-mysql\.js.*SESSION_SECRET=.*
