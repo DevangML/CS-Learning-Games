@@ -46,7 +46,7 @@ SQL Mastery Quest blends hands‑on SQL execution with gamified progression and 
 Great for trying the app without OAuth/MySQL setup.
 1. Node 18.x recommended (nvm use 18)
 2. Install: `npm install`
-3. Start: `npm start`
+3. Start (Next.js): `npm run dev`
 4. Open http://localhost:3000 and click “Try Demo Mode”
 
 Notes:
@@ -71,7 +71,12 @@ Notes:
 npm install
 npm start
 ```
-Visit http://localhost:3000. If MySQL isn’t configured yet, use the Setup card in the app (or set MYSQL_* in `.env`).
+Visit http://localhost:3000. The app now runs via Next.js API routes and serves the existing SPA from `public/`. If MySQL isn’t configured yet, use the Setup card in the app (or set MYSQL_* in `.env`).
+
+### Next.js Migration Notes
+- Static SPA is served from `public/index.html` with rewrites for deep links.
+- API endpoints are implemented under `app/api/*` using Node runtime and SQLite.
+- Auth uses a lightweight signed cookie for Demo Mode (`/auth/demo`). Google OAuth endpoints redirect with `?error=oauth_not_configured` by default; integrate NextAuth or a provider later if needed.
 
 ## Configuration (.env)
 ```
